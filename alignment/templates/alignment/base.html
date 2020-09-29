@@ -1,0 +1,29 @@
+{% load static %}
+<html>
+    <head>
+        <title>Text Simplification Alignment and Assessment</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    </head>
+    <body>
+        <div class="content container">
+            <div class="row">
+                <div class="col-md-12">
+                {% block content %}
+                {% endblock %}
+                </div>
+            </div>
+        </div>
+        <ul class="sidebar-nav">
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'pairs_list' %}">Pairs List</a></li>
+                 <li>User: {{ user.get_username }}</li>
+                 <li><a href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
+            {% else %}
+                <li><a href="{% url 'login'%}?next={{request.path}}">Login</a></li>
+            {% endif %}
+        </ul>
+    </body>
+</html>

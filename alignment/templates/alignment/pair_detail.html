@@ -1,0 +1,9 @@
+{% extends 'alignment/base.html' %}
+
+{% block content %}
+    <div class="pair">
+        <a class="btn btn-default" href="{% url 'pairs_list' pk=pair.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+        <h2>{{ pair.pk }}</h2>
+        <p>{{ pair.grammaticality }} {{ pair.meaning_preservation }} {{ pair.simplicity }} </p>
+    </div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'alignment/base.html' %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+    <h1>Alignment Pairs Overview</h1>
+    <div class="row">
+        <div class="col-md-12">
+        {% if error %}
+            <p> {{ error }} </p>
+        {% endif %}
+        {% if success %}
+            <p> {{ success }} </p>
+        {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table border=1>
+                <thead>
+                    <tr>
+                        <td>ID</td>
+                        <td>grammaticality</td>
+                        <td>meaning preservation</td>
+                        <td>simplicity</td>
+                        <td>certainty</td>
+                        <td>transaction</td>
+                        <td>domain</td>
+                        <td>simple sentence</td>
+                        <td>complex sentence</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pair in pairs %}
+                        <form method="POST" action="{% url "rate_pair" %}">{% csrf_token %}
+                            <tr>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {{ pair.id }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                            {{ pair.assessment.grammaticality }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {{ pair.assessment.meaning_preservation }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {{ pair.assessment.simplicity }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {{ pair.assessment.certainty }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {{ pair.assessment.transaction }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {{ pair.domain }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {{ pair.simple_element.original_content }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {{ pair.complex_element.original_content }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {% if pair.assessment %}
+                                            update
+                                        {% else %}
+                                            rate
+                                        {% endif %}
+                                    </button>
+                                </td>
+                            </tr>
+                        </form>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'alignment/base.html' %}
+
+{% block content %}
+    <h2>Align Sentences</h2>
+    <form method="POST" class="rating-form">{% csrf_token %}
+        <!-- show each sentence as input. press save to align. possible to choose more than one sentence -->
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+{% endblock %}
