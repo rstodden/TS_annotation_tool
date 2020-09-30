@@ -10,26 +10,26 @@ def export_rating(output_path):
 	# using same export format as proposed in Alva-Manchego etal. (2020) https://www.aclweb.org/anthology/2020.acl-main.424.pdf
 	result_frame = pd.DataFrame(
 		columns=["original", "simplification", "original_sentence_id", "aspect", "worker_id", "rating"])
-
-	for i, pair in enumerate(AlignmentPair.objects.all()):
-		original = AlignmentPair.objects.filter(id=pair.id).complex_element.original_content
-		simplification = AlignmentPair.objects.filter(id=pair.id).simple_element.original_content
+	i = 0
+	for pair in AlignmentPair.objects.all():
+		original = AlignmentPair.objects.get(id=pair.id).complex_element.original_content
+		simplification = AlignmentPair.objects.get(id=pair.id).simple_element.original_content
 		original_sentence_id = pair.pair_identifier
-		worker_id = AlignmentPair.objects.filter(id=pair.id).assessment.rater.id
+		worker_id = AlignmentPair.objects.get(id=pair.id).assessment.rater.id
 		aspects = ["fluency", "meaning", "simplicity"]
-		fluency_rating = AlignmentPair.objects.filter(id=pair.id).assessment["grammaticality"]
-		meaning_rating = AlignmentPair.objects.filter(id=pair.id).assessment["meaning_preservation"]
-		simplicity_rating = AlignmentPair.objects.filter(id=pair.id).assessment["simplicity"]
+		fluency_rating = AlignmentPair.objects.get(id=pair.id).assessment.grammaticality
+		meaning_rating = AlignmentPair.objects.get(id=pair.id).assessment.meaning_preservation
+		simplicity_rating = AlignmentPair.objects.get(id=pair.id).assessment.simplicity
 		for aspect, rating in zip(aspects, [fluency_rating, meaning_rating, simplicity_rating]):
-			result_frame.iloc[i] = [original, simplification, original_sentence_id, aspect, worker_id, rating]
+			result_frame.loc[i] = [original, simplification, original_sentence_id, aspect, worker_id, rating]
+			i += 1
 
-	result_frame.to_csv(output_path, sep=",", encoding="utf-8")
+
+	result_frame.to_csv(output_path, sep=",", encoding="utf-8", index=False)
 	return result_frame
 
 
-def get_inter_annotator_agreement():
-	# todo: limited to only meaning preservation
-	# todo: find solution to access value using variable of columnname
+def get_inter_annotator_agreement(aspect):
 	# extract all raters
 	list_rater_ids = Assessment.objects.order_by().values_list('rater_id', flat=True).distinct()
 	list_pair_identifier = AlignmentPair.objects.order_by().values_list('pair_identifier', flat=True).distinct()
@@ -41,7 +41,7 @@ def get_inter_annotator_agreement():
 		for pair_id in list_pair_identifier:
 			relevant_object = AlignmentPair.objects.filter(annotator_id=id_rater, pair_identifier=pair_id)
 			if relevant_object:
-				inner_list.append(relevant_object[0].assessment.meaning_preservation)
+				inner_list.append(getattr(relevant_object[0].assessment, aspect))
 			else:
 				inner_list.append(None)
 		output_list.append(inner_list)
@@ -51,8 +51,9 @@ def get_inter_annotator_agreement():
 		for i in range(len(coder)):
 			output.append([n + 1, i, coder[i]])
 	ratingtask = agreement.AnnotationTask(data=output)
-	print('Krippendorff\'s alpha:', ratingtask.alpha())
 	# following the example of https://learnaitech.com/how-to-compute-inter-rater-reliablity-metrics-cohens-kappa-fleisss-kappa-cronbach-alpha-kripndorff-alpha-scotts-pi-inter-class-correlation-in-python/
 	return ratingtask.alpha()
 
-# get_inter_annotator_agreement()
+for aspect in ["meaning_preservation", "simplicity", "grammaticality"]:
+	print('Krippendorff\'s alpha for', aspect, ':', get_inter_annotator_agreement(aspect))
+export_rating("export_data.csv")
