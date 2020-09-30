@@ -3,3 +3,4 @@ django-crispy-forms
 pandas
 scikit-learn
 nltk
+django-language-field

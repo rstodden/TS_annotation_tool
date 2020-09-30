@@ -1,4 +1,4 @@
-{% extends 'alignment/base.html' %}
+{% extends '../base.html' %}
 
 {% block content %}
 {% load crispy_forms_tags %}
@@ -12,18 +12,23 @@
         <div class="row">
             <div class="col-12">
                 <b>Simple Sentence:</b><br>
-                {{ alignmentpair.simple_element.original_content }}
+                {% for sentence in alignmentpair.simple_element.all %}
+                    {{ sentence.original_content }}
+                {% endfor %}
             </div>
         </div>
         <div class="row">
             <div class="col-12">
                 <b>Complex Sentence:</b><br>
-                {{ alignmentpair.complex_element.original_content }}
+                {% for sentence in alignmentpair.complex_element.all %}
+                    {{ sentence.original_content }}
+                {% endfor %}
             </div>
         </div>
         <div class="row">
             <div class="col-12">
                 <form method="POST" class="rating-form" action="{% url "pairs_list" %}">{% csrf_token %}
+                    {{ form.field.start }}
                     <div class="fieldWrapper">
                         {% for field in form.hidden_fields %}
                             <input name="pair_id" id="pair_id" value="{{ alignmentpair.id }}" type="hidden">

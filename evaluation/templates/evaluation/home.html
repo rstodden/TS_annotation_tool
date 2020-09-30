@@ -1,0 +1,8 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <form method="POST">{% csrf_token %}
+        <button value="export_rating" name="export_rating">export rating</button>
+        <button value="get_iaa" name="get_iaa">calculate inter annotator agreement</button>
+    </form>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'alignment/base.html' %}
+{% extends '../base.html' %}
 
 {% block content %}
 {% load crispy_forms_tags %}
@@ -33,6 +33,7 @@
                 <tbody>
                     {% for pair in pairs %}
                         <form method="POST" action="{% url "rate_pair" %}">{% csrf_token %}
+
                             <tr>
                                 <td>
                                     <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
@@ -41,27 +42,47 @@
                                 </td>
                                 <td>
                                     <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
-                                            {{ pair.assessment.grammaticality }}
+                                        {% for rate in pair.rating.all %}
+                                            {% if rate.rater == user and rate.rater in pair.annotator.all  %}
+                                                {{ rate.grammaticality }}
+                                            {% endif %}
+                                        {% endfor %}
                                     </button>
                                 </td>
                                 <td>
                                     <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
-                                        {{ pair.assessment.meaning_preservation }}
+                                        {% for rate in pair.rating.all %}
+                                            {% if rate.rater == user and rate.rater in pair.annotator.all  %}
+                                                {{ rate.meaning_preservation }}
+                                            {% endif %}
+                                        {% endfor %}
                                     </button>
                                 </td>
                                 <td>
                                     <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
-                                        {{ pair.assessment.simplicity }}
+                                        {% for rate in pair.rating.all %}
+                                            {% if rate.rater == user and rate.rater in pair.annotator.all  %}
+                                                {{ rate.simplicity }}
+                                            {% endif %}
+                                        {% endfor %}
                                     </button>
                                 </td>
                                 <td>
                                     <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
-                                        {{ pair.assessment.certainty }}
+                                        {% for rate in pair.rating.all %}
+                                            {% if rate.rater == user and rate.rater in pair.annotator.all  %}
+                                                {{ rate.certainty }}
+                                            {% endif %}
+                                        {% endfor %}
                                     </button>
                                 </td>
                                 <td>
                                     <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
-                                        {{ pair.assessment.transaction }}
+                                        {% for rate in pair.rating.all %}
+                                            {% if rate.rater == user and rate.rater in pair.annotator.all  %}
+                                                {{ rate.transaction }}
+                                            {% endif %}
+                                        {% endfor %}
                                     </button>
                                 </td>
                                 <td>
@@ -71,21 +92,27 @@
                                 </td>
                                 <td>
                                     <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
-                                        {{ pair.simple_element.original_content }}
+                                        {% for sentence in pair.simple_element.all %}
+                                            {{ sentence.original_content }}
+                                        {% endfor %}
                                     </button>
                                 </td>
                                 <td>
                                     <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
-                                        {{ pair.complex_element.original_content }}
+                                        {% for sentence in pair.complex_element.all %}
+                                            {{ sentence.original_content }}
+                                        {% endfor %}
                                     </button>
                                 </td>
                                 <td>
                                     <button id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
-                                        {% if pair.assessment %}
-                                            update
-                                        {% else %}
+                                        {% for rate in pair.rating.all %}
+                                            {% if rate.rater == user and rate.rater in pair.annotator.all  %}
+                                                update
+                                            {% else %}
                                             rate
-                                        {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
                                     </button>
                                 </td>
                             </tr>
