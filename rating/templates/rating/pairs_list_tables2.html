@@ -1,6 +1,9 @@
 {% extends '../base.html' %}
 
 {% block content %}
+{% load crispy_forms_tags %}
+{% load render_table from django_tables2 %}
+
     <h1>Alignment Pairs Overview</h1>
     <div class="row">
         <div class="col-md-12">
@@ -14,7 +17,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <table border=1>
+            <!--<table border=1>
                 <thead>
                     <tr>
                         <td>ID</td>
@@ -27,8 +30,6 @@
                         <td>simple sentence</td>
                         <td>complex sentence</td>
                         <td></td>
-                        <td></td>
-
                     </tr>
                 </thead>
                 <tbody>
@@ -36,88 +37,89 @@
 
                             <tr>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
-                                        {{ pair.pair_identifier }}
-                                    <!--</a>-->
+                                    <a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">{{ pair.pair_identifier }}</a>
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.grammaticality }}
                                             {% endif %}
                                         {% endfor %}
-                                    <!--</a>-->
+                                    </button>
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.meaning_preservation }}
                                             {% endif %}
                                         {% endfor %}
-                                    <!--</a>-->
+                                    </button>
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.simplicity }}
                                             {% endif %}
                                         {% endfor %}
-                                    <!--</a>-->
+                                    </button>
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.certainty }}
                                             {% endif %}
                                         {% endfor %}
-                                    <!--</a>-->
+                                    </button>
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.transaction }}
                                             {% endif %}
                                         {% endfor %}
-                                    <!--</a>-->
+                                    </button>
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
                                         {{ pair.domain }}
-                                    <!--</a>-->
+                                    </button>
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
                                         {% for sentence in pair.simple_element.all %}
                                             {{ sentence.original_content }}
                                         {% endfor %}
-                                    <!--</a>-->
+                                    </button>
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <button class="btn-link" id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
                                         {% for sentence in pair.complex_element.all %}
                                             {{ sentence.original_content }}
                                         {% endfor %}
-                                    <!--</a>-->
+                                    </button>
                                 </td>
                                 <td>
-                                    <a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}" class="btn btn-info">
-                                        change rating
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{% url 'alignment:change_alignment' pair_identifier=pair.pair_identifier %}" class="btn btn-info">
-                                        change alignment
-                                    </a>
+                                    <button id="pair_id" name="pair_id" value="{{ pair.id }}" type="submit">
+                                        {% for rate in pair.rating.all %}
+                                            {% if rate.rater == user and rate.rater in pair.annotator.all  %}
+                                                update
+                                            {% else %}
+                                            rate
+                                            {% endif %}
+                                        {% endfor %}
+                                    </button>
                                 </td>
                             </tr>
+                        </form>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table>-->
+            {% render_table table %}
         </div>
     </div>
 {% endblock %}

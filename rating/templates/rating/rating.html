@@ -27,12 +27,9 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <form method="POST" class="rating-form" action="{% url "pairs_list" %}">{% csrf_token %}
+                <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_identifier=alignmentpair.pair_identifier %}>{% csrf_token %}
                     {{ form.field.start }}
                     <div class="fieldWrapper">
-                        {% for field in form.hidden_fields %}
-                            <input name="pair_id" id="pair_id" value="{{ alignmentpair.id }}" type="hidden">
-                        {% endfor %}
                         <!--<table>
                             <thead>
                                 <tr>

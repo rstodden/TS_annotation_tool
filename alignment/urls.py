@@ -1,11 +1,8 @@
-# from django.urls import path, re_path, include
-# from . import views
-#
-# urlpatterns = [
-#     path('', views.home, name="home"),
-#     path('home', views.home, name="home"),
-#     path('pairs_list', views.pairs_list, name='pairs_list'),
-#     re_path(r'^rate_pair/$', views.rate_pair, name='rate_pair'),
-#     path('accounts/', include('django.contrib.auth.urls')),
-#     path("accounts/register/", views.register, name="register"),  # <-- added
-# ]
+from django.urls import path, re_path, include
+from . import views
+
+urlpatterns = [
+    path('', views.home, name="home"),
+    path('change_alignment/<int:pair_identifier>', views.change_alignment, name="change_alignment"),
+	# path("overview/", views.PairsListView.as_view()) # overview documents to align
+]

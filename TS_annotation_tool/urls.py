@@ -20,9 +20,9 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # re_path('^alignment/', include('alignment.urls')),
-    re_path('^rating/', include('rating.urls')),
-    re_path('^evaluation/', include('evaluation.urls')),
-    re_path('^accounts/', include('accounts.urls')),
+    path('alignment/', include(('alignment.urls', "alignment"), namespace="alignment")),
+    path('rating/', include(('rating.urls', "rating"), namespace="rating")),
+    path('evaluation/', include(('evaluation.urls', "evaluation"), namespace="evaluation")),
+    path('accounts/', include(('accounts.urls', "accounts"), namespace="accounts")),
     re_path('^$', views.home, name="home"),
 ]

@@ -4,3 +4,6 @@ pandas
 scikit-learn
 nltk
 django-language-field
+django-tables2
+django-sortable
+sortable
