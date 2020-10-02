@@ -1,0 +1,15 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <p>
+    File successfully uploaded to {{ file_url }}.
+    </p>
+    {{ number_alignments }} were assigned to users:
+        <ul>
+            {% for user in selected_users %}
+                <li>{{ user }}</li>
+            {% endfor %}
+        </ul>
+
+
+{% endblock %}

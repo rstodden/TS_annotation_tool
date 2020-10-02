@@ -2,4 +2,15 @@
 
 {% block content %}
     <h2> Change Alignment</h2>
+    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_id=doc.id %}>{% csrf_token %}
+        <div class="row">
+        {% for field in form.visible_fields %}
+            <div class="col-md-6">
+                {{ field.label }} {{ field }}
+            </div>
+        {% endfor %}
+        <button type="submit" class="save btn btn-default">Save</button>
+        </div>
+    </form>
+
 {% endblock %}

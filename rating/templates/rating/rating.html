@@ -28,7 +28,6 @@
         <div class="row">
             <div class="col-12">
                 <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_identifier=alignmentpair.pair_identifier %}>{% csrf_token %}
-                    {{ form.field.start }}
                     <div class="fieldWrapper">
                         <!--<table>
                             <thead>

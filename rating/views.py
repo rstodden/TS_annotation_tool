@@ -35,17 +35,8 @@ def rate_pair(request, pair_identifier):
 			alignmentpair_tmp = alignment.models.Pair.objects.get(pair_identifier=pair_identifier,
 																  annotator=request.user)
 			alignmentpair_tmp.update_or_save_rating(form, request.user)
-			#
-			# if alignmentpair_tmp.rating.filter(rater=request.user):
-			# 	# update rating values
-			# 	# alignmentpair_tmp.rating.updated_at
-			# 	alignmentpair_tmp.update_or_save_rating(form, request.user)
-			# else:
-			# 	# create rating values
-			# 	alignmentpair_tmp.save_rating(form, request.user)
-			#return render(request, 'rating/pairs_list.html', {"success": "Rating successfully saved.", "pairs": pairs})
-			#return redirect('pairs_list')
-			return redirect('alignment/overview/')
+
+			return redirect('rating:pairs_list')
 		else:
 			print("not valid", form.errors)
 	if alignmentpair_tmp.rating.filter(rater=request.user).exists():

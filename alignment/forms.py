@@ -12,4 +12,4 @@ class AlignmentForm(forms.ModelForm):
 	# align simple and complex sent. Therefore mark sentences from complex and simple data
 	class Meta:
 		model = Pair
-		fields = ('simple_element', 'complex_element', "rating")
+		fields = ('simple_element', 'complex_element')

@@ -12,17 +12,20 @@ def export_rating():  #output_path
 		columns=["original", "simplification", "original_sentence_id", "aspect", "worker_id", "rating"])
 	i = 0
 	for pair in alignment.models.Pair.objects.all():
-		original = alignment.models.Pair.objects.get(id=pair.id).complex_element.original_content
-		simplification = alignment.models.Pair.objects.get(id=pair.id).simple_element.original_content
-		original_sentence_id = pair.pair_identifier
-		worker_id = alignment.models.Pair.objects.get(id=pair.id).rating.rater.id
-		aspects = ["fluency", "meaning", "simplicity"]
-		fluency_rating = alignment.models.Pair.objects.get(id=pair.id).rating.grammaticality
-		meaning_rating = alignment.models.Pair.objects.get(id=pair.id).rating.meaning_preservation
-		simplicity_rating = alignment.models.Pair.objects.get(id=pair.id).rating.simplicity
-		for aspect, rating in zip(aspects, [fluency_rating, meaning_rating, simplicity_rating]):
-			result_frame.loc[i] = [original, simplification, original_sentence_id, aspect, worker_id, rating]
+		for pair_rating in pair.rating.all():
+			original = " ".join(pair.complex_element.all().values_list("original_content", flat=True))
+			simplification = " ".join(pair.simple_element.all().values_list("original_content", flat=True))
+			original_sentence_id = pair.pair_identifier
+			worker_id = pair_rating.rater.id
+			aspects = ["fluency", "meaning", "simplicity"]
+			fluency_rating = pair_rating.grammaticality
+			meaning_rating = pair_rating.meaning_preservation
+			simplicity_rating = pair_rating.simplicity
+			for aspect, rating in zip(aspects, [fluency_rating, meaning_rating, simplicity_rating]):
+				result_frame.loc[i] = [original, simplification, original_sentence_id, aspect, worker_id, rating]
+				i += 1
 			i += 1
+		i += 1
 	return result_frame
 
 

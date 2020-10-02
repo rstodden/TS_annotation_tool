@@ -3,18 +3,17 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
-import data.models
 import rating.models
 import datetime
 
 
 class Pair(models.Model):
 	# id = models.ForeignKey(on_delete=models.CASCADE, unique=True, primary_key=True)
-	simple_element = models.ManyToManyField(data.models.Sentence, related_name="simple_sentence")
-	complex_element = models.ManyToManyField(data.models.Sentence, related_name="complex_sentence")
+	simple_element = models.ManyToManyField("data.Sentence", related_name="simple_sentence")
+	complex_element = models.ManyToManyField("data.Sentence", related_name="complex_sentence")
 	manually_checked = models.BooleanField(default=True)
-	origin_annotator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="origin_annotator")
-	annotator = models.ManyToManyField(User, related_name="current_annotator", blank=True)
+	origin_annotator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="origin_annotator", blank=True, null=True)
+	annotator = models.ManyToManyField(User, related_name="current_annotator", blank=True, null=True)
 	rating = models.ManyToManyField(rating.models.Rating, blank=True)
 	# manually_added = models.BooleanField(default=False, blank=True)
 	pair_identifier = models.IntegerField()
@@ -22,6 +21,10 @@ class Pair(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 	finished_at = models.DateTimeField(auto_now=True, blank=True)
 	duration = models.DurationField(default=datetime.timedelta(), blank=True)
+	type_choices = (("parallel_online", "parallel online documents"),
+					("translated", "translated version"),
+					("simplified", "manually simplified"))
+	type = models.CharField(choices=type_choices, max_length=50)
 
 	def update_or_save_rating(self, form, rater):
 		if self.rating.filter(rater=rater):
@@ -51,9 +54,11 @@ class Pair(models.Model):
 		self.save()
 		return self
 
-	def assign_to_user(self):
+	def assign_to_user(self, users):
 		# todo: assign new user to it, but remove rating.
 		# manytomany field or deep copy? <- copy?
+		for user in users:
+			self.annotator.add(user)
 		pass
 
 
