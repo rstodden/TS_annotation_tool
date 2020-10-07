@@ -21,9 +21,10 @@ class Pair(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 	finished_at = models.DateTimeField(auto_now=True, blank=True)
 	duration = models.DurationField(default=datetime.timedelta(), blank=True)
-	type_choices = (("parallel_online", "parallel online documents"),
+	type_choices = (("parallel_online", "verified online"),
 					("translated", "translated version"),
-					("simplified", "manually simplified"))
+					("simplified", "manually simplified"),
+					("parallel_online_uploaded", "parallel online documents manually aligned and uploaded"))
 	type = models.CharField(choices=type_choices, max_length=50)
 
 	def update_or_save_rating(self, form, rater):
@@ -46,6 +47,16 @@ class Pair(models.Model):
 		self.save()
 		return self
 
+	def update_sentences(self, simple_sents, complex_sents):
+		self.simple_element.clear()
+		self.complex_element.clear()
+		self.simple_element.add(*simple_sents)
+		self.complex_element.add(*complex_sents)
+		self.type = "parallel_online"
+		self.manually_checked = 1
+		self.save()
+		return self
+
 	def save_rating(self, form, rater):
 		rating_tmp = rating.models.Rating(form.save(commit=False))
 		rating_tmp.rater = rater
@@ -55,8 +66,6 @@ class Pair(models.Model):
 		return self
 
 	def assign_to_user(self, users):
-		# todo: assign new user to it, but remove rating.
-		# manytomany field or deep copy? <- copy?
 		for user in users:
 			self.annotator.add(user)
 		pass

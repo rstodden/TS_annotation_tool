@@ -7,5 +7,5 @@ urlpatterns = [
     re_path('^pairs_list', views.pairs_list, name='pairs_list'),
     # path('pairs_list/', views.PairsListView.as_view(), name='pairs_list'),
     # re_path(r'^rate_pair/', views.rate_pair, name='rate_pair'),
-    path('rate_pair/<int:pair_identifier>', views.rate_pair, name='rate_pair')
+    path('rate_pair/<int:pair_id>', views.rate_pair, name='rate_pair')
 ]

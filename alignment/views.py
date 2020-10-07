@@ -18,24 +18,60 @@ def overview(request):
 
 
 @login_required
-def change_alignment(request, doc_id):
+def overview_per_doc(request, doc_id):
 	doc_tmp = get_object_or_404(data.models.Document, id=doc_id, annotator=request.user)
-	if request.method == "POST":
-		form = alignment.forms.AlignmentForm(request.POST)
-		if form.is_valid():
-			list_alignments = doc_tmp.align_sentences(form.cleaned_data["simple_element"], form.cleaned_data["complex_element"], request.user)
-			# todo: rate the newly generated pairs ?
-			return redirect('rating:pairs_list')
-		else:
-			print("form not ok")
+	print(doc_tmp.alignments.all())
 	if doc_tmp.alignments.filter(origin_annotator=request.user).exists():
-		alignment_tmp = doc_tmp.alignments.filter(origin_annotator=request.user)[0]
-		form = alignment.forms.AlignmentForm(initial={'simple_element': alignment_tmp.alignments.simple_element.all(),
-													   'complex_element': alignment_tmp.alignments.complex_element.all()
-													   })
+		return render(request, 'alignment/overview_per_doc.html', {
+			"alignments": doc_tmp.alignments.filter(origin_annotator=request.user),
+			"doc_url": doc_tmp.url, "doc_id": doc_tmp.id})
 	else:
-		form = alignment.forms.AlignmentForm()
-	return render(request, "alignment/change_alignment.html", {"form": form, "doc": doc_tmp})
+		# todo link to create alignment
+		return render(request, 'alignment/overview_per_doc.html', {
+		"error": "There are no alignments assigned to the doc. Please start aligning."})
+
+
+@login_required
+def change_alignment(request, alignment_id):
+	print(alignment_id)
+	alignment_tmp = get_object_or_404(Pair, id=alignment_id, annotator=request.user)
+	doc_tmp = data.models.Document.objects.get(alignments=alignment_id, annotator=request.user)
+	if request.method == "POST":
+		simple_sents = request.POST.getlist("simple_selected")
+		complex_sents = request.POST.getlist("complex_selected")
+		alignment_tmp.update_sentences(simple_sents, complex_sents)
+		if request.POST["submit"] == "rate":
+			return redirect('rating:rate_pair', pair_id=alignment_tmp.id)
+		else:
+			return redirect('alignment:overview_per_doc', doc_id=doc_tmp.id)
+
+	if doc_tmp.parallel_document:
+		simple_elements = doc_tmp.sentences.all()
+		parallel_doc = doc_tmp.parallel_document
+		complex_elements = parallel_doc.sentences.all()
+		return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
+																   "complex_elements": complex_elements,
+																   "complex_sents": alignment_tmp.complex_element.all(),
+																   "simple_sents": alignment_tmp.simple_element.all(),
+																   "alignment_id": alignment_id})
+	else:
+		return redirect('simplification:home', doc_id=doc_tmp.id)
+
+
+@login_required
+def create_alignment(request, doc_id):
+	# todo: problem to get doc_id and pair_id
+
+	doc_tmp = get_object_or_404(data.models.Document, id=doc_id, annotator=request.user)
+	simple_elements = doc_tmp.sentences.all()
+	parallel_doc = doc_tmp.parallel_document
+	complex_elements = parallel_doc.sentences.all()
+	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
+															   "complex_elements": complex_elements,
+															   "complex_sents": [],
+															   "simple_sents": [],})
+
+
 
 from django.views.generic import ListView
 

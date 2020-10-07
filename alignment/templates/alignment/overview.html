@@ -24,7 +24,7 @@
             {% for doc in documents %}
                 {% if doc.parallel_document and doc.level in "a1,a2" %}
                     <li>
-                        <a href="{% url 'alignment:change_alignment' doc_id=doc.id %}">
+                        <a href="{% url 'alignment:overview_per_doc' doc_id=doc.id %}">
                             {{ doc.url }} {{ doc.parallel_document.url }}
                         </a>
                     </li>

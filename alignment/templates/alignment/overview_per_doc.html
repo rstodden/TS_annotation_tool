@@ -1,0 +1,30 @@
+{% extends '../base.html' %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+
+    <h1>Alignment Overview</h1>
+    <div class="row">
+        <div class="col-md-12">
+        {% if error %}
+            <p> {{ error }} </p>
+        {% endif %}
+        {% if success %}
+            <p> {{ success }} </p>
+        {% endif %}
+        </div>
+    </div>
+    <div class="row">
+    <h2>Document: {{ doc_url }}</h2>
+        <ul>
+            {% for pair in alignments %}
+                <li>
+                    <a href="{% url 'alignment:change_alignment' alignment_id=pair.id %}">
+                        {{ pair.pair_identifier }}
+                    </a>
+                </li>
+
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

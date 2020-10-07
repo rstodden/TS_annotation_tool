@@ -32,16 +32,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for pair in pairs %}
+                    {% for pair in page_obj %}
 
                             <tr>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {{ pair.pair_identifier }}
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.grammaticality }}
@@ -50,7 +50,7 @@
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.meaning_preservation }}
@@ -59,7 +59,7 @@
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.simplicity }}
@@ -68,7 +68,7 @@
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.certainty }}
@@ -77,7 +77,7 @@
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {% for rate in pair.rating.all %}
                                             {% if rate.rater == user and rate.rater in pair.annotator.all  %}
                                                 {{ rate.transaction }}
@@ -86,38 +86,79 @@
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {{ pair.domain }}
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {% for sentence in pair.simple_element.all %}
-                                            {{ sentence.original_content }}
+                                            {{ sentence.original_content|slice:140 }}
+                                            {% if sentence.original_content|length > 140 %}
+                                            [...]
+                                            {% endif %}
                                         {% endfor %}
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <!--<a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}">-->
+                                    <!--<a href="{% url 'rating:rate_pair' pair_id=pair.id %}">-->
                                         {% for sentence in pair.complex_element.all %}
-                                            {{ sentence.original_content }}
+                                            {{ sentence.original_content|slice:140 }}
+                                            {% if sentence.original_content|length > 140 %}
+                                            ...
+                                            {% endif %}
                                         {% endfor %}
                                     <!--</a>-->
                                 </td>
                                 <td>
-                                    <a href="{% url 'rating:rate_pair' pair_identifier=pair.pair_identifier %}" class="btn btn-info">
+                                    <a href="{% url 'rating:rate_pair' pair_id=pair.id %}" class="btn btn-info">
                                         change rating
                                     </a>
                                 </td>
-                                <!--<td>
-                                    <a href=" url 'alignment:change_alignment' pair_identifier=pair.pair_identifier %}" class="btn btn-info">
+                                <td>
+                                    <a href="{% url 'alignment:change_alignment' alignment_id=pair.id %}" class="btn btn-info">
                                         change alignment
                                     </a>
-                                </td>-->
+                                </td>
                             </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            {% if page_obj.has_other_pages %}
+                <ul class="pagination">
+                    {% if page_obj.has_previous and page_obj.previous_page_number != 0 %}
+                        <li><a href="?page=1" title="first page"><i class="fas fa-fast-backward"></i></a></li>
+                    {% endif %}
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}" title="previous page">
+                            <i class="fas fa-backward"></i>
+                        </a></li>
+                    {% else %}
+                        <li class="disabled"><span><i class="fas fa-backward"></i></span></li>
+                    {% endif %}
+                    {% for i in page_obj.paginator.page_range %}
+                        <!--{% if forloop.counter < i|add:3 and forloop.counter < i|add:"-3" %}-->
+                            {% if page_obj.number == i %}
+                                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                            {% else %}
+                                <li><a href="?page={{ i }}" title="page {{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                        <!--{% endif %}-->
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}" title="next page">
+                            <i class="fas fa-forward"></i>
+                        </a></li>
+                    {% else %}
+                        <li class="disabled"><span><i class="fas fa-forward"></i></span></li>
+                    {% endif %}
+                    {% if page_obj.has_next and page_obj.paginator.num_pages != page_obj.next_page_number %}
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}" title="last page">
+                            <i class="fas fa-fast-forward"></i>
+                        </a></li>
+                    {% endif %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

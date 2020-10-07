@@ -39,6 +39,7 @@ class Document(models.Model):
 	alignments = models.ManyToManyField(alignment.models.Pair, blank=True)
 	path = models.FileField(upload_to='media/uploads/', blank=True, null=True)
 	domain = models.CharField(max_length=50, blank=True, null=True)
+	sentences = models.ManyToManyField("data.Sentence", blank=True)
 
 	def scraping_content(self):
 		# extracting the content of the html tree
@@ -48,9 +49,14 @@ class Document(models.Model):
 		# read plain data and create sentence objects which will be linked to this document
 		pass
 
-	def align_sentences(self, simple_sentences, complex_sentences, user):
-		pair_identifier = 99  # todo: generate new valuw with max value
-
+	def align_sentences(self, simple_sentences, complex_sentences, user, type_alignment):
+		# alignment_tmp, alignment_tmp_created = alignment.models.Pair.objects.get_or_create(url=row["simplesource"])
+		# todo: change or create new?
+		list_ids = alignment.models.Pair.objects.values_list("pair_identifier")
+		if list_ids:
+			pair_identifier = max(list_ids)[0]+1
+		else:
+			pair_identifier = 0
 		alignment_tmp = alignment.models.Pair()  #.objects.create(manually_checked=True, pair_identifier=pair_identifier)
 		alignment_tmp.manually_checked = True
 		alignment_tmp.pair_identifier = pair_identifier
@@ -61,9 +67,8 @@ class Document(models.Model):
 			alignment_tmp.complex_element.add(complex_s)
 		alignment_tmp.annotator.add(user)
 		alignment_tmp.origin_annotator = user
+		alignment_tmp.type = type_alignment
 		alignment_tmp.save()
-		# todo: manymtomany field cannnot be added in create. instance need to be saved before. but manytomany is
-		# mandatory so not possible to add after save
 		self.alignments.add(alignment_tmp)
 		self.save()
 		return self.alignments
@@ -92,7 +97,7 @@ class Sentence(models.Model):
 	# translation_quality = IntegerRangeField(min_value=1, max_value=5, default=0)
 
 	# many to one
-	document = models.ForeignKey(Document, on_delete=models.CASCADE)
+	# document = models.ForeignKey(Document, on_delete=models.CASCADE)
 	original_content = models.TextField()
 	corrected_content = models.TextField(blank=True)
 	translation = models.TextField(blank=True)
@@ -164,17 +169,18 @@ class Corpus(models.Model):
 			simple_doc.parallel_document = complex_doc
 			complex_doc.parallel_document = simple_doc
 
+
 			# todo split sentence here
 			# create and add sentences
 			simple_sent = Sentence(original_content=row["simple"], level=row["simplelevel"])
 			complex_sent = Sentence(original_content=row["complex"], level=row["complexlevel"])
-			simple_sent.document = simple_doc
-			complex_sent.document = complex_doc
 			simple_sent.save()
 			complex_sent.save()
+			simple_doc.sentences.add(simple_sent)
+			complex_doc.sentences.add(complex_sent)
 
 			# add alignment
-			simple_doc.align_sentences([simple_sent], [complex_sent], User.objects.get(username="admin"))
+			simple_doc.align_sentences([simple_sent], [complex_sent], User.objects.get(username="admin"), "parallel_online_uploaded")
 
 			simple_doc.save()
 			complex_doc.save()
