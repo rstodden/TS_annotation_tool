@@ -19,10 +19,10 @@
         </div>
         <ul class="sidebar-nav">
             {% if user.is_authenticated %}
-                <li><a href="{% url 'alignment:overview' %}">Alignment</a></li>
+                <li><a href="{% url 'overview' %}">Alignment</a></li>
                 <li><a href="{% url 'data:home' %}">Data</a></li>
                 <li><a href="{% url 'evaluation:home' %}">Evaluation</a></li>
-                <li><a href="{% url 'rating:pairs_list' %}">Rating</a></li>
+                <li><a href="{% url 'overview' %}">Rating</a></li>
                 <li><a href="{% url 'simplification:home' %}">Simplification</a></li>
                  <li>User: {{ user.get_username }}</li>
                  <li><a href="{% url 'accounts:logout'%}?next={{request.path}}">Logout</a></li>

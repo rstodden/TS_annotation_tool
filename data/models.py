@@ -10,6 +10,23 @@ from django.core.files.base import ContentFile
 import numpy as np
 from django.conf import settings
 
+list_licenses = (
+					("prohibition", "prohibition"),
+					("save_use", "save_use"),
+					("save_use_share_with_password", "save_use_share_with_password"),
+					("CC_BY_NC_SA_DE_2", "CC_BY_NC_SA_DE_2"),
+					("CC_BY_NC_DE_3", "CC_BY_NC_DE_3"),
+					("CC_BY_NC_SA_DE_3", "CC_BY_NC_SA_DE_3"),
+					("CC_BY_NC_ND_DE_3", "CC_BY_NC_ND_DE_3"),
+					("CC_BY_ND_DE_3", "CC_BY_ND_DE_3"),
+					("CC_BY_SA_DE_3", "CC_BY_SA_DE_3"),
+					("CC_BY_SA_3", "CC_BY_SA_3"),
+					("CC_BY_4", "CC_BY_4"),
+					("CC_BY_NC_ND_4", "CC_BY_NC_ND_4"),
+					("CC_BY_NC_4", "CC_BY_NC_4"),
+					("CC_BY_NC_SA_4", "CC_BY_NC_SA_4"),
+					("to_add", "to_add"),
+					 )
 
 class IntegerRangeField(models.IntegerField):
 	def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
@@ -24,6 +41,7 @@ class IntegerRangeField(models.IntegerField):
 class Document(models.Model):
 	# id = models.ForeignKey(on_delete=models.CASCADE, primary_key=True, unique=True)
 	url = models.URLField(max_length=500)
+	title = models.TextField(max_length=500, blank=True)
 	access_date = models.DateField(blank=True, null=True)
 	author = models.TextField(max_length=100, blank=True)
 	html_data = models.TextField(blank=True)
@@ -34,6 +52,8 @@ class Document(models.Model):
 				   ("c2", "Alltagssprache")
 					)
 	level = models.CharField(max_length=50, blank=True, choices=level_list)
+
+	license = models.CharField(max_length=250, choices=list_licenses, blank=True)
 	parallel_document = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 	annotator = models.ManyToManyField(User, blank=True)
 	alignments = models.ManyToManyField(alignment.models.Pair, blank=True)
@@ -56,7 +76,7 @@ class Document(models.Model):
 		if list_ids:
 			pair_identifier = max(list_ids)[0]+1
 		else:
-			pair_identifier = 0
+			pair_identifier = 1
 		alignment_tmp = alignment.models.Pair()  #.objects.create(manually_checked=True, pair_identifier=pair_identifier)
 		alignment_tmp.manually_checked = True
 		alignment_tmp.pair_identifier = pair_identifier
@@ -81,11 +101,14 @@ class Document(models.Model):
 		self.author = author
 		return self
 
-	def set_values(self, level, user, file_path, domain):
+	def set_values(self, level, user, file_path, domain=None, title=None, access_date=None, license=None):
 		self.level = level
 		self.annotator.add(user)
 		self.path = file_path
 		self.domain = domain
+		self.title = title
+		self.access_date = datetime.datetime.strptime(access_date, '%d.%m.%y').strftime('%Y-%m-%d')
+		self.license = license
 		self.save()
 		return self
 
@@ -113,13 +136,7 @@ class Sentence(models.Model):
 class Corpus(models.Model):
 	name = models.CharField(max_length=100, blank=True)
 	home_page = models.URLField(max_length=500)
-	list_licenses = (("prohibition", "prohibition"),("save_use", "save_use"),
-					 ("save_use_share_with_password", "save_use_share_with_password"),
-					 ("CC_BY_NC_DE_3", "CC_BY_NC_DE_3"),
-					 ("CC_BY_NC_SA_DE_3", "CC_BY_NC_SA_DE_3"),
-					 ("CC_BY_NC_ND_DE_3", "CC_BY_NC_ND_DE_3"),
-					 ("to_add", "to_add"),
-					 )
+
 	license = models.CharField(max_length=250, choices=list_licenses)
 	parallel = models.BooleanField(default=False)
 	simple_documents = models.ManyToManyField(Document, related_name="simple_documents")
@@ -136,7 +153,7 @@ class Corpus(models.Model):
 
 	def fill_with_manually_aligned(self, uploaded_file):
 
-		dataframe_content = pd.read_csv(ContentFile(uploaded_file.read()), encoding="utf-8")
+		dataframe_content = pd.read_csv(ContentFile(uploaded_file.read()), encoding="utf-8", sep=",")
 		file_path = save_uploaded_file(uploaded_file)
 
 		self.name = "manually_added_at"+str(datetime.datetime.now())
@@ -148,8 +165,9 @@ class Corpus(models.Model):
 		self.path = file_path
 		self.save()
 
-
+		domains = set()
 		for index, row in dataframe_content.iterrows():
+			domains.add(row["domain"])
 			# lower levels to match level choice list
 			if not pd.isna(row["complexlevel"]):
 				row["complexlevel"] = row["complexlevel"].lower()
@@ -161,10 +179,13 @@ class Corpus(models.Model):
 			complex_doc, complex_doc_created = Document.objects.get_or_create(url=row["complexsource"])
 			if complex_doc_created:
 				complex_doc = complex_doc.set_values(row["complexlevel"], User.objects.get(username="admin"),
-												 file_path, row["domain"])
+												 	file_path, domain=row["domain"], title=row["title_complex"],
+													 access_date=row["access_date_complex"], license=row["license_complex"])
 				self.complex_documents.add(complex_doc)
 			if simple_doc_created:
-				simple_doc = simple_doc.set_values(row["simplelevel"], User.objects.get(username="admin"), file_path, row["domain"])
+				simple_doc = simple_doc.set_values(row["simplelevel"], User.objects.get(username="admin"), file_path,
+												   domain=row["domain"], title=row["title_simple"],
+												   access_date=row["access_date_simple"], license=row["license_simple"])
 				self.simple_documents.add(simple_doc)
 			simple_doc.parallel_document = complex_doc
 			complex_doc.parallel_document = simple_doc
@@ -184,34 +205,10 @@ class Corpus(models.Model):
 
 			simple_doc.save()
 			complex_doc.save()
+		if len(domains) == 1:
+			self.domain = list(domains)[0]
 		self.save()
 		return self
-
-
-
-
-# url = models.URLField(max_length=500)
-# access_date = models.DateField(blank=True, null=True)
-# author = models.TextField(max_length=100, blank=True)
-# html_data = models.TextField(blank=True)
-# plain_data = models.TextField(blank=True)
-# level_list = (("a1", "Leichte Sprache"),
-# 			   ("a2", "Einfache Sprache"),
-# 			   ("b2", "Vereinfachte Sprache"),
-# 			   ("c2", "Alltagssprache")
-# 				)
-# level = models.CharField(max_length=50, blank=True, choices=level_list)
-# parallel_document = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
-# annotator = models.ManyToManyField(User, blank=True)
-# alignments = models.ManyToManyField(Pair, blank=True)
-# path = models.FileField(upload_to='media/uploads/')
-
-# file_url = save_uploaded_file(uploaded_file)
-# create dummy corpus and dummy document but add urls and add file_url to doc.path
-# add sentences to doc and corpus
-# align sentences 8create alignemnt.pair
-# aligned_pairs = alignment.models.Pair.assign_to_user()
-# return aligned pairs
 
 
 def save_uploaded_file(f):

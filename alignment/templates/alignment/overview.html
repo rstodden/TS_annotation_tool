@@ -17,21 +17,36 @@
     <h2>Align the sentences of the listed documents.</h2>
     <div class="row">
         <div class="col-md-12">
-            listed corpora with dropdown menu, inside are all simple (and complex documents)<br>
             show progress for each document
             <h3> Parallel Documents:</h3>
-            <ul>
-            {% for doc in documents %}
-                {% if doc.parallel_document and doc.level in "a1,a2" %}
-                    <li>
-                        <a href="{% url 'alignment:overview_per_doc' doc_id=doc.id %}">
-                            {{ doc.url }} {{ doc.parallel_document.url }}
-                        </a>
-                    </li>
-                {% endif %}
+            <!--<form method="post">{% csrf_token %}-->
+                <ul>
+                    {%  for domain in domains %}
+                        <li>
+                            <a href="{% url 'alignment:overview' domain=domain %}" class="btn btn-info">Domain: {{ domain }}</a>
+                        </li>
+                        <ul>
+                        {% for corpus in corpora %}
+                            {% if corpus.domain == domain %}
+                                    <li>
+                                        <a href="{% url 'alignment:overview' domain=domain corpus=corpus.id %}" class="btn btn-info">Corpus: {{ corpus.name }}</a>
+                                    <ul>
+                                        {% for doc in documents %}
+                                            <li>
+                                                <a href="{% url 'alignment:overview_per_doc' doc_id=doc.id %}">
+                                                    {{ doc.url }} {{ doc.parallel_document.url }}
+                                                </a>
+                                            </li>
 
-            {% endfor %}
-            </ul>
+                                        {% endfor %}
+                                    </ul>
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </ul>
+            <!--</form>-->
         </div>
     </div>
 {% endblock %}

@@ -70,27 +70,3 @@ class Pair(models.Model):
 			self.annotator.add(user)
 		pass
 
-
-# class AlignmentPairSentence(Pair):
-# 	# partially based on http://www.winlp.org/wp-content/uploads/2019/final_papers/211_Paper.pdf
-# 	list_transactions = (("split", "Sentence Split"),
-# 						  ("join", "Joining Sentences"),
-# 						  ("replace", "Word or Phrase Replacement"),
-# 						  ("rephrase", "Rephrasing a part"),
-# 						  ("addition", "Information Addition"),
-# 						  ("anaphora", "Anaphora Resolution")
-# 						  )
-# 	transaction = models.CharField(max_length=100, choices= list_transactions)
-#
-# class AlignmentPairDiscourse(Pair):
-# 	# partially based on http://www.winlp.org/wp-content/uploads/2019/final_papers/211_Paper.pdf
-# 	list_transactions = (("split", "Sentence Split"),
-# 						  ("join", "Joining Sentences"),
-# 						  ("replace", "Word or Phrase Replacement"),
-# 						  ("rephrase", "Rephrasing a part"),
-# 						  ("reordered", "Sentence Reordering"),
-# 						  ("drop", "Sentence Removal"),
-# 						  ("addition", "Sentence or Information Addition"),
-# 						  ("anaphora", "Anaphora Resolution")
-# 						  )
-# 	transaction = models.CharField(max_length=100, choices= list_transactions)

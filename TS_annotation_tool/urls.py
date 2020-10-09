@@ -6,6 +6,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("overview/", views.overview, name="overview"),
+    path('overview/<str:domain>', views.overview, name='overview'),
+    path('overview/<str:domain>/<int:corpus>', views.overview, name='overview'),
+    path("overview_per_doc/<int:doc_id>", views.overview_per_doc, name="overview_per_doc"),
     path('alignment/', include(('alignment.urls', "alignment"), namespace="alignment")),
     path('rating/', include(('rating.urls', "rating"), namespace="rating")),
     path('evaluation/', include(('evaluation.urls', "evaluation"), namespace="evaluation")),

@@ -15,19 +15,18 @@ from django.core.paginator import Paginator
 # 	template_name = 'rating/pairs_list.html'
 
 
-@login_required
-def pairs_list(request):
-	pairs = alignment.models.Pair.objects.filter(annotator=request.user).order_by("pair_identifier")
-	paginator = Paginator(pairs, 10)
-
-	page_number = request.GET.get('page')
-	page_obj = paginator.get_page(page_number)
-	print(len(pairs))
-	#sortable_pairs = sortable_helper(request, pairs)
-	if not pairs:
-		return render(request, 'rating/pairs_list.html', {"error": "There are no pairs assigned to you. Please ask the admin to get new pairs."})
-
-	return render(request, 'rating/pairs_list.html', {"page_obj": page_obj})
+# @login_required
+# def pairs_list(request):
+# 	pairs = alignment.models.Pair.objects.filter(annotator=request.user).order_by("pair_identifier")
+# 	paginator = Paginator(pairs, 10)
+#
+# 	page_number = request.GET.get('page')
+# 	page_obj = paginator.get_page(page_number)
+# 	#sortable_pairs = sortable_helper(request, pairs)
+# 	if not pairs:
+# 		return render(request, 'overview.html', {"error": "There are no pairs assigned to you. Please ask the admin to get new pairs."})
+#
+# 	return render(request, 'overview.html', {"page_obj": page_obj})
 
 
 @login_required
@@ -40,7 +39,7 @@ def rate_pair(request, pair_id):
 		if form.is_valid():
 			alignmentpair_tmp.update_or_save_rating(form, request.user)
 
-			return redirect('rating:pairs_list')
+			return redirect('overview')
 		else:
 			print("not valid", form.errors)
 	if alignmentpair_tmp.rating.filter(rater=request.user).exists():
@@ -57,6 +56,6 @@ def rate_pair(request, pair_id):
 
 
 def home(request):
-	return render(request, 'rating/home.html')
+	return redirect('overview')
 
 

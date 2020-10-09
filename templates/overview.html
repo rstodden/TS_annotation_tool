@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+
+    <h1>Document Overview</h1>
+    <div class="row">
+        <div class="col-md-12">
+        {% if error %}
+            <p> {{ error }} </p>
+        {% endif %}
+        {% if success %}
+            <p> {{ success }} </p>
+        {% endif %}
+        </div>
+    </div>
+    <h2>Align the sentences of the listed documents.</h2>
+    <div class="row">
+        <div class="col-md-12">
+            show progress for each document
+            <h3> Parallel Documents:</h3>
+            <ul>
+                {%  for domain in domains %}
+                    <li>
+                        <a href="{% url 'overview' domain=domain corpus=0 %}" class="btn btn-info">Domain: {{ domain }}</a>
+                    </li>
+                    <ul>
+                    {% for corpus in corpora %}
+                        {% if corpus.domain == domain %}
+                            <li>
+                                <a href="{% url 'overview' domain=domain corpus=corpus.id %}" class="btn btn-info">Corpus: {{ corpus.name }}</a>
+                            </li>
+                            {% if documents %}
+                                <br>
+                                <div class="row">
+                                    <table border="1">
+                                        <thead>
+                                            <tr>
+                                                <td>ID</td>
+                                                <td>URL</td>
+                                                <td>Level</td>
+                                                <td>Domain</td>
+                                                <td>Parallel</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for doc in documents %}
+                                                <tr>
+                                                    <td>{{ doc.id }}</td>
+                                                    <td>
+                                                        {% if doc.title %}
+                                                            <a href="{% url 'overview_per_doc' doc_id=doc.id %}">{{ doc.title }}</a>
+                                                        {% else %}
+                                                            <a href="{% url 'overview_per_doc' doc_id=doc.id %}">{{ doc.url }}</a>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ doc.level }}</td>
+                                                    <td>{{ doc.domain }}</td>
+                                                    {% if doc.parallel_document %}
+                                                        <td>x</td>
+                                                    {% else %}
+                                                        <td></td>
+                                                    {% endif %}
+
+
+                                                </tr>
+
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                            <br>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

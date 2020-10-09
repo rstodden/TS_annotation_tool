@@ -27,9 +27,9 @@ def insert_data(request):
 			# alignments assinment to users missing
 			new_corpus.save()
 			return render(request, 'data/success.html', {'file_url': file_url, "number_alignments": 0})
-		return render(request, "data/insertion.html", {"form_upload": form_upload })
+		return render(request, "data/insertion.html", {"form_upload": form_upload})
 	else:
 		form_upload = UploadFileForm()
-		return render(request, "data/insertion.html", {"form_upload": form_upload })
+		return render(request, "data/insertion.html", {"form_upload": form_upload})
 
 
