@@ -25,35 +25,131 @@
                 {% endfor %}
             </div>
         </div>
+        <br><br>
         <div class="row">
             <div class="col-12">
                 <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_id=alignmentpair.id %}>{% csrf_token %}
+                    {{ form.errors }}
                     <div class="fieldWrapper">
-                        <!--<table>
+                        <table border="1"  style="border-spacing:0 25px; padding: 15px;">
                             <thead>
                                 <tr>
-                                    <td></td><td></td>
+                                    <th>short form</th>
+                                    <th>long form</th>
+                                    {% for radio in form.meaning_preservation %}
+                                    {% if radio.data.value >= 1 %}
+                                        <th  style="padding: 5px;">{{ radio.choice_label }}</th>
+                                    {% endif %}
+                                    {% endfor %}
                                 </tr>
                             </thead>
-                            <tbody>-->
-                                {% for field in form.visible_fields %}
-                                    <!--<tr>
-                                        <td>-->
-                                    {{ field.errors }}
-                                        <!--</td>
-                                        <td>-->
-                                    <label title="{{ field.help_text }}" for="{{ field.id }}">&#9432;</label>
-                                    {{ field.label_tag }}
-                                    {{ field }}{{ field.data.value|default_if_none:"" }}
-                                    <br>
-                                        <!--</td>
-                                    </tr>-->
+                            <tbody>
+                            <tr>
+                                <td>meaning preservation</td>
+                                <td>{{ form.meaning_preservation.help_text }}</td>
+                                {% for radio in form.meaning_preservation %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
                                 {% endfor %}
+                            </tr>
+                            <tr>
+                                <td>information gain</td>
+                                <td>{{ form.information_gain.help_text }}</td>
+                                {% for radio in form.information_gain %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td>simplicity</td>
+                                <td>{{ form.simplicity.help_text }}</td>
+                                {% for radio in form.simplicity %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td>structural simplicity</td>
+                                <td>{{ form.structural_simplicity.help_text }}</td>
+                                {% for radio in form.structural_simplicity %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td>lexical simplicity</td>
+                                <td>{{ form.lexical_simplicity.help_text }}</td>
+                                {% for radio in form.lexical_simplicity %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td>grammaticality</td>
+                                <td>{{ form.grammaticality.help_text }}</td>
+                                {% for radio in form.grammaticality %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
 
-                            <!--</tbody>
-                        </table>-->
+
+                            <tr>
+                                <td>simplicity original</td>
+                                <td>{{ form.simplicity_original.help_text }}</td>
+                                {% for radio in form.simplicity_original %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td>grammaticality original
+                                    <!--<label title="{{ form.grammaticality_original.help_text }}" for="{{ form.grammaticality_original.id }}">&#9432;</label>-->
+                                </td>
+                                <td>{{ form.grammaticality_original.help_text }}</td>
+                                {% for radio in form.grammaticality_original %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            </tbody>
+                        </table>
+
+
+                        <br>
+                        <label title="{{ form.transaction.help_text }}" for="{{ form.transaction.id }}">&#9432;</label>
+                        {{ form.transaction.label_tag }}
+                        {{ form.transaction }}{{ form.transaction.data.value|default_if_none:"" }}
+                        <br><br>
+                        <label title="{{ form.transaction_level.help_text }}" for="{{ form.transaction_level.id }}">&#9432;</label>
+                        {{ form.transaction_level.label_tag }}
+                        {{ form.transaction_level }}{{ form.transaction_level.data.value|default_if_none:"" }}
+                        <br><br>
+                        <label title="{{ form.simplicity_gain.help_text }}" for="{{ form.simplicity_gain.id }}">&#9432;</label>
+                        {{ form.simplicity_gain.label_tag }}
+                        {{ form.simplicity_gain }}{{ form.simplicity_gain.data.value|default_if_none:"" }}
+                        <br><br>
+
+                        <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
+                        {{ form.certainty.label_tag }}
+                        {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
+                        <br><br>
+
+                        <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
+                        {{ form.comment.label_tag }}
+                        {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
+                        <br>
                         <button type="submit" class="save btn btn-default">Save</button>
                     </div>
+                </form>
                 </form>
             </div>
         </div>
