@@ -28,6 +28,8 @@ def overview(request, domain=None, corpus=None):
 	return render(request, 'overview.html', {"documents": documents, "corpora": corpora, "domains": domains})
 
 
+
+
 @login_required
 def overview_per_doc(request, doc_id):
 	doc_tmp = get_object_or_404(data.models.Document, id=doc_id, annotator=request.user)

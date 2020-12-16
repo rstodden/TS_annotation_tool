@@ -44,6 +44,26 @@
                                 </tr>
                             </thead>
                             <tbody>
+
+                            <tr>
+                                <td>grammaticality</td>
+                                <td>{{ form.grammaticality_simple.help_text }}</td>
+                                {% for radio in form.grammaticality_simple %}
+                                    <!--{% if radio.data.value >= 1 %}-->
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    <!--{% endif %}-->
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td>grammaticality (original)</td>
+                                <td>{{ form.grammaticality_original.help_text }}</td>
+                                {% for radio in form.grammaticality_original %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+
                             <tr>
                                 <td>meaning preservation</td>
                                 <td>{{ form.meaning_preservation.help_text }}</td>
@@ -90,18 +110,16 @@
                                 {% endfor %}
                             </tr>
                             <tr>
-                                <td>grammaticality</td>
-                                <td>{{ form.grammaticality.help_text }}</td>
-                                {% for radio in form.grammaticality %}
+                                <td>simplicity (simple)</td>
+                                <td>{{ form.simplicity_simple.help_text }}</td>
+                                {% for radio in form.simplicity_simple %}
                                     {% if radio.data.value >= 1 %}
                                         <td style="text-align: center">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-
-
                             <tr>
-                                <td>simplicity original</td>
+                                <td>simplicity (original)</td>
                                 <td>{{ form.simplicity_original.help_text }}</td>
                                 {% for radio in form.simplicity_original %}
                                     {% if radio.data.value >= 1 %}
@@ -109,17 +127,48 @@
                                     {% endif %}
                                 {% endfor %}
                             </tr>
+
+
                             <tr>
-                                <td>grammaticality original
-                                    <!--<label title="{{ form.grammaticality_original.help_text }}" for="{{ form.grammaticality_original.id }}">&#9432;</label>-->
-                                </td>
-                                <td>{{ form.grammaticality_original.help_text }}</td>
-                                {% for radio in form.grammaticality_original %}
+                                <td>coherence (simple)</td>
+                                <td>{{ form.coherence_simple.help_text }}</td>
+                                {% for radio in form.coherence_simple %}
                                     {% if radio.data.value >= 1 %}
                                         <td style="text-align: center">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
+                            <tr>
+                                <td>coherence (original)</td>
+                                <td>{{ form.coherence_original.help_text }}</td>
+                                {% for radio in form.coherence_original %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+
+
+                            <tr>
+                                <td>ambiguity (simple)</td>
+                                <td>{{ form.ambiguity_simple.help_text }}</td>
+                                {% for radio in form.ambiguity_simple %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+
+                            <tr>
+                                <td>ambiguity (original)</td>
+                                <td>{{ form.ambiguity_original.help_text }}</td>
+                                {% for radio in form.ambiguity_original %}
+                                    {% if radio.data.value >= 1 %}
+                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+
                             </tbody>
                         </table>
 

@@ -23,15 +23,30 @@ LIKERT_CHOICES = [(1, "strongly disgree"), (2, "disagree"), (3, "neither agree n
 
 class Rating(models.Model):
 	rater = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-	grammaticality = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text="The simplified sentence is fluent, there are no grammatical errors.")
-	grammaticality_original = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text="The original sentence is fluent, there are no grammatical errors.")
-	simplicity = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text="The simplified sentence is easier to understand than the orginal sentence.")
-	structural_simplicity = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text="The simplified sentence is easier to understand than the orginal sentence ignoring the complexity of the words.")
-	lexical_simplicity = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text="The simplified sentence is easier to understand than the orginal sentence ignoring the complexity of the sentence structure.")
-	simplicity_original = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text="The original sentence is easy to understand.")
-	meaning_preservation = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text="The simplified sentence adequately expresses the meaning of the original sentence, perhaps omitting the least important information.")
-	information_gain = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text="In the simplified sentence, information is added compared to the original sentence.")
-	simplicity_gain = IntegerRangeField(min_value=0, max_value=100, help_text="How many sucessful lexical or syntactical transformations occured in the simplification?")
+	help_text_grammaticality = "The {} sentence is fluent, there are no grammatical errors."
+	help_text_simplicity = "The {} sentence is easy to understand."
+	help_text_coherence = "The {} sentence is understandable without any preceeding or following sentence, e.g., there are no pronouns or connectives."
+	help_text_ambiguity = "The {} sentence is ambiguous. It can be read in different ways."
+	help_text_simpler = "The simplified sentence is easier to understand than the orginal sentence."
+	help_text_meaning_preservation = "The simplified sentence adequately expresses the meaning of the original sentence, perhaps omitting the least important information."
+	help_text_structural = "The structure of the simplified sentence is easier to understand than the structure of the original sentence."
+	help_text_lexical = "The words of the simplified sentence are easier to understand than the words of the original sentence."
+	help_text_information_gain = "In the simplified sentence, information is added or get more explicit compared to the original sentence."
+
+	grammaticality_simple = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_grammaticality.format("simplified"))
+	grammaticality_original = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_grammaticality.format("original"))
+	simplicity = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_simpler)
+	structural_simplicity = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_structural)
+	lexical_simplicity = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_lexical)
+	simplicity_original = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_simplicity.format("original"))
+	simplicity_simple = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_simplicity.format("simplified"))
+	meaning_preservation = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_meaning_preservation)
+	information_gain = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_information_gain)
+	coherence_original = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_coherence.format("original"))
+	coherence_simple = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_coherence.format("simplified"))
+	ambiguity_original = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_ambiguity.format("original"))
+	ambiguity_simple = models.IntegerField(max_length=1, choices=LIKERT_CHOICES, help_text=help_text_ambiguity.format("simplified"))
+	# simplicity_gain = IntegerRangeField(min_value=0, max_value=100, help_text="How many sucessful lexical or syntactical transformations occured in the simplification?")
 
 	# grammaticality = IntegerRangeField(min_value=1, max_value=5, help_text="The simplified sentence is fluent, there are no grammatical errors.")
 	# grammaticality_original = IntegerRangeField(min_value=1, max_value=5, help_text="The original sentence is fluent, there are no grammatical errors.")

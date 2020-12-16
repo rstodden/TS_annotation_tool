@@ -23,17 +23,17 @@
                 <ul>
                     {%  for domain in domains %}
                         <li>
-                            <a href="{% url 'alignment:overview' domain=domain %}" class="btn btn-info">Domain: {{ domain }}</a>
+                            <a href="{% url 'overview' domain=domain %}" class="btn btn-info">Domain: {{ domain }}</a>
                         </li>
                         <ul>
                         {% for corpus in corpora %}
                             {% if corpus.domain == domain %}
                                     <li>
-                                        <a href="{% url 'alignment:overview' domain=domain corpus=corpus.id %}" class="btn btn-info">Corpus: {{ corpus.name }}</a>
+                                        <a href="{% url 'overview' domain=domain corpus=corpus.id %}" class="btn btn-info">Corpus: {{ corpus.name }}</a>
                                     <ul>
                                         {% for doc in documents %}
                                             <li>
-                                                <a href="{% url 'alignment:overview_per_doc' doc_id=doc.id %}">
+                                                <a href="{% url 'overview_per_doc' doc_id=doc.id %}">
                                                     {{ doc.url }} {{ doc.parallel_document.url }}
                                                 </a>
                                             </li>

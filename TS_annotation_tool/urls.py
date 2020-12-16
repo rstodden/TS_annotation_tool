@@ -15,7 +15,8 @@ urlpatterns = [
     path('evaluation/', include(('evaluation.urls', "evaluation"), namespace="evaluation")),
     path('accounts/', include(('accounts.urls', "accounts"), namespace="accounts")),
     path('data/', include(('data.urls', "data"), namespace="data")),
-    path('data/', include(('simplification.urls', "simplification"), namespace="simplification")),
+    path('simplification/', include(('simplification.urls', "simplification"), namespace="simplification")),
+    path('web_scraping/', include(('web_scraping.urls', "web_scraping"), namespace="web_scraping")),
     re_path('^$', views.home, name="home"),
 ]
 

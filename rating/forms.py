@@ -21,19 +21,24 @@ transaction_level = [("par", "paragraph"), ("sent", "sentence"), ("phrase", "phr
 class RatingForm(forms.ModelForm):
     class Meta:
         model = Rating
-        fields = ['grammaticality', 'meaning_preservation', 'simplicity',
-                  'grammaticality_original', 'structural_simplicity', 'lexical_simplicity',
-                  'simplicity_original', 'information_gain', 'simplicity_gain',
+        fields = ['grammaticality_simple', 'meaning_preservation', 'ambiguity_original', 'ambiguity_simple',
+                  'grammaticality_original', 'structural_simplicity', 'lexical_simplicity', 'coherence_simple',
+                  'simplicity_original', 'simplicity_simple', 'information_gain', 'coherence_original', 'simplicity',
                   'transaction', 'certainty', "comment", "transaction_level"]
         widgets = {
             'meaning_preservation': forms.RadioSelect(choices=CHOICES),
-            'grammaticality': forms.RadioSelect(choices=CHOICES),
-            'simplicity': forms.RadioSelect(choices=CHOICES),
+            'grammaticality_simple': forms.RadioSelect(choices=CHOICES),
             'grammaticality_original': forms.RadioSelect(choices=CHOICES),
+            'simplicity': forms.RadioSelect(choices=CHOICES),
+            'simplicity_original': forms.RadioSelect(choices=CHOICES),
+            'simplicity_simple': forms.RadioSelect(choices=CHOICES),
             'structural_simplicity': forms.RadioSelect(choices=CHOICES),
             'lexical_simplicity': forms.RadioSelect(choices=CHOICES),
-            'simplicity_original': forms.RadioSelect(choices=CHOICES),
             'information_gain': forms.RadioSelect(choices=CHOICES),
+            'coherence_original': forms.RadioSelect(choices=CHOICES),
+            'coherence_simple': forms.RadioSelect(choices=CHOICES),
+            'ambiguity_original': forms.RadioSelect(choices=CHOICES),
+            'ambiguity_simple': forms.RadioSelect(choices=CHOICES),
             'transaction': forms.CheckboxSelectMultiple(choices=list_transactions),
             'transaction_level': forms.CheckboxSelectMultiple(choices=transaction_level)
         }

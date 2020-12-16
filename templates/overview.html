@@ -14,11 +14,69 @@
         {% endif %}
         </div>
     </div>
-    <h2>Align the sentences of the listed documents.</h2>
+    <h2>Align or rate the sentences of the listed documents.</h2>
     <div class="row">
         <div class="col-md-12">
-            show progress for each document
-            <h3> Parallel Documents:</h3>
+            TODO: show progress for each document
+            <h3>Not Aligned Documents:</h3>
+                <ul>
+                {%  for domain_not_aligned in domains_not_aligned %}
+                    <li>
+                        <a href="{% url 'overview' domain=domain_not_aligned corpus=0 %}" class="btn btn-info">Domain: {{ domain_not_aligned }}</a>
+                    </li>
+                    <ul>
+                    {% for corpus_not_aligned in corpora_not_aligned %}
+                        {% if corpus_not_aligned.domain == domain_not_aligned %}
+                            <li>
+                                <a href="{% url 'overview' domain=domain_not_aligned corpus=corpus_not_aligned.id %}" class="btn btn-info">Corpus: {{ corpus_not_aligned.name }}</a>
+                            </li>
+                            {% if documents_not_aligned %}
+                                <br>
+                                <div class="row">
+                                    <table border="1">
+                                        <thead>
+                                            <tr>
+                                                <td>ID</td>
+                                                <td>URL</td>
+                                                <td>Level</td>
+                                                <td>Domain</td>
+                                                <td>Parallel</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for doc_not_aligned in documents_not_aligned %}
+                                                <tr>
+                                                    <td>{{ doc_not_aligned.id }}</td>
+                                                    <td>
+                                                        {% if doc_not_aligned.title %}
+                                                            <a href="{% url 'overview_per_doc' doc_id=doc_not_aligned.id %}">{{ doc_not_aligned.title }}</a>
+                                                        {% else %}
+                                                            <a href="{% url 'overview_per_doc' doc_id=doc_not_aligned.id %}">{{ doc_not_aligned.url }}</a>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ doc_not_aligned.level }}</td>
+                                                    <td>{{ doc_not_aligned.domain }}</td>
+                                                    {% if doc_not_aligned.parallel_document %}
+                                                        <td>x</td>
+                                                    {% else %}
+                                                        <td></td>
+                                                    {% endif %}
+
+
+                                                </tr>
+
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                            <br>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endfor %}
+                </ul>
+            <h3> Aligned Documents:</h3>
             <ul>
                 {%  for domain in domains %}
                     <li>

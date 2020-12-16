@@ -7,3 +7,5 @@ django-language-field
 django-tables2
 django-sortable
 sortable
+requests
+bs4

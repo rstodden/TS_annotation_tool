@@ -21,7 +21,7 @@ def change_alignment(request, alignment_id):
 		if request.POST["submit"] == "rate":
 			return redirect('rating:rate_pair', pair_id=alignment_tmp.id)
 		else:
-			return redirect('alignment:overview_per_doc', doc_id=doc_tmp.id)
+			return redirect('overview_per_doc', doc_id=doc_tmp.id)
 
 	if doc_tmp.parallel_document:
 		simple_elements = doc_tmp.sentences.all()
