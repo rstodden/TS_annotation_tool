@@ -3,9 +3,9 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
-import rating.models
 import datetime
-
+from rating.models import Rating, Transformation
+from data.models import Token
 
 class Pair(models.Model):
 	# id = models.ForeignKey(on_delete=models.CASCADE, unique=True, primary_key=True)
@@ -13,8 +13,9 @@ class Pair(models.Model):
 	complex_element = models.ManyToManyField("data.Sentence", related_name="complex_sentence")
 	manually_checked = models.BooleanField(default=True)
 	origin_annotator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="origin_annotator", blank=True, null=True)
-	annotator = models.ManyToManyField(User, related_name="current_annotator", blank=True, null=True)
-	rating = models.ManyToManyField(rating.models.Rating, blank=True)
+	annotator = models.ManyToManyField(User, related_name="current_annotator", blank=True)
+	rating = models.ManyToManyField("rating.Rating", blank=True)
+	transformation_of_pair = models.ManyToManyField("rating.Transformation", blank=True)
 	# manually_added = models.BooleanField(default=False, blank=True)
 	pair_identifier = models.IntegerField()
 	created_at = models.DateTimeField(auto_now_add=True, blank=True)
@@ -31,12 +32,11 @@ class Pair(models.Model):
 		if self.rating.filter(rater=rater):
 			rating_tmp = self.rating.get(rater=rater)
 		else:
-			rating_tmp = rating.models.Rating()
+			rating_tmp = Rating()
 		rating_tmp.simplicity = form.cleaned_data["simplicity"]
 		rating_tmp.grammaticality = form.cleaned_data["grammaticality"]
 		rating_tmp.meaning_preservation = form.cleaned_data["meaning_preservation"]
 		rating_tmp.comment = form.cleaned_data["comment"]
-		rating_tmp.transaction = form.cleaned_data["transaction"]
 		rating_tmp.certainty = form.cleaned_data["certainty"]
 		self.manually_checked = True
 		rating_tmp.rater_id = rater.id
@@ -44,6 +44,34 @@ class Pair(models.Model):
 		if not self.rating.filter(rater=rater):
 			print(rating_tmp)
 			self.rating.add(rating_tmp)
+		self.save()
+		return self
+
+	def delete_transformation(self, transformation_id, rater):
+		transformation_tmp = Transformation(id=transformation_id)
+		self.transformation_of_pair.remove(transformation_tmp)
+		self.save()
+		return self
+
+	def save_transformation(self, form_dict, rater):
+		transformation_tmp = Transformation(rater=rater)
+		transformation_tmp.comment = form_dict.get("comment")
+		transformation_tmp.certainty = form_dict.get("certainty")
+		transformation_tmp.transformation = form_dict.get("transformation")
+		transformation_tmp.transformation_level = form_dict.get("level")
+		transformation_tmp.sub_transformation = form_dict.get("subtransformation")
+		transformation_tmp.save()
+		for token_id in form_dict.getlist("complex_token"):
+			transformation_tmp.complex_tokens.add(Token.objects.get(id=token_id))
+		for token_id in form_dict.getlist("simple_token"):
+			transformation_tmp.simple_tokens.add(Token.objects.get(id=token_id))
+		# transformation_tmp.simple_tokens = form.cleaned_data["meaning_preservation"]
+		# transformation_tmp.complex_tokens = form.cleaned_data["meaning_preservation"]
+		self.manually_checked = True
+		transformation_tmp.save()
+		# if not self.transformation_of_pair.filter(rater=rater):
+		# 	print(transformation_tmp)
+		self.transformation_of_pair.add(transformation_tmp)
 		self.save()
 		return self
 
@@ -58,7 +86,7 @@ class Pair(models.Model):
 		return self
 
 	def save_rating(self, form, rater):
-		rating_tmp = rating.models.Rating(form.save(commit=False))
+		rating_tmp = Rating(form.save(commit=False))
 		rating_tmp.rater = rater
 		self.manually_checked = True
 		self.rating = rating_tmp

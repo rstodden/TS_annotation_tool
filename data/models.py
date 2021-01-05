@@ -8,6 +8,7 @@ import pandas as pd
 import io, csv
 from django.core.files.base import ContentFile
 import numpy as np
+import spacy
 from django.conf import settings
 
 list_licenses = (
@@ -56,7 +57,7 @@ class Document(models.Model):
 	license = models.CharField(max_length=250, choices=list_licenses, blank=True)
 	parallel_document = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 	annotator = models.ManyToManyField(User, blank=True)
-	alignments = models.ManyToManyField(alignment.models.Pair, blank=True)
+	alignments = models.ManyToManyField("alignment.Pair", blank=True)
 	path = models.FileField(upload_to='media/uploads/', blank=True, null=True)
 	domain = models.CharField(max_length=50, blank=True, null=True)
 	sentences = models.ManyToManyField("data.Sentence", blank=True)
@@ -93,6 +94,9 @@ class Document(models.Model):
 		self.save()
 		return self.alignments
 
+	def __str__(self):
+		return self.url
+
 	def add_plain_text_manually(self, url, plain_text, level, author=None):
 		self.plain_data = plain_text
 		self.access_date = datetime.datetime.now()
@@ -113,6 +117,14 @@ class Document(models.Model):
 		return self
 
 
+class Token(models.Model):
+	text = models.CharField(max_length=200)
+	lemma = models.CharField(max_length=200)
+	tag = models.CharField(max_length=10)
+
+	def __str__(self):
+		return self.text
+
 
 class Sentence(models.Model):
 	# id = models.ForeignKey(on_delete=models.CASCADE, primary_key=True, unique=True)
@@ -131,6 +143,22 @@ class Sentence(models.Model):
 					)
 	level = models.CharField(max_length=50, blank=True, choices=level_list)
 	simplification = models.ForeignKey("simplification.Simplification", blank=True, on_delete=models.CASCADE, null=True)
+	tokens = models.ManyToManyField(Token, related_name="tokens")
+
+	def tokenize(self):
+		language = "de" # todo:get language from corpus via document
+		if language == "de":
+			nlp = spacy.load("de_core_news_sm")
+		elif language == "en":
+			nlp = spacy.load("en_core_web_sm")
+		else:
+			nlp = spacy.load("en_core_web_sm")
+		doc = nlp(self.original_content)
+		for token in doc:
+			token_tmp = Token(text=token.text, lemma=token.lemma_, tag=token.tag_)
+			token_tmp.save()
+			self.tokens.add(token_tmp)
+		self.save()
 
 
 class Corpus(models.Model):
@@ -197,6 +225,10 @@ class Corpus(models.Model):
 			complex_sent = Sentence(original_content=row["complex"], level=row["complexlevel"])
 			simple_sent.save()
 			complex_sent.save()
+
+			simple_sent.tokenize()
+			complex_sent.tokenize()
+
 			simple_doc.sentences.add(simple_sent)
 			complex_doc.sentences.add(complex_sent)
 
@@ -209,6 +241,9 @@ class Corpus(models.Model):
 			self.domain = list(domains)[0]
 		self.save()
 		return self
+
+	def __str__(self):
+		return self.name
 
 
 def save_uploaded_file(f):

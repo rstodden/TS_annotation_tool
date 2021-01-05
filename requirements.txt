@@ -9,3 +9,4 @@ django-sortable
 sortable
 requests
 bs4
+spacy

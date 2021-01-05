@@ -2,35 +2,177 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-    <h2>Rate Alignment</h2>
+    <h2>Rate Alignment Pair #{{ alignmentpair.id }}</h2>
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                Please rate the following alignment pair.
+
+        <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_id=alignmentpair.id %}>{% csrf_token %}
+            {{ form.errors }}
+            <div class="row">
+                <div class="col-12">
+                    <h4>Please rate the following complex sentence(s).</h4>
+                    <!--<b>Complex Sentence:</b>-->
+                    <blockquote>
+                        {% for sentence in alignmentpair.complex_element.all %}
+                            {{ sentence.original_content }}
+                        {% endfor %}
+                    </blockquote>
+                </div>
+                <div class="col-12">
+                    <table border="1"  style="border-spacing:0 25px; padding: 15px;">
+                        <thead>
+                            <tr>
+                                <th>short form</th>
+                                <th>long form</th>
+                                {% for radio in form.meaning_preservation %}
+                                {% if radio.data.value >= 1 %}
+                                    <th  style="padding: 5px;">{{ radio.choice_label }}</th>
+                                {% endif %}
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>grammaticality (original)</td>
+                            <td>{{ form.grammaticality_original.help_text }}</td>
+                            {% for radio in form.grammaticality_original %}
+                                {% if radio.data.value >= 1 %}
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>simplicity (original)</td>
+                            <td>{{ form.simplicity_original.help_text }}</td>
+                            {% for radio in form.simplicity_original %}
+                                {% if radio.data.value >= 1 %}
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>coherence (original)</td>
+                            <td>{{ form.coherence_original.help_text }}</td>
+                            {% for radio in form.coherence_original %}
+                                {% if radio.data.value >= 1 %}
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>ambiguity (original)</td>
+                            <td>{{ form.ambiguity_original.help_text }}</td>
+                            {% for radio in form.ambiguity_original %}
+                                {% if radio.data.value >= 1 %}
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <b>Simple Sentence:</b><br>
-                {% for sentence in alignmentpair.simple_element.all %}
-                    {{ sentence.original_content }}
-                {% endfor %}
+
+            <br><hr style="width:100%;text-align:left;margin-left:0">
+
+            <div class="row">
+                <div class="col-12">
+                    <h4>Please rate the following simplified sentence(s).</h4>
+                    <!--<b>Simple Sentence:</b>-->
+                    <blockquote>
+                        {% for sentence in alignmentpair.simple_element.all %}
+                            {{ sentence.original_content }}
+                        {% endfor %}
+                    </blockquote>
+                </div>
+                <div class="col-12">
+                    <table border="1"  style="border-spacing:0 25px; padding: 15px;">
+                        <thead>
+                            <tr>
+                                <th>short form</th>
+                                <th>long form</th>
+                                {% for radio in form.meaning_preservation %}
+                                {% if radio.data.value >= 1 %}
+                                    <th  style="padding: 5px;">{{ radio.choice_label }}</th>
+                                {% endif %}
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        <tr>
+                            <td>grammaticality</td>
+                            <td>{{ form.grammaticality_simple.help_text }}</td>
+                            {% for radio in form.grammaticality_simple %}
+                                <!--{% if radio.data.value >= 1 %}-->
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                <!--{% endif %}-->
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>simplicity (simple)</td>
+                            <td>{{ form.simplicity_simple.help_text }}</td>
+                            {% for radio in form.simplicity_simple %}
+                                {% if radio.data.value >= 1 %}
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>coherence (simple)</td>
+                            <td>{{ form.coherence_simple.help_text }}</td>
+                            {% for radio in form.coherence_simple %}
+                                {% if radio.data.value >= 1 %}
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>ambiguity (simple)</td>
+                            <td>{{ form.ambiguity_simple.help_text }}</td>
+                            {% for radio in form.ambiguity_simple %}
+                                {% if radio.data.value >= 1 %}
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>ambiguity (original)</td>
+                            <td>{{ form.ambiguity_original.help_text }}</td>
+                            {% for radio in form.ambiguity_original %}
+                                {% if radio.data.value >= 1 %}
+                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <b>Complex Sentence:</b><br>
-                {% for sentence in alignmentpair.complex_element.all %}
-                    {{ sentence.original_content }}
-                {% endfor %}
+
+            <br><hr style="width:100%;text-align:left;margin-left:0">
+
+            <div class="row">
+                <div class="col-12">
+                    <h4>Please rate the following alignment pair.</h4>
+                </div>
             </div>
-        </div>
-        <br><br>
-        <div class="row">
-            <div class="col-12">
-                <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_id=alignmentpair.id %}>{% csrf_token %}
-                    {{ form.errors }}
-                    <div class="fieldWrapper">
+            <div class="row">
+                <div class="col-12">
+                    <b>Complex Sentence:</b><br>
+                    <blockquote>
+                        {% for sentence in alignmentpair.complex_element.all %}
+                            {{ sentence.original_content }}
+                        {% endfor %}
+                    </blockquote>
+                    <b>Simple Sentence:</b><br>
+                    <blockquote>
+                        {% for sentence in alignmentpair.simple_element.all %}
+                            {{ sentence.original_content }}
+                        {% endfor %}
+                    </blockquote>
+                    <!--<div class="fieldWrapper">-->
                         <table border="1"  style="border-spacing:0 25px; padding: 15px;">
                             <thead>
                                 <tr>
@@ -44,25 +186,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-
-                            <tr>
-                                <td>grammaticality</td>
-                                <td>{{ form.grammaticality_simple.help_text }}</td>
-                                {% for radio in form.grammaticality_simple %}
-                                    <!--{% if radio.data.value >= 1 %}-->
-                                        <td style="text-align: center">{{ radio.tag }}</td>
-                                    <!--{% endif %}-->
-                                {% endfor %}
-                            </tr>
-                            <tr>
-                                <td>grammaticality (original)</td>
-                                <td>{{ form.grammaticality_original.help_text }}</td>
-                                {% for radio in form.grammaticality_original %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
 
                             <tr>
                                 <td>meaning preservation</td>
@@ -109,99 +232,31 @@
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                            <tr>
-                                <td>simplicity (simple)</td>
-                                <td>{{ form.simplicity_simple.help_text }}</td>
-                                {% for radio in form.simplicity_simple %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-                            <tr>
-                                <td>simplicity (original)</td>
-                                <td>{{ form.simplicity_original.help_text }}</td>
-                                {% for radio in form.simplicity_original %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-
-
-                            <tr>
-                                <td>coherence (simple)</td>
-                                <td>{{ form.coherence_simple.help_text }}</td>
-                                {% for radio in form.coherence_simple %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-                            <tr>
-                                <td>coherence (original)</td>
-                                <td>{{ form.coherence_original.help_text }}</td>
-                                {% for radio in form.coherence_original %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-
-
-                            <tr>
-                                <td>ambiguity (simple)</td>
-                                <td>{{ form.ambiguity_simple.help_text }}</td>
-                                {% for radio in form.ambiguity_simple %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-
-                            <tr>
-                                <td>ambiguity (original)</td>
-                                <td>{{ form.ambiguity_original.help_text }}</td>
-                                {% for radio in form.ambiguity_original %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
 
                             </tbody>
                         </table>
 
-
-                        <br>
-                        <label title="{{ form.transaction.help_text }}" for="{{ form.transaction.id }}">&#9432;</label>
-                        {{ form.transaction.label_tag }}
-                        {{ form.transaction }}{{ form.transaction.data.value|default_if_none:"" }}
-                        <br><br>
-                        <label title="{{ form.transaction_level.help_text }}" for="{{ form.transaction_level.id }}">&#9432;</label>
-                        {{ form.transaction_level.label_tag }}
-                        {{ form.transaction_level }}{{ form.transaction_level.data.value|default_if_none:"" }}
-                        <br><br>
-                        <label title="{{ form.simplicity_gain.help_text }}" for="{{ form.simplicity_gain.id }}">&#9432;</label>
-                        {{ form.simplicity_gain.label_tag }}
-                        {{ form.simplicity_gain }}{{ form.simplicity_gain.data.value|default_if_none:"" }}
-                        <br><br>
-
-                        <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
-                        {{ form.certainty.label_tag }}
-                        {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
-                        <br><br>
-
-                        <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
-                        {{ form.comment.label_tag }}
-                        {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
-                        <br>
-                        <button type="submit" class="save btn btn-default">Save</button>
-                    </div>
-                </form>
-                </form>
+                    <!--</div>-->
+                </div>
+                <br><hr style="width:100%;text-align:left;margin-left:0">
+                <div class="row">
+                    <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
+                    {{ form.certainty.label_tag }}
+                    <br>
+                    {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
+                    <br><br>
+                    <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
+                    {{ form.comment.label_tag }}
+                    <br>
+                    {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
+                </div>
+                <div class="row">
+                    <button type="submit" class="save btn btn-default" title="save button" name="save" value="save"><i class="fas fa-save"></i></i> Save</button>
+                    <button type="submit" class="save btn btn-default" title="save and go to transformations" name="transformation" value="transformation"><i class="fas fa-route"></i> Transformations</button>
+{#                    transformations: <i class="fas fa-hat-wizard"></i> <i class="fas fa-user-edit"></i> <i class="fas fa-tools"></i> <i class="fas fa-head-side-virus"></i> <i class="fas fa-bezier-curve"></i> <i class="fas fa-project-diagram"></i>#}
+                </div>
             </div>
-        </div>
+        </form>
 
     </div>
 {% endblock %}

@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Rating
 from django.views.generic import ListView
 import alignment.models
-from .forms import RatingForm
+from .forms import RatingForm, TransformationForm
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from .models import transformation_dict
 # from django_tables2 import SingleTableView
 # from .tables import PairTable
 # from django_sortable.helpers import sortable_helper
@@ -29,17 +30,29 @@ from django.core.paginator import Paginator
 # 	return render(request, 'overview.html', {"page_obj": page_obj})
 
 
+def tokenize_dummy(alignmentpair_tmp):
+	for sentence in alignmentpair_tmp.complex_element.all():
+		if not sentence.tokens.exists():
+			sentence.tokenize()
+	for sentence in alignmentpair_tmp.simple_element.all():
+		if not sentence.tokens.exists():
+			sentence.tokenize()
+	return 1
+
 @login_required
 def rate_pair(request, pair_id):
-
 	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user)
+	tokenize_dummy(alignmentpair_tmp)
 	if request.method == "POST":
 		# redirected from rating.html. save rating of pair here.
 		form = RatingForm(request.POST)
 		if form.is_valid():
-			alignmentpair_tmp.update_or_save_rating(form, request.user)
-
-			return redirect('overview')
+			# todo save rating
+			# alignmentpair_tmp.update_or_save_rating(form, request.user)
+			if request.POST.get("transformation"):
+				return redirect('rating:select_transformation', pair_id=alignmentpair_tmp.id)
+			else:
+				return redirect('overview')
 		else:
 			print("not valid", form.errors)
 	if alignmentpair_tmp.rating.filter(rater=request.user).exists():
@@ -53,6 +66,40 @@ def rate_pair(request, pair_id):
 	else:
 		form = RatingForm()
 	return render(request, 'rating/rating.html', {'form': form, 'alignmentpair': alignmentpair_tmp})
+
+
+@login_required
+def select_transformation(request, pair_id):
+	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user)
+	tokenize_dummy(alignmentpair_tmp)
+	if request.method == "POST":
+		form = TransformationForm(request.POST)
+		if request.POST.get("add"):
+			return render(request, 'rating/transformation.html',
+						  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "add", "transformation_dict": transformation_dict})
+		# redirected from rating.html. save rating of pair here.
+		elif request.POST.get("delete"):
+			print(form, request.POST)
+			alignmentpair_tmp.delete_transformation(request.POST.get("delete"), request.user)
+		# elif request.POST.get("skip"):
+		# 	return redirect('rating:rate_pair', pair_id=alignmentpair_tmp.id)
+		elif request.POST.get("reset"):
+			return redirect('overview')
+		elif request.POST.get("rate") or request.POST.get("save"):
+			# if form.is_valid():
+			alignmentpair_tmp.save_transformation(request.POST, request.user)
+			if request.POST.get("rate"):
+				return redirect('rating:rate_pair', pair_id=alignmentpair_tmp.id)
+
+			return redirect('overview')
+			# else:
+			# 	print("not valid", form.errors)
+	if alignmentpair_tmp.rating.filter(rater=request.user).exists():
+		transformations_tmp = alignmentpair_tmp.rating.filter(rater=request.user)[0]
+		form = TransformationForm(initial={'transaction': transformations_tmp.transaction})
+	else:
+		form = TransformationForm()
+	return render(request, 'rating/transformation.html', {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
 
 
 def home(request):

@@ -30,6 +30,7 @@
                 <td>complex sentence</td>
                 <td></td>
                 <td></td>
+                <td></td>
 
             </tr>
             </thead>
@@ -97,6 +98,11 @@
                     <td>
                         <a href="{% url 'rating:rate_pair' pair_id=pair.id %}" class="btn btn-info">
                             change rating
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'rating:select_transformation' pair_id=pair.id %}" class="btn btn-info">
+                            change transformation
                         </a>
                     </td>
                     <td>

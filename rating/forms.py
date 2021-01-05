@@ -1,21 +1,41 @@
 from django import forms
-from .models import Rating
+from .models import Rating, Transformation
 from django.utils import timezone
 
 CHOICES = [(1, "strongly disgree"), (2, "disagree"), (3, "neither agree nor disagree"),
            (4, "agree"), (5,  "strongly agree")]
 
-list_transactions = [("split", "Sentence Split"),
-                     ("merge", "Merging Sentences"),
-                     ("substitution", "Lexical substitution of a word"),
-                     ("deletion", "Deletion of words or phrases"),
-                     ("verbal changes", "Verbal changes"),
-                     ("insert", "Add new words, phrases or clauses"),
-                     ("reorder", "reorder phrases, clauses or complete sentence structure"),
-                     ("no", "no operation")
-                     ]
+# list_transactions = [("split", "Sentence Split"),
+#                      ("merge", "Merging Sentences"),
+#                      ("substitution", "Lexical substitution of a word"),
+#                      ("deletion", "Deletion of words or phrases"),
+#                      ("verbal changes", "Verbal changes"),
+#                      ("insert", "Add new words, phrases or clauses"),
+#                      ("reorder", "reorder phrases, clauses or complete sentence structure"),
+#                      ("no", "no operation")
+#                      ]
+#
+# transaction_level = [("par", "paragraph"), ("sent", "sentence"), ("phrase", "phrase"), ("word", "word")]
 
-transaction_level = [("par", "paragraph"), ("sent", "sentence"), ("phrase", "phrase"), ("word", "word")]
+
+class TransformationForm(forms.ModelForm):
+    class Meta:
+        model = Transformation
+        fields = ['certainty', "comment"]
+        # , 'complex_tokens', 'simple_tokens', 'transaction', 'transaction_level',
+    #     widgets = {
+    #     'transaction': forms.CheckboxSelectMultiple(choices=list_transactions),
+    #     'transaction_level': forms.CheckboxSelectMultiple(choices=transaction_level)
+    # }
+
+    def __init__(self, *args, **kwargs):
+        super(TransformationForm, self).__init__(*args, **kwargs)
+        self.fields['comment'].required = False
+        self.fields['certainty'].required = False
+        # self.fields['complex_tokens'].required = False
+        # self.fields['simple_tokens'].required = False
+        # self.fields['transaction'].required = False
+        # self.fields['transaction_level'].required = False
 
 
 class RatingForm(forms.ModelForm):
@@ -24,7 +44,7 @@ class RatingForm(forms.ModelForm):
         fields = ['grammaticality_simple', 'meaning_preservation', 'ambiguity_original', 'ambiguity_simple',
                   'grammaticality_original', 'structural_simplicity', 'lexical_simplicity', 'coherence_simple',
                   'simplicity_original', 'simplicity_simple', 'information_gain', 'coherence_original', 'simplicity',
-                  'transaction', 'certainty', "comment", "transaction_level"]
+                  'certainty', "comment"]
         widgets = {
             'meaning_preservation': forms.RadioSelect(choices=CHOICES),
             'grammaticality_simple': forms.RadioSelect(choices=CHOICES),
@@ -39,9 +59,12 @@ class RatingForm(forms.ModelForm):
             'coherence_simple': forms.RadioSelect(choices=CHOICES),
             'ambiguity_original': forms.RadioSelect(choices=CHOICES),
             'ambiguity_simple': forms.RadioSelect(choices=CHOICES),
-            'transaction': forms.CheckboxSelectMultiple(choices=list_transactions),
-            'transaction_level': forms.CheckboxSelectMultiple(choices=transaction_level)
         }
+
+    def __init__(self, *args, **kwargs):
+        super(RatingForm, self).__init__(*args, **kwargs)
+        self.fields['comment'].required = False
+        self.fields['certainty'].required = False
 
         # fields = ['grammaticality', 'meaning_preservation', 'simplicity',
         #           'grammaticality_original', 'structural_simplicity', 'lexical_simplicity',
