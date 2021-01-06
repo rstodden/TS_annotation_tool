@@ -9,7 +9,7 @@
             {{ form.errors }}
             <div class="row">
                 <div class="col-12">
-                    <h4>Please rate the following complex sentence(s).</h4>
+                    <h4>Please rate the following <u>complex</u> sentence(s).</h4>
                     <!--<b>Complex Sentence:</b>-->
                     <blockquote>
                         {% for sentence in alignmentpair.complex_element.all %}
@@ -18,52 +18,52 @@
                     </blockquote>
                 </div>
                 <div class="col-12">
-                    <table border="1"  style="border-spacing:0 25px; padding: 15px;">
+                    <table  class="likert">
                         <thead>
                             <tr>
-                                <th>short form</th>
-                                <th>long form</th>
+                                <th class="likert">short form</th>
+                                <th class="likert">long form</th>
                                 {% for radio in form.meaning_preservation %}
                                 {% if radio.data.value >= 1 %}
-                                    <th  style="padding: 5px;">{{ radio.choice_label }}</th>
+                                    <th class="likert likert-scale">{{ radio.choice_label }}</th>
                                 {% endif %}
                                 {% endfor %}
                             </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <td>grammaticality (original)</td>
-                            <td>{{ form.grammaticality_original.help_text }}</td>
+                            <td class="likert">grammaticality</td>
+                            <td class="likert">{{ form.grammaticality_original.help_text }}</td>
                             {% for radio in form.grammaticality_original %}
                                 {% if radio.data.value >= 1 %}
-                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                    <td class="likert likert-radio">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td>simplicity (original)</td>
-                            <td>{{ form.simplicity_original.help_text }}</td>
+                            <td class="likert">simplicity</td>
+                            <td class="likert">{{ form.simplicity_original.help_text }}</td>
                             {% for radio in form.simplicity_original %}
                                 {% if radio.data.value >= 1 %}
-                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                    <td class="likert likert-radio">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td>coherence (original)</td>
-                            <td>{{ form.coherence_original.help_text }}</td>
+                            <td class="likert">coherence</td>
+                            <td class="likert">{{ form.coherence_original.help_text }}</td>
                             {% for radio in form.coherence_original %}
                                 {% if radio.data.value >= 1 %}
-                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                    <td class="likert likert-radio">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td>ambiguity (original)</td>
-                            <td>{{ form.ambiguity_original.help_text }}</td>
+                            <td class="likert">ambiguity</td>
+                            <td class="likert">{{ form.ambiguity_original.help_text }}</td>
                             {% for radio in form.ambiguity_original %}
                                 {% if radio.data.value >= 1 %}
-                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                    <td class="likert likert-radio">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -77,7 +77,7 @@
 
             <div class="row">
                 <div class="col-12">
-                    <h4>Please rate the following simplified sentence(s).</h4>
+                    <h4>Please rate the following <u>simplified</u> sentence(s).</h4>
                     <!--<b>Simple Sentence:</b>-->
                     <blockquote>
                         {% for sentence in alignmentpair.simple_element.all %}
@@ -86,62 +86,53 @@
                     </blockquote>
                 </div>
                 <div class="col-12">
-                    <table border="1"  style="border-spacing:0 25px; padding: 15px;">
+                    <table class="likert">
                         <thead>
-                            <tr>
-                                <th>short form</th>
-                                <th>long form</th>
+                            <tr class="likert">
+                                <th class="likert">short form</th>
+                                <th class="likert">long form</th>
                                 {% for radio in form.meaning_preservation %}
                                 {% if radio.data.value >= 1 %}
-                                    <th  style="padding: 5px;">{{ radio.choice_label }}</th>
+                                    <th class="likert likert-scale">{{ radio.choice_label }}</th>
                                 {% endif %}
                                 {% endfor %}
                             </tr>
                         </thead>
                         <tbody>
 
-                        <tr>
-                            <td>grammaticality</td>
-                            <td>{{ form.grammaticality_simple.help_text }}</td>
+                        <tr class="likert">
+                            <td class="likert">grammaticality</td>
+                            <td class="likert">{{ form.grammaticality_simple.help_text }}</td>
                             {% for radio in form.grammaticality_simple %}
                                 <!--{% if radio.data.value >= 1 %}-->
-                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                    <td class="likert likert-radio">{{ radio.tag }}</td>
                                 <!--{% endif %}-->
                             {% endfor %}
                         </tr>
-                        <tr>
-                            <td>simplicity (simple)</td>
-                            <td>{{ form.simplicity_simple.help_text }}</td>
+                        <tr class="likert">
+                            <td class="likert">simplicity</td>
+                            <td class="likert">{{ form.simplicity_simple.help_text }}</td>
                             {% for radio in form.simplicity_simple %}
                                 {% if radio.data.value >= 1 %}
-                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                    <td class="likert likert-radio">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
-                        <tr>
-                            <td>coherence (simple)</td>
-                            <td>{{ form.coherence_simple.help_text }}</td>
+                        <tr class="likert">
+                            <td class="likert">coherence</td>
+                            <td class="likert">{{ form.coherence_simple.help_text }}</td>
                             {% for radio in form.coherence_simple %}
                                 {% if radio.data.value >= 1 %}
-                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                    <td class="likert likert-radio">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
-                        <tr>
-                            <td>ambiguity (simple)</td>
-                            <td>{{ form.ambiguity_simple.help_text }}</td>
+                        <tr class="likert">
+                            <td class="likert">ambiguity</td>
+                            <td class="likert">{{ form.ambiguity_simple.help_text }}</td>
                             {% for radio in form.ambiguity_simple %}
                                 {% if radio.data.value >= 1 %}
-                                    <td style="text-align: center">{{ radio.tag }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>ambiguity (original)</td>
-                            <td>{{ form.ambiguity_original.help_text }}</td>
-                            {% for radio in form.ambiguity_original %}
-                                {% if radio.data.value >= 1 %}
-                                    <td style="text-align: center">{{ radio.tag }}</td>
+                                    <td class="likert likert-radio">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -155,7 +146,7 @@
 
             <div class="row">
                 <div class="col-12">
-                    <h4>Please rate the following alignment pair.</h4>
+                    <h4>Please rate the following <u>alignment pair</u>.</h4>
                 </div>
             </div>
             <div class="row">
@@ -173,62 +164,62 @@
                         {% endfor %}
                     </blockquote>
                     <!--<div class="fieldWrapper">-->
-                        <table border="1"  style="border-spacing:0 25px; padding: 15px;">
+                        <table class="likert">
                             <thead>
-                                <tr>
-                                    <th>short form</th>
-                                    <th>long form</th>
+                                <tr class="likert">
+                                    <th class="likert">short form</th>
+                                    <th class="likert">long form</th>
                                     {% for radio in form.meaning_preservation %}
                                     {% if radio.data.value >= 1 %}
-                                        <th  style="padding: 5px;">{{ radio.choice_label }}</th>
+                                        <th class="likert likert-scale">{{ radio.choice_label }}</th>
                                     {% endif %}
                                     {% endfor %}
                                 </tr>
                             </thead>
                             <tbody>
 
-                            <tr>
-                                <td>meaning preservation</td>
-                                <td>{{ form.meaning_preservation.help_text }}</td>
+                            <tr class="likert">
+                                <td class="likert">meaning preservation</td>
+                                <td class="likert">{{ form.meaning_preservation.help_text }}</td>
                                 {% for radio in form.meaning_preservation %}
                                     {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                        <td class="likert likert-radio">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                            <tr>
-                                <td>information gain</td>
-                                <td>{{ form.information_gain.help_text }}</td>
+                            <tr class="likert">
+                                <td class="likert">information gain</td>
+                                <td class="likert">{{ form.information_gain.help_text }}</td>
                                 {% for radio in form.information_gain %}
                                     {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                        <td class="likert likert-radio">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                            <tr>
-                                <td>simplicity</td>
-                                <td>{{ form.simplicity.help_text }}</td>
+                            <tr class="likert">
+                                <td class="likert">overall simplicity</td>
+                                <td class="likert">{{ form.simplicity.help_text }}</td>
                                 {% for radio in form.simplicity %}
                                     {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                        <td class="likert likert-radio">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                            <tr>
-                                <td>structural simplicity</td>
-                                <td>{{ form.structural_simplicity.help_text }}</td>
+                            <tr class="likert">
+                                <td class="likert">structural simplicity</td>
+                                <td class="likert">{{ form.structural_simplicity.help_text }}</td>
                                 {% for radio in form.structural_simplicity %}
                                     {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                        <td class="likert likert-radio">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                            <tr>
-                                <td>lexical simplicity</td>
-                                <td>{{ form.lexical_simplicity.help_text }}</td>
+                            <tr class="likert">
+                                <td class="likert">lexical simplicity</td>
+                                <td class="likert">{{ form.lexical_simplicity.help_text }}</td>
                                 {% for radio in form.lexical_simplicity %}
                                     {% if radio.data.value >= 1 %}
-                                        <td style="text-align: center">{{ radio.tag }}</td>
+                                        <td class="likert likert-radio">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>

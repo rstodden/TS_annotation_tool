@@ -48,7 +48,7 @@ def rate_pair(request, pair_id):
 		form = RatingForm(request.POST)
 		if form.is_valid():
 			# todo save rating
-			# alignmentpair_tmp.update_or_save_rating(form, request.user)
+			alignmentpair_tmp.update_or_save_rating(form, request.user)
 			if request.POST.get("transformation"):
 				return redirect('rating:select_transformation', pair_id=alignmentpair_tmp.id)
 			else:
@@ -56,13 +56,8 @@ def rate_pair(request, pair_id):
 		else:
 			print("not valid", form.errors)
 	if alignmentpair_tmp.rating.filter(rater=request.user).exists():
-		rating_tmp = alignmentpair_tmp.rating.filter(rater=request.user)[0]
-		form = RatingForm(initial={'grammaticality': rating_tmp.grammaticality,
-								   'meaning_preservation': rating_tmp.meaning_preservation,
-								   'simplicity': rating_tmp.simplicity,
-								   'transaction': rating_tmp.transaction,
-								   'certainty': rating_tmp.certainty,
-								   'comment': rating_tmp.comment})
+		rating_tmp = alignmentpair_tmp.rating.get(rater=request.user)
+		form = RatingForm(instance=rating_tmp)
 	else:
 		form = RatingForm()
 	return render(request, 'rating/rating.html', {'form': form, 'alignmentpair': alignmentpair_tmp})
@@ -79,27 +74,29 @@ def select_transformation(request, pair_id):
 						  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "add", "transformation_dict": transformation_dict})
 		# redirected from rating.html. save rating of pair here.
 		elif request.POST.get("delete"):
-			print(form, request.POST)
 			alignmentpair_tmp.delete_transformation(request.POST.get("delete"), request.user)
+			return render(request, 'rating/transformation.html',
+						  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
 		# elif request.POST.get("skip"):
 		# 	return redirect('rating:rate_pair', pair_id=alignmentpair_tmp.id)
-		elif request.POST.get("reset"):
-			return redirect('overview')
-		elif request.POST.get("rate") or request.POST.get("save"):
-			# if form.is_valid():
-			alignmentpair_tmp.save_transformation(request.POST, request.user)
-			if request.POST.get("rate"):
-				return redirect('rating:rate_pair', pair_id=alignmentpair_tmp.id)
-
-			return redirect('overview')
-			# else:
-			# 	print("not valid", form.errors)
-	if alignmentpair_tmp.rating.filter(rater=request.user).exists():
-		transformations_tmp = alignmentpair_tmp.rating.filter(rater=request.user)[0]
-		form = TransformationForm(initial={'transaction': transformations_tmp.transaction})
+		# elif request.POST.get("reset"):
+		# 	return redirect('overview')
+		elif request.POST.get("save"):
+			if form.is_valid():
+				print("yay", form.cleaned_data)
+			else:
+				print("buuh", form.errors)
+			alignmentpair_tmp.save_transformation(form, request.user)
+			return render(request, 'rating/transformation.html',
+						  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
+		elif request.POST.get("rate"):
+			return redirect('rating:rate_pair', pair_id=alignmentpair_tmp.id)
+		else:
+			return render(request, 'rating/transformation.html',
+						  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
 	else:
 		form = TransformationForm()
-	return render(request, 'rating/transformation.html', {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
+		return render(request, 'rating/transformation.html', {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
 
 
 def home(request):

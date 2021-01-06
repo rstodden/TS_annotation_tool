@@ -45,19 +45,19 @@
                 {% for trans_level, transformation_list in transformation_dict.items %}
                     <div class="row">
                     {{ trans_level }}
-                        <label for="transformation_{{ trans_level }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="level"> {{ trans_level|capfirst }}</label>
-{#                        <button type="button" class="collapsible" value="{{ trans_level }}"><input type="radio" name="level" id="transformation_{{ trans_level }}"> <label for="transformation_{{ trans_level }}"> {{ trans_level|capfirst }}</label></button>#}
+                        <label for="transformation_{{ trans_level }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="transformation_level"> {{ trans_level|capfirst }}</label>
+{#                        <button type="button" class="collapsible" value="{{ trans_level }}"><input type="radio" name="transformation_level" id="transformation_{{ trans_level }}"> <label for="transformation_{{ trans_level }}"> {{ trans_level|capfirst }}</label></button>#}
                         <div class="collapsible_content" style="display: none">
                             {% for trans, subtransformation_list in transformation_list.items %}
 {#                            <label title="{{ form.transaction.help_text }}" for="{{ form.transaction.id }}">&#9432;</label>#}
-                                <label for="transformation_{{ trans_level }}_{{ trans }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans_level }}_{{ trans }}" id="transformation_{{ trans_level }}_{{ trans }}" name="transformation"> {{ trans }}</label>
+                                <label for="transformation_{{ trans_level }}_{{ trans }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans }}" id="transformation_{{ trans_level }}_{{ trans }}" name="transformation"> {{ trans }}</label>
 
                                 <div class="collapsible_subcontent" style="display: none">
                                 {% for subtrans in subtransformation_list %}
                                     {% if subtrans == "other" %}
-                                        <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ trans_level }}_{{ trans }}_{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="subtransformation"> {{ subtrans }} <input type="text" maxlength="100" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}_freetext" name="transformation_text"></label>
+                                        <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation"> {{ subtrans }} <input type="text" maxlength="100" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}_freetext" name="other_text"></label>
                                     {% else %}
-                                        <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ trans_level }}_{{ trans }}_{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="subtransformation"> {{ subtrans }}</label>
+                                        <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation"> {{ subtrans }}</label>
                                     {% endif %}
                                 {% endfor %}
                                 </div>
@@ -65,37 +65,17 @@
                         </div>
                     </div>
                 {% endfor %}
+                <hr style="width:100%;text-align:left;margin-left:0">
+                <div class="row">
+                    <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
+                    {{ form.certainty.label_tag }}
+                    {{ form.certainty }}{{ form.certainty.data.value|default_if_none:0 }}
+                    <br><br>
 
-
-{#                    <button type="button" class="collapsible" value="word"><input type="checkbox" name="level" id="transformation_word"> <label for="transformation_word">Word</label></button>#}
-{#                        <div class="collapsible_content" style="display: none">#}
-{#                            <label title="{{ form.transaction.help_text }}" for="{{ form.transaction.id }}">&#9432;</label>#}
-{#                            <label for="transformation_word_lexical-substitution" class="btn btn-default "><input type="checkbox" value="word_deletion" id="transformation_word_lexical-substitution" name="transformation"> lexical-substitution</label>#}
-{#                            <label for="transformation_word_insert" class="btn btn-default "><input type="checkbox" value="word_deletion" id="transformation_word_insert" name="transformation"> insert</label>#}
-{#                            <label for="transformation_word_deletion" class="btn btn-default "><input type="checkbox" value="word_deletion" id="transformation_word_deletion" name="transformation"> deletion</label>#}
-{##}
-{#                        </div>#}
-{#                    <button type="button" class="collapsible" value="phrase">Phrase or Clause</button>#}
-{#                        <div class="collapsible_content" style="display: none">#}
-{#                            <label for="transformation_phrase_reorder" class="btn btn-default "><input type="checkbox" value="phrase_reoder" id="transformation_phrase_reorder-substitution" name="transformation"> reorder</label>#}
-{#                            <button type="button" name="transformation" value="phrase_reoder">reorder</button>#}
-{#                            <button type="button" name="transformation" value="phrase_insert">insert</button>#}
-{#                            <button type="button" name="transformation" value="phrase_rephrasing">rephrasing</button>#}
-{#                            <button type="button" name="transformation" value="phrase_deletion">deletion</button>#}
-{#                        </div>#}
-{#                    <button type="button" class="collapsible" value="sentence">Sentence</button>#}
-{#                        <div class="collapsible_content" style="display: none">#}
-{#                            <button type="button" name="transformation" value="sentence_verbal_changes">verbal changes</button>#}
-{#                            <button type="button" name="transformation" value="sentence_split">split</button>#}
-{#                            <button type="button" name="transformation" value="sentence_lexical_substitution">lexical substitution</button>#}
-{#                            <button type="button" name="transformation" value="sentence_reorder">reorder</button>#}
-{#                            <button type="button" name="transformation" value="sentence_rephrasing">rephrasing</button>#}
-{#                        </div>#}
-{#                    <label title="{{ form.transaction.help_text }}" for="{{ form.transaction.id }}">&#9432;</label>#}
-
-
-
-
+                    <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
+                    {{ form.comment.label_tag }}
+                    {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
+                </div>
             {% endif %}
             <div class="row">
                 <hr style="width:100%;text-align:left;margin-left:0">
@@ -110,16 +90,7 @@
                 {% endfor %}
                 </ul>
             </div>
-            <div class="row">
-                <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
-                {{ form.certainty.label_tag }}
-                {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
-                <br><br>
 
-                <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
-                {{ form.comment.label_tag }}
-                {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
-            </div>
             <div class="row">
             {% if type == "add" %}
                 <button class="btn btn-default" title="reset current annotation" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>
@@ -128,7 +99,7 @@
 
                 <button class="btn btn-default" title="add new transformation" type="submit" name="add" value="new"><i class="fas fa-plus-circle"></i> Add</button>
 {#                <button class="btn btn-default" title="reset and align next pair" type="submit" name="skip" value="skip"><i class="fas fa-forward"></i> Skip</button>#}
-                <button class="btn btn-default" title="save and rate pair" type="submit" name="rate" value="rate"><i class="fas fa-balance-scale-left"></i> Rate</button>
+                <button class="btn btn-default" title="do not save and rate pair" type="submit" name="rate" value="rate"><i class="fas fa-balance-scale-left"></i> Rate</button>
 {#               rating: <i class="fas fa-star-half-alt"></i> <i class="fas fa-spell-check"></i>#}
 
                 {% endif %}

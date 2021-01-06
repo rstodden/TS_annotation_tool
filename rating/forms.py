@@ -21,7 +21,9 @@ CHOICES = [(1, "strongly disgree"), (2, "disagree"), (3, "neither agree nor disa
 class TransformationForm(forms.ModelForm):
     class Meta:
         model = Transformation
-        fields = ['certainty', "comment"]
+        fields = ['certainty', "comment",
+                  "transformation", "transformation_level", "sub_transformation",
+                  "simple_token", "complex_token"]
         # , 'complex_tokens', 'simple_tokens', 'transaction', 'transaction_level',
     #     widgets = {
     #     'transaction': forms.CheckboxSelectMultiple(choices=list_transactions),
@@ -31,11 +33,12 @@ class TransformationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TransformationForm, self).__init__(*args, **kwargs)
         self.fields['comment'].required = False
-        self.fields['certainty'].required = False
-        # self.fields['complex_tokens'].required = False
-        # self.fields['simple_tokens'].required = False
-        # self.fields['transaction'].required = False
-        # self.fields['transaction_level'].required = False
+        # self.fields['certainty'].required = False
+        self.fields['complex_token'].required = False
+        self.fields['simple_token'].required = False
+        # self.fields['transformation'].required = False
+        # self.fields['transformation_level'].required = False
+        self.fields['sub_transformation'].required = False
 
 
 class RatingForm(forms.ModelForm):

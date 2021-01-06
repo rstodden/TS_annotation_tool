@@ -36,7 +36,6 @@
             </thead>
             <tbody>
             {% for pair in alignments %}
-
                 <tr>
                     <td>
                         {{ pair.pair_identifier }}
@@ -44,7 +43,7 @@
                     <td>
                         {% for rate in pair.rating.all %}
                             {% if rate.rater == user and rate.rater in pair.annotator.all %}
-                                {{ rate.grammaticality }}
+                                {{ rate.grammaticality_simple }}
                             {% endif %}
                         {% endfor %}
                     </td>
@@ -70,9 +69,9 @@
                         {% endfor %}
                     </td>
                     <td>
-                        {% for rate in pair.rating.all %}
-                            {% if rate.rater == user and rate.rater in pair.annotator.all %}
-                                {{ rate.transaction }}
+                        {% for transformation in pair.transformation_of_pair.all %}
+                            {% if transformation.rater == user and transformation.rater in pair.annotator.all %}
+                                {{ transformation.transformation }}
                             {% endif %}
                         {% endfor %}
                     </td>

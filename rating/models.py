@@ -54,7 +54,7 @@ LIKERT_CHOICES = [(1, "strongly disgree"), (2, "disagree"), (3, "neither agree n
 class Annotation(models.Model):
 	rater = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 	certainty = IntegerRangeField(min_value=1, max_value=5,
-								  help_text="How certain are you regarding your annotation? 1 = uncertain, 5 = very certain")
+								  help_text="How certain are you regarding your annotation? 1 = uncertain, 5 = very certain", null=True, blank=True)
 	comment = models.TextField(max_length=1000, blank=True, help_text="Do you have any comment regarding your annotation? Is something unclear in the sentence which influence your annotation?")
 	created_at = models.DateTimeField(auto_now_add=True, blank=True)
 	updated_at = models.DateTimeField(auto_now=True)
@@ -66,40 +66,35 @@ class Annotation(models.Model):
 
 
 class Transformation(Annotation):
-	# todo: connect to sentence and tokens of data model which are affected by transformation
-	list_transactions = [("split", "Sentence Split"),
-						 ("merge", "Merging Sentences"),
-						 ("substitution", "Lexical substitution of a word"),
-						 ("deletion", "Deletion of words or phrases"),
-						 ("verbal changes", "Verbal changes"),
-						 ("insert", "Add new words, phrases or clauses"),
-						 ("reorder", "reorder phrases, clauses or complete sentence structure"),
-						 ("no", "no operation")
-						 ]
-	transformation = models.CharField(max_length=100, blank=True)  # choices=list_transactions,
-	sub_transformation = models.CharField(max_length=100, blank=True)
-
-	# list_transaction_classes = ["merge", "split", "delete", "insert", "reorder", "lexical substitution", "no operation",
-	# 							"verbal changes"]
-	# list_transaction_subclasses = ["lexical substitution", "delete word", "split", "compound segmentation",
-	# 							   "nominal to verbal style", "more frequent word", "abbreviation", "rephrasing",
-	# 							   "verb to noun", "insert word", "ellipsis", "anaphora", "metaphors", "short word",
-	# 							   "numbers", "synonym", "MWE", "hyponym", "hypernym", "discourse markers",
-	# 							   "abbreviation", "filter word", "keep", "delete phrase or clause", "delete phrase",
-	# 							   "delete clause", "reorder phase, sentence or paragraph", "replace phrase/clause",
-	# 							   "insert phrase", "insert clause", "insert phrase/clause", "less adjunct phrases",
-	# 							   "discontinuity resolution", "verbal changes", "voice of verb", "verb tense",
-	# 							   "verb mood", "identical", "Subject-verb-reorder", "genitive to dative",
-	# 							   "negative to positive", "coordinate clause", "subordinative clause",
-	# 							   "appositive clause", "adverbial clause", "relative clause", "sentence order changed",
-	# 							   "insert sentence", "insert explanation", "insert examplification", "delete sentence",
-	# 							   "merge sentence"]
-	transformation_level = models.CharField(max_length=100, blank=True)  # choices=[("par", "paragraph"), ("sent", "sentence"), ("phrase", "phrase"), ("word", "word")],
-	simple_tokens = models.ManyToManyField("data.Token", related_name="simple_tokens")
-	complex_tokens = models.ManyToManyField("data.Token", related_name="complex_tokens")
+	keys_list_transformation = [list(trans.keys()) for level, trans in transformation_dict.items()]
+	list_choices_transformation = list(set([item for sublist in keys_list_transformation for item in sublist]))
+	values_list_subtransformations = [transformation_dict[trans].values() for trans in transformation_dict.keys()]
+	nested_list_choices_subtransformation = [item for sublist in values_list_subtransformations for item in sublist]
+	list_choices_subtransformation = list(set([item for sublist in nested_list_choices_subtransformation for item in sublist]))
+	transformation = models.CharField(max_length=100, blank=True, choices=[(trans, trans) for trans in list_choices_transformation])  # choices=list_transactions,
+	sub_transformation = models.CharField(max_length=100, blank=True, null=True , choices=[(subtrans, subtrans) for subtrans in list_choices_subtransformation])
+	transformation_level = models.CharField(max_length=50, choices=[(item, item) for item in transformation_dict.keys()])
+	# models.CharField(choices=[("paragraph", "paragraph"), ("sentence", "sentence"), ("phrase", "phrase"), ("word", "word")])
+	simple_token = models.ManyToManyField("data.Token", related_name="simple_token")
+	complex_token = models.ManyToManyField("data.Token", related_name="complex_token")
 
 	def __str__(self):
-		return self.transformation_level + '_' + self.transformation + '_' + str(self.id)
+		if self.sub_transformation:
+			subtrans = " - " + self.sub_transformation
+		else:
+			subtrans = ""
+		if self.simple_token.exists() and self.complex_token.exists():
+			return self.transformation_level + ' - ' + self.transformation + subtrans + ' (' + str(self.id) + '): ' + \
+				   ' '.join(self.complex_token.values_list("text", flat=True)) + ' \u2192 ' + \
+				   ' '.join(self.simple_token.values_list("text", flat=True))
+		elif self.simple_token.exists() and not self.complex_token.exists():
+			return self.transformation_level + ' - ' + self.transformation + subtrans + ' (' + str(self.id) + \
+				   '): \u002B ' + ' '.join(self.simple_token.values_list("text", flat=True))
+		if not self.simple_token.exists() and self.complex_token.exists():
+			return self.transformation_level + ' - ' + self.transformation + subtrans + ' (' + str(self.id) + \
+				   '): \u2212 ' + ' '.join(self.complex_token.values_list("text", flat=True))
+		else:
+			return self.transformation_level + ' - ' + self.transformation + ' (' + str(self.id) + ')'
 
 
 class Rating(Annotation):
