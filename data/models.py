@@ -70,14 +70,18 @@ class Document(models.Model):
 		# read plain data and create sentence objects which will be linked to this document
 		pass
 
+	def get_pair_identifier(self):
+		list_ids = alignment.models.Pair.objects.values_list("pair_identifier")
+		if list_ids:
+			return max(list_ids)[0] + 1
+		else:
+			return 1
+
 	def align_sentences(self, simple_sentences, complex_sentences, user, type_alignment):
 		# alignment_tmp, alignment_tmp_created = alignment.models.Pair.objects.get_or_create(url=row["simplesource"])
 		# todo: change or create new?
 		list_ids = alignment.models.Pair.objects.values_list("pair_identifier")
-		if list_ids:
-			pair_identifier = max(list_ids)[0]+1
-		else:
-			pair_identifier = 1
+		pair_identifier = self.get_pair_identifier()
 		alignment_tmp = alignment.models.Pair()  #.objects.create(manually_checked=True, pair_identifier=pair_identifier)
 		alignment_tmp.manually_checked = True
 		alignment_tmp.pair_identifier = pair_identifier
@@ -113,6 +117,31 @@ class Document(models.Model):
 		self.title = title
 		self.access_date = datetime.datetime.strptime(access_date, '%d.%m.%y').strftime('%Y-%m-%d')
 		self.license = license
+		self.save()
+		return self
+
+	def delete_pair(self, pair_id, user):
+		pair_tmp = alignment.models.Pair.objects.get(id=pair_id, annotator=user)
+		if self.alignments.filter(id=pair_id, annotator=user):
+			self.alignments.remove(pair_tmp)
+		pair_tmp.delete()
+		self.save()
+		return self
+
+	def save_alignment_form_form(self, form, user):
+		alignment_tmp = form.save(commit=False)
+		alignment_tmp.type = "parallel_online"
+		alignment_tmp.manually_checked = True
+		alignment_tmp.origin_annotator = user
+		alignment_tmp.pair_identifier = self.get_pair_identifier()
+		alignment_tmp.save()
+		alignment_tmp.annotator.add(user)
+		for sentence in form.cleaned_data["complex_element"]:
+			alignment_tmp.complex_element.add(sentence)
+		for sentence in form.cleaned_data["simple_element"]:
+			alignment_tmp.simple_element.add(sentence)
+		alignment_tmp.save()
+		self.alignments.add(alignment_tmp)
 		self.save()
 		return self
 

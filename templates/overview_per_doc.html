@@ -24,7 +24,7 @@
                 <td>meaning preservation</td>
                 <td>simplicity</td>
                 <td>certainty</td>
-                <td>transaction</td>
+                <td>transformation</td>
                 <td>domain</td>
                 <td>simple sentence</td>
                 <td>complex sentence</td>
@@ -71,7 +71,7 @@
                     <td>
                         {% for transformation in pair.transformation_of_pair.all %}
                             {% if transformation.rater == user and transformation.rater in pair.annotator.all %}
-                                {{ transformation.transformation }}
+                                {{ transformation.transformation }},
                             {% endif %}
                         {% endfor %}
                     </td>
@@ -105,7 +105,7 @@
                         </a>
                     </td>
                     <td>
-                        <a href="{% url 'alignment:change_alignment' alignment_id=pair.id %}" class="btn btn-info">
+                        <a href="{% url 'alignment:change_alignment' doc_id=doc_id %}" class="btn btn-info">
                             change alignment
                         </a>
                     </td>

@@ -82,10 +82,6 @@ def select_transformation(request, pair_id):
 		# elif request.POST.get("reset"):
 		# 	return redirect('overview')
 		elif request.POST.get("save"):
-			if form.is_valid():
-				print("yay", form.cleaned_data)
-			else:
-				print("buuh", form.errors)
 			alignmentpair_tmp.save_transformation(form, request.user)
 			return render(request, 'rating/transformation.html',
 						  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})

@@ -6,10 +6,11 @@
     <div class="container">
 
         <form method="POST" class="transformation-form" action={% url 'rating:select_transformation' pair_id=alignmentpair.id %}>{% csrf_token %}
-            <p class="error_form">
-                {{ form.errors }}
-            </p>
+{#            <p class="error_form">#}
+{#                {{ form.errors }}#}
+{#            </p>#}
             <div class="row">
+                <b>Complex Sentence:</b><br>
                 <blockquote>
                     {% for sentence in alignmentpair.complex_element.all %}
                         {% if type == "show" %}
@@ -44,7 +45,6 @@
                 </p>
                 {% for trans_level, transformation_list in transformation_dict.items %}
                     <div class="row">
-                    {{ trans_level }}
                         <label for="transformation_{{ trans_level }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="transformation_level"> {{ trans_level|capfirst }}</label>
 {#                        <button type="button" class="collapsible" value="{{ trans_level }}"><input type="radio" name="transformation_level" id="transformation_{{ trans_level }}"> <label for="transformation_{{ trans_level }}"> {{ trans_level|capfirst }}</label></button>#}
                         <div class="collapsible_content" style="display: none">
@@ -77,9 +77,9 @@
                     {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
                 </div>
             {% endif %}
-            <div class="row">
+            <div class="row scrollable-box">
                 <hr style="width:100%;text-align:left;margin-left:0">
-                <b>List of annotated transactions:</b>
+                <b>List of annotated transformations:</b>
                 <ul>
                 {% for transaction in alignmentpair.transformation_of_pair.all %}
                     <li>

@@ -1,0 +1,17 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <h2> Change Alignment</h2>
+    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_id=doc_id %}>{% csrf_token %}
+        <div class="row">
+        {{ form.errors }}
+        {% for field in form.visible_fields %}
+            <div class="col-md-6">
+                {{ field.label }} {{ field }}
+            </div>
+        {% endfor %}
+        <button type="submit" class="save btn btn-default">Save</button>
+        </div>
+    </form>
+
+{% endblock %}

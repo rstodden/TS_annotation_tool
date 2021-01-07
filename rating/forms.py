@@ -1,9 +1,7 @@
 from django import forms
-from .models import Rating, Transformation
+from .models import Rating, Transformation, LIKERT_CHOICES_NEUTRAL, LIKERT_CHOICES
 from django.utils import timezone
 
-CHOICES = [(1, "strongly disgree"), (2, "disagree"), (3, "neither agree nor disagree"),
-           (4, "agree"), (5,  "strongly agree")]
 
 # list_transactions = [("split", "Sentence Split"),
 #                      ("merge", "Merging Sentences"),
@@ -49,19 +47,19 @@ class RatingForm(forms.ModelForm):
                   'simplicity_original', 'simplicity_simple', 'information_gain', 'coherence_original', 'simplicity',
                   'certainty', "comment"]
         widgets = {
-            'meaning_preservation': forms.RadioSelect(choices=CHOICES),
-            'grammaticality_simple': forms.RadioSelect(choices=CHOICES),
-            'grammaticality_original': forms.RadioSelect(choices=CHOICES),
-            'simplicity': forms.RadioSelect(choices=CHOICES),
-            'simplicity_original': forms.RadioSelect(choices=CHOICES),
-            'simplicity_simple': forms.RadioSelect(choices=CHOICES),
-            'structural_simplicity': forms.RadioSelect(choices=CHOICES),
-            'lexical_simplicity': forms.RadioSelect(choices=CHOICES),
-            'information_gain': forms.RadioSelect(choices=CHOICES),
-            'coherence_original': forms.RadioSelect(choices=CHOICES),
-            'coherence_simple': forms.RadioSelect(choices=CHOICES),
-            'ambiguity_original': forms.RadioSelect(choices=CHOICES),
-            'ambiguity_simple': forms.RadioSelect(choices=CHOICES),
+            'meaning_preservation': forms.RadioSelect(choices=LIKERT_CHOICES),
+            'grammaticality_simple': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
+            'grammaticality_original': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
+            'simplicity': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
+            'simplicity_original': forms.RadioSelect(choices=LIKERT_CHOICES),
+            'simplicity_simple': forms.RadioSelect(choices=LIKERT_CHOICES),
+            'structural_simplicity': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
+            'lexical_simplicity': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
+            'information_gain': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
+            'coherence_original': forms.RadioSelect(choices=LIKERT_CHOICES),
+            'coherence_simple': forms.RadioSelect(choices=LIKERT_CHOICES),
+            'ambiguity_original': forms.RadioSelect(choices=LIKERT_CHOICES),
+            'ambiguity_simple': forms.RadioSelect(choices=LIKERT_CHOICES),
         }
 
     def __init__(self, *args, **kwargs):

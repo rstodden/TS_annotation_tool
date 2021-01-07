@@ -6,7 +6,7 @@
     <div class="container">
 
         <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_id=alignmentpair.id %}>{% csrf_token %}
-            {{ form.errors }}
+{#            {{ form.errors }}#}
             <div class="row">
                 <div class="col-12">
                     <h4>Please rate the following <u>complex</u> sentence(s).</h4>
@@ -24,7 +24,7 @@
                                 <th class="likert">short form</th>
                                 <th class="likert">long form</th>
                                 {% for radio in form.meaning_preservation %}
-                                {% if radio.data.value >= 1 %}
+                                {% if radio.data.value != "" %}
                                     <th class="likert likert-scale">{{ radio.choice_label }}</th>
                                 {% endif %}
                                 {% endfor %}
@@ -35,8 +35,8 @@
                             <td class="likert">grammaticality</td>
                             <td class="likert">{{ form.grammaticality_original.help_text }}</td>
                             {% for radio in form.grammaticality_original %}
-                                {% if radio.data.value >= 1 %}
-                                    <td class="likert likert-radio">{{ radio.tag }}</td>
+                                {% if radio.data.value != "" %}
+                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -44,8 +44,8 @@
                             <td class="likert">simplicity</td>
                             <td class="likert">{{ form.simplicity_original.help_text }}</td>
                             {% for radio in form.simplicity_original %}
-                                {% if radio.data.value >= 1 %}
-                                    <td class="likert likert-radio">{{ radio.tag }}</td>
+                                {% if radio.data.value != "" %}
+                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -53,8 +53,8 @@
                             <td class="likert">coherence</td>
                             <td class="likert">{{ form.coherence_original.help_text }}</td>
                             {% for radio in form.coherence_original %}
-                                {% if radio.data.value >= 1 %}
-                                    <td class="likert likert-radio">{{ radio.tag }}</td>
+                                {% if radio.data.value != "" %}
+                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -62,8 +62,8 @@
                             <td class="likert">ambiguity</td>
                             <td class="likert">{{ form.ambiguity_original.help_text }}</td>
                             {% for radio in form.ambiguity_original %}
-                                {% if radio.data.value >= 1 %}
-                                    <td class="likert likert-radio">{{ radio.tag }}</td>
+                                {% if radio.data.value != "" %}
+                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -91,8 +91,9 @@
                             <tr class="likert">
                                 <th class="likert">short form</th>
                                 <th class="likert">long form</th>
+
                                 {% for radio in form.meaning_preservation %}
-                                {% if radio.data.value >= 1 %}
+                                {% if radio.data.value != "" %}
                                     <th class="likert likert-scale">{{ radio.choice_label }}</th>
                                 {% endif %}
                                 {% endfor %}
@@ -104,8 +105,8 @@
                             <td class="likert">grammaticality</td>
                             <td class="likert">{{ form.grammaticality_simple.help_text }}</td>
                             {% for radio in form.grammaticality_simple %}
-                                <!--{% if radio.data.value >= 1 %}-->
-                                    <td class="likert likert-radio">{{ radio.tag }}</td>
+                                <!--{% if radio.data.value != "" %}-->
+                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                 <!--{% endif %}-->
                             {% endfor %}
                         </tr>
@@ -113,8 +114,8 @@
                             <td class="likert">simplicity</td>
                             <td class="likert">{{ form.simplicity_simple.help_text }}</td>
                             {% for radio in form.simplicity_simple %}
-                                {% if radio.data.value >= 1 %}
-                                    <td class="likert likert-radio">{{ radio.tag }}</td>
+                                {% if radio.data.value != "" %}
+                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -122,8 +123,8 @@
                             <td class="likert">coherence</td>
                             <td class="likert">{{ form.coherence_simple.help_text }}</td>
                             {% for radio in form.coherence_simple %}
-                                {% if radio.data.value >= 1 %}
-                                    <td class="likert likert-radio">{{ radio.tag }}</td>
+                                {% if radio.data.value != "" %}
+                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -131,8 +132,8 @@
                             <td class="likert">ambiguity</td>
                             <td class="likert">{{ form.ambiguity_simple.help_text }}</td>
                             {% for radio in form.ambiguity_simple %}
-                                {% if radio.data.value >= 1 %}
-                                    <td class="likert likert-radio">{{ radio.tag }}</td>
+                                {% if radio.data.value != "" %}
+                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -170,7 +171,7 @@
                                     <th class="likert">short form</th>
                                     <th class="likert">long form</th>
                                     {% for radio in form.meaning_preservation %}
-                                    {% if radio.data.value >= 1 %}
+                                    {% if radio.data.value != "" %}
                                         <th class="likert likert-scale">{{ radio.choice_label }}</th>
                                     {% endif %}
                                     {% endfor %}
@@ -182,8 +183,8 @@
                                 <td class="likert">meaning preservation</td>
                                 <td class="likert">{{ form.meaning_preservation.help_text }}</td>
                                 {% for radio in form.meaning_preservation %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td class="likert likert-radio">{{ radio.tag }}</td>
+                                    {% if radio.data.value != "" %}
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
@@ -191,8 +192,8 @@
                                 <td class="likert">information gain</td>
                                 <td class="likert">{{ form.information_gain.help_text }}</td>
                                 {% for radio in form.information_gain %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td class="likert likert-radio">{{ radio.tag }}</td>
+                                    {% if radio.data.value != "" %}
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
@@ -200,8 +201,8 @@
                                 <td class="likert">overall simplicity</td>
                                 <td class="likert">{{ form.simplicity.help_text }}</td>
                                 {% for radio in form.simplicity %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td class="likert likert-radio">{{ radio.tag }}</td>
+                                    {% if radio.data.value != "" %}
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
@@ -209,8 +210,8 @@
                                 <td class="likert">structural simplicity</td>
                                 <td class="likert">{{ form.structural_simplicity.help_text }}</td>
                                 {% for radio in form.structural_simplicity %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td class="likert likert-radio">{{ radio.tag }}</td>
+                                    {% if radio.data.value != "" %}
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
@@ -218,8 +219,8 @@
                                 <td class="likert">lexical simplicity</td>
                                 <td class="likert">{{ form.lexical_simplicity.help_text }}</td>
                                 {% for radio in form.lexical_simplicity %}
-                                    {% if radio.data.value >= 1 %}
-                                        <td class="likert likert-radio">{{ radio.tag }}</td>
+                                    {% if radio.data.value != "" %}
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>

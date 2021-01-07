@@ -127,3 +127,12 @@ class Pair(models.Model):
 			self.annotator.add(user)
 		pass
 
+	def __str__(self):
+		# if self.complex_element.exists() and self.simple_element.exists() and \
+		# 		None not in list(self.complex_element.all().values_list("tokens__text", flat=True)) and \
+		# 		None not in list(self.simple_element.all().values_list("tokens__text", flat=True)):
+		#
+		# 	return " ".join(self.complex_element.all().values_list("tokens__text", flat=True)[:5]) + '... \u2194 ' +\
+		# 		   " ".join(self.simple_element.all().values_list("tokens__text", flat=True)[:5]) + '...'
+		# else:
+		return "Pair object (" + str(self.id) + ")"

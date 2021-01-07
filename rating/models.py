@@ -29,12 +29,12 @@ transformation_dict = {"word": {
 						   "rephrase": [],
 						   # "no_operation: []",
 					   		},
-					   # "paragraph": {
-						#    "reorder": {"sentence-order-changed"},
-						#    "merge": {},
-						#    "deletion": {},
-						#    "insert": {"explanation", "examplification"}
-					   # }
+					   "paragraph": {
+						   "reorder": ["sentence-order-changed"],
+						   "merge": [],
+						   "deletion": [],
+						   "insert": ["explanation", "examplification"]
+					   }
 				   }
 
 class IntegerRangeField(models.IntegerField):
@@ -47,8 +47,10 @@ class IntegerRangeField(models.IntegerField):
 		return super(IntegerRangeField, self).formfield(**defaults)
 
 
-LIKERT_CHOICES = [(1, "strongly disgree"), (2, "disagree"), (3, "neither agree nor disagree"),
+LIKERT_CHOICES = [(1, "strongly diasgree"), (2, "disagree"), (3, "neither agree nor disagree"),
 		   (4, "agree"), (5,  "strongly agree")]
+LIKERT_CHOICES_NEUTRAL = [(-2, "strongly diasgree"), (-1, "disagree"), (0, "neither agree nor disagree"),
+		   (1, "agree"), (2,  "strongly agree")]
 
 
 class Annotation(models.Model):
@@ -109,15 +111,15 @@ class Rating(Annotation):
 	help_text_lexical = "The words of the simplified sentence are easier to understand than the words of the original sentence."
 	help_text_information_gain = "In the simplified sentence, information is added or get more explicit compared to the original sentence."
 
-	grammaticality_simple = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_grammaticality.format("simplified"))
-	grammaticality_original = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_grammaticality.format("original"))
-	simplicity = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_simpler)
-	structural_simplicity = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_structural)
-	lexical_simplicity = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_lexical)
+	grammaticality_simple = models.IntegerField(choices=LIKERT_CHOICES_NEUTRAL, help_text=help_text_grammaticality.format("simplified"))
+	grammaticality_original = models.IntegerField(choices=LIKERT_CHOICES_NEUTRAL, help_text=help_text_grammaticality.format("original"))
+	simplicity = models.IntegerField(choices=LIKERT_CHOICES_NEUTRAL, help_text=help_text_simpler)
+	structural_simplicity = models.IntegerField(choices=LIKERT_CHOICES_NEUTRAL, help_text=help_text_structural)
+	lexical_simplicity = models.IntegerField(choices=LIKERT_CHOICES_NEUTRAL, help_text=help_text_lexical)
 	simplicity_original = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_simplicity.format("original"))
 	simplicity_simple = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_simplicity.format("simplified"))
 	meaning_preservation = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_meaning_preservation)
-	information_gain = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_information_gain)
+	information_gain = models.IntegerField(choices=LIKERT_CHOICES_NEUTRAL, help_text=help_text_information_gain)
 	coherence_original = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_coherence.format("original"))
 	coherence_simple = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_coherence.format("simplified"))
 	ambiguity_original = models.IntegerField(choices=LIKERT_CHOICES, help_text=help_text_ambiguity.format("original"))

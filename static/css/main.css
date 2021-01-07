@@ -8,6 +8,30 @@ td.likert-radio {
   text-align: center;
 }
 
+.align-sentence {
+  margin-bottom:4px;
+  white-space: normal;
+  text-align: left;
+  width: 100%;
+}
+
+blockquote {
+  background: #f9f9f9;
+}
+
+input[type=checkbox][disabled]+label{
+  color: darkgray;
+}
+
+.scrollable-box {
+  overflow-y: auto;
+  height: 200px;
+}
+
+.disabled-div {
+  pointer-events:none;
+  opacity: 0.4;
+}
 
 /*table.likert {*/
 /*  border-collapse: collapse;*/

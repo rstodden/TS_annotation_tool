@@ -2,39 +2,93 @@
 
 {% block content %}
     <h2> Change Alignment</h2>
-    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' alignment_id=alignment_id %}>{% csrf_token %}
+    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_id=doc_id %}>{% csrf_token %}
+    <p class="error_form">
+        {{ form.errors }}
+    </p>
         <div class="row">
             <div class="col-md-6">
-                <label for="simple_selected">Simple Document:</label>
-                <select id="simple_selected" name="simple_selected" multiple required>
-                    {%  for element in simple_elements %}
-                        {% if element in simple_sents %}
-                            <option selected value="{{ element.id }}" >{{ element.original_content }}</option>
-                        {% else %}
-                            <option value="{{ element.id }}">{{ element.original_content }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <label for="complex_selected">Complex Document:</label>
-                <select id="complex_selected" name="complex_selected" multiple required>
+                <b>Complex Document:</b>
+                {% if type == "add" or type == "edit"%}
+                    <div class="scrollable-box">
+                {% else %}
+                    <div class="scrollable-box disabled-div">
+                {% endif %}
+{#                <select id="complex_selected" name="complex_selected" multiple required>#}
                     {%  for complex_element in complex_elements %}
                         {% if complex_element in complex_sents %}
-                            <option selected  value="{{ complex_element.id }}" >{{ complex_element.original_content }}</option>
+{#                            <option selected  value="{{ complex_element.id }}" >{{ complex_element.original_content }}</option>#}
+                            <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ complex_element.id }}" name="complex_element" checked autofocus> {{ complex_element.original_content }}</label>
+                        {% elif complex_element in simple_elements %}
+                            <label class="btn btn-default align-sentence" disabled><input type="checkbox" value="{{ complex_element.id }}" name="complex_element" disabled> {{ complex_element.original_content }}</label>
                         {% else %}
-                            <option value="{{ complex_element.id }}">{{ complex_element.original_content }}</option>
+{#                            <option value="{{ complex_element.id }}">{{ complex_element.original_content }}</option>#}
+                            <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ complex_element.id }}" name="complex_element"> {{ complex_element.original_content }}</label>
                         {% endif %}
                     {% endfor %}
-                </select>
+{#                </select>#}
+                </div>
             </div>
+
+            <div class="col-md-6">
+                <b>Simple Document:</b>
+                {% if type == "add" or type == "edit"%}
+                    <div class="scrollable-box">
+                {% else %}
+                    <div class="scrollable-box disabled-div">
+                {% endif %}
+{#                <select id="simple_selected" name="simple_selected" multiple required>#}
+                    {%  for element in simple_elements %}
+                        {% if element in simple_sents %}
+                            <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ element.id }}" name="simple_element" checked autofocus> {{ element.original_content }}</label>
+{#                            <option selected value="{{ element.id }}" >{{ element.original_content }}</option>#}
+                        {% elif element in complex_elements %}
+{#                            todo: compare text of elements not instance #}
+                            <label class="btn btn-default align-sentence" disabled><input type="checkbox" value="{{ element.id }}" name="simple_element" disabled> {{ element.original_content }}</label>
+                        {% else %}
+                            <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ element.id }}" name="simple_element"> {{ element.original_content }}</label>
+{#                            <option value="{{ element.id }}">{{ element.original_content }}</option>#}
+                        {% endif %}
+                    {% endfor %}
+{#                </select>#}
+                </div>
+            </div>
+{#        </div>#}
+{#        <div class="row">#}
+
+        </div>
+{#        <div class="row">#}
+{#        <hr style="width:100%;text-align:left;margin-left:0">#}
+{#            {% if type == "add" %}#}
+{#                <button class="btn btn-default" title="reset current alignment" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>#}
+{#                <button class="btn btn-default" title="save alignment" type="submit" name="save" value="save"><i class="fas fa-save"></i> Save</button>#}
+{#            {% endif %}#}
+{#        </div>#}
+        <hr style="width:100%;text-align:left;margin-left:0">
+        <div class="row scrollable-box">
+            <b>List of aligned sentence pairs:</b>
+                <ul>
+                {% for pair in pairs %}
+                    <li>
+                        {{ pair }}
+                        <button class="btn btn-default" title="edit alignment of pair" type="submit" name="edit" value="{{ pair.id }}"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-default" title="delete pair" type="submit" name="delete" value="{{ pair.id }}"><i class="fas fa-trash-alt"></i> Delete</button>
+                        <button class="btn btn-default" title="rate pair" type="submit" name="rate" value="{{ pair.id }}"><i class="fas fa-balance-scale-left"></i> Rate</button>
+                        <button class="btn btn-default" title="annotate transformations of pair" type="submit" name="transformation" value="{{ pair.id }}"><i class="fas fa-route"></i> Transformations</button>
+                    </li>
+                {% endfor %}
+                </ul>
         </div>
 
+        <hr style="width:100%;text-align:left;margin-left:0">
         <div class="row">
-            <button type="submit" class="save btn btn-default" value="rate" name="submit">Save & Rate</button>
-            <button type="submit" class="save btn btn-default" value="next" name="submit">Save & Next</button>
+            {% if type == "add" %}
+                <button class="btn btn-default" title="reset current alignment" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>
+                <button class="btn btn-default" title="save alignment" type="submit" name="save" value="save"><i class="fas fa-save"></i> Save</button>
+            {% else %}
+{#              <button type="submit" class="save btn btn-default" value="rate" name="submit">Save & Rate</button>#}
+                <button class="btn btn-default" title="add new alignment" type="submit" name="add" value="new"><i class="fas fa-plus-circle"></i> Add</button>
+            {% endif %}
         </div>
     </form>
 
