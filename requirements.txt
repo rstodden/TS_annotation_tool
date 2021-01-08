@@ -10,3 +10,4 @@ sortable
 requests
 bs4
 spacy
+django-multiupload

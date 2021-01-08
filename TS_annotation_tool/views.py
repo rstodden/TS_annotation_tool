@@ -42,6 +42,4 @@ def overview_per_doc(request, doc_id):
 			"alignments": page_obj,
 			"doc_url": doc_tmp.url, "doc_id": doc_tmp.id})
 	else:
-		# todo link to create alignment
-		return render(request, 'overview_per_doc.html', {
-		"error": "There are no alignments assigned to the doc. Please start aligning."})
+		return redirect("alignment:change_alignment", doc_id=doc_tmp.id)

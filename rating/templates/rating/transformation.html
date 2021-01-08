@@ -38,6 +38,7 @@
                         {% endif %}
                     {% endfor %}
                 </blockquote>
+                <p>Text Source: {{ doc.url }} (Last accessed: {{ doc.access_date }})</p>
             </div>
             {% if type == "add" %}
                 <p>Select the level of the transformation and afterwards the type of transformation.

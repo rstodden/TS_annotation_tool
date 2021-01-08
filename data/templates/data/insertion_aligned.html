@@ -1,0 +1,33 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <div>The file should be in csv format have the following column order:
+        <ul>
+            <li>simple sentence</li>
+            <li>source of simple sentence</li>
+            <li>level of the simple sentence</li>
+            <li>access date of simple document</li>
+            <li>title of simple document</li>
+            <li>license of simple document</li>
+            <li>complex sentence</li>
+            <li>source of complex sentence</li>
+            <li>level of complex sentence</li>
+            <li>title of complex document</li>
+            <li>access date of complex document</li>
+            <li>license of complex document</li>
+            <li>domain of the pair</li>
+            <li>details regarding the alignment</li>
+
+        </ul>
+    </div>
+    <form method="post" enctype="multipart/form-data" >{% csrf_token %}
+        {{ form.errors }}
+        {{ form_upload }}
+        <p>
+            <button type="submit">Upload and assign</button>
+        </p>
+    </form>
+    {% if data_inserted %}
+        Manual alignments successfully uploaded.
+    {% endif %}
+{% endblock %}

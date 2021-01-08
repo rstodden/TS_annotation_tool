@@ -30,19 +30,9 @@ from .models import transformation_dict
 # 	return render(request, 'overview.html', {"page_obj": page_obj})
 
 
-def tokenize_dummy(alignmentpair_tmp):
-	for sentence in alignmentpair_tmp.complex_element.all():
-		if not sentence.tokens.exists():
-			sentence.tokenize()
-	for sentence in alignmentpair_tmp.simple_element.all():
-		if not sentence.tokens.exists():
-			sentence.tokenize()
-	return 1
-
 @login_required
 def rate_pair(request, pair_id):
 	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user)
-	tokenize_dummy(alignmentpair_tmp)
 	if request.method == "POST":
 		# redirected from rating.html. save rating of pair here.
 		form = RatingForm(request.POST)
@@ -66,7 +56,6 @@ def rate_pair(request, pair_id):
 @login_required
 def select_transformation(request, pair_id):
 	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user)
-	tokenize_dummy(alignmentpair_tmp)
 	if request.method == "POST":
 		form = TransformationForm(request.POST)
 		if request.POST.get("add"):
