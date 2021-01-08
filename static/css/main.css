@@ -1,3 +1,9 @@
+body {
+  color: #193F2E;
+}
+.row {
+  padding: 5pt;
+}
 table.likert, th.likert, td.likert {
   border: 1px solid black;
   border-spacing: 50px 10px;
@@ -16,7 +22,8 @@ td.likert-radio {
 }
 
 blockquote {
-  background: #f9f9f9;
+  background: #ECF6F2;
+  border-left: 5px solid #C5E5D7;
 }
 
 input[type=checkbox][disabled]+label{
@@ -32,6 +39,43 @@ input[type=checkbox][disabled]+label{
   pointer-events:none;
   opacity: 0.4;
 }
+
+.page-header {
+  text-align: center;
+  background-color: #8ACBAE;
+  padding: 1px 0;
+  width: 100%;
+}
+
+a:link.headline, a:visited.headline, a:link:active.headline, a:visited:active.headline{
+  color: #F5FFFA;
+}
+
+a:link {
+  color: #428969;
+}
+
+a:visited {
+  color: #50978B;
+}
+
+a:link:active {
+  color: #337C5B;
+}
+
+a:visited:active{
+  color: #337D7A;
+}
+.btn-default, .btn {
+  background-color: #D8EEE4;
+}
+p.text-source {
+  font-size: 9pt;
+}
+
+/*.btn-default:hover, .btn.hover {*/
+/*  background-color: #B1DCC9;*/
+/*}*/
 
 /*table.likert {*/
 /*  border-collapse: collapse;*/
@@ -103,4 +147,8 @@ input[type=checkbox][disabled]+label{
 }
 .form-check label input[type="checkbox"] {
   opacity:0;
+}
+
+hr {
+  color: #193F2E;
 }

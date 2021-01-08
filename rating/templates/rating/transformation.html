@@ -38,7 +38,7 @@
                         {% endif %}
                     {% endfor %}
                 </blockquote>
-                <p>Text Source: {{ doc.url }} (Last accessed: {{ doc.access_date }})</p>
+                <p class="text-source">Text Source: <a href="{{ doc_url }}" title="link to source" target="_blank">{{ doc_url }}</a> (Last accessed: {{ doc_access_date }})</p>
             </div>
             {% if type == "add" %}
                 <p>Select the level of the transformation and afterwards the type of transformation.

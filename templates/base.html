@@ -13,24 +13,36 @@
     <body>
         <div class="content container">
             <div class="row">
-                <div class="col-md-12">
+                <div class="page-header">
+                    <h1>
+                        <a href="{% url 'home' %}" class="headline"><i class="fas fa-book-reader"></i> Text Simplification Annotation Tool </a>
+                    </h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                    <ul class="sidebar-nav">
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'overview' %}">Alignment</a></li>
+                            {% if user.is_superuser %}
+                                <li><a href="{% url 'data:home' %}">Data</a></li>
+                                <li><a href="{% url 'evaluation:home' %}">Evaluation</a></li>
+                            {% endif %}
+{#                            <li><a href="{% url 'overview' %}">Rating</a></li>#}
+{#                            <li><a href="{% url 'simplification:home' %}">Simplification</a></li>#}
+                            <li>User: {{ user.get_username }}</li>
+                            <li><a href="{% url 'accounts:logout'%}?next={{request.path}}">Logout</a></li>
+                        {% else %}
+                            <li><a href="{% url 'accounts:login'%}?next={{request.path}}">Login</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-10">
                 {% block content %}
                 {% endblock %}
                 </div>
             </div>
         </div>
-        <ul class="sidebar-nav">
-            {% if user.is_authenticated %}
-                <li><a href="{% url 'overview' %}">Alignment</a></li>
-                <li><a href="{% url 'data:home' %}">Data</a></li>
-                <li><a href="{% url 'evaluation:home' %}">Evaluation</a></li>
-                <li><a href="{% url 'overview' %}">Rating</a></li>
-                <li><a href="{% url 'simplification:home' %}">Simplification</a></li>
-                 <li>User: {{ user.get_username }}</li>
-                 <li><a href="{% url 'accounts:logout'%}?next={{request.path}}">Logout</a></li>
-            {% else %}
-                <li><a href="{% url 'accounts:login'%}?next={{request.path}}">Login</a></li>
-            {% endif %}
-        </ul>
     </body>
 </html>

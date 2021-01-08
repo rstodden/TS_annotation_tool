@@ -22,13 +22,13 @@
 {#                <ul>#}
 {#                {%  for domain_not_aligned in domains_not_aligned %}#}
 {#                    <li>#}
-{#                        <a href="{% url 'overview' domain=domain_not_aligned corpus=0 %}" class="btn btn-info">Domain: {{ domain_not_aligned }}</a>#}
+{#                        <a href="{% url 'overview' domain=domain_not_aligned corpus=0 %}" class="btn btn-default">Domain: {{ domain_not_aligned }}</a>#}
 {#                    </li>#}
 {#                    <ul>#}
 {#                    {% for corpus_not_aligned in corpora_not_aligned %}#}
 {#                        {% if corpus_not_aligned.domain == domain_not_aligned %}#}
 {#                            <li>#}
-{#                                <a href="{% url 'overview' domain=domain_not_aligned corpus=corpus_not_aligned.id %}" class="btn btn-info">Corpus: {{ corpus_not_aligned.name }}</a>#}
+{#                                <a href="{% url 'overview' domain=domain_not_aligned corpus=corpus_not_aligned.id %}" class="btn btn-default">Corpus: {{ corpus_not_aligned.name }}</a>#}
 {#                            </li>#}
 {#                            {% if documents_not_aligned %}#}
 {#                                <br>#}
@@ -80,13 +80,13 @@
             <ul>
                 {%  for domain in domains %}
                     <li>
-                        <a href="{% url 'overview' domain=domain corpus=0 %}" class="btn btn-info">Domain: {{ domain }}</a>
+                        <a href="{% url 'overview' domain=domain corpus=0 %}" class="btn btn-default">Domain: {{ domain }}</a>
                     </li>
                     <ul>
                     {% for corpus in corpora %}
                         {% if corpus.domain == domain %}
                             <li>
-                                <a href="{% url 'overview' domain=domain corpus=corpus.id %}" class="btn btn-info">Corpus: {{ corpus.name }}</a>
+                                <a href="{% url 'overview' domain=domain corpus=corpus.id %}" class="btn btn-default">Corpus: {{ corpus.name }}</a>
                             </li>
                             {% if documents %}
                                 <br>

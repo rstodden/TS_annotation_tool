@@ -6,6 +6,7 @@ from .forms import RatingForm, TransformationForm
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .models import transformation_dict
+import data.models
 # from django_tables2 import SingleTableView
 # from .tables import PairTable
 # from django_sortable.helpers import sortable_helper
@@ -50,7 +51,10 @@ def rate_pair(request, pair_id):
 		form = RatingForm(instance=rating_tmp)
 	else:
 		form = RatingForm()
-	return render(request, 'rating/rating.html', {'form': form, 'alignmentpair': alignmentpair_tmp})
+	doc_tmp = data.models.Document.objects.get(alignments=alignmentpair_tmp)
+	return render(request, 'rating/rating.html', {'form': form, 'alignmentpair': alignmentpair_tmp, "doc_url": doc_tmp.url,
+															   "doc_access_date": doc_tmp.access_date,
+															   "doc_id": doc_tmp.id,})
 
 
 @login_required

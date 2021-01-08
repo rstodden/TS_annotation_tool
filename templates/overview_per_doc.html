@@ -95,17 +95,17 @@
                         {% endfor %}
                     </td>
                     <td>
-                        <a href="{% url 'rating:rate_pair' pair_id=pair.id %}" class="btn btn-info">
+                        <a href="{% url 'rating:rate_pair' pair_id=pair.id %}" class="btn btn-default">
                             change rating
                         </a>
                     </td>
                     <td>
-                        <a href="{% url 'rating:select_transformation' pair_id=pair.id %}" class="btn btn-info">
+                        <a href="{% url 'rating:select_transformation' pair_id=pair.id %}" class="btn btn-default">
                             change transformation
                         </a>
                     </td>
                     <td>
-                        <a href="{% url 'alignment:change_alignment' doc_id=doc_id %}" class="btn btn-info">
+                        <a href="{% url 'alignment:change_alignment' doc_id=doc_id %}" class="btn btn-default">
                             change alignment
                         </a>
                     </td>

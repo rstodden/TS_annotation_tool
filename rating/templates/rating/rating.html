@@ -16,8 +16,6 @@
                             {{ sentence.original_content }}
                         {% endfor %}
                     </blockquote>
-                </div>
-                <div class="col-12">
                     <table  class="likert">
                         <thead>
                             <tr>
@@ -73,7 +71,7 @@
                 </div>
             </div>
 
-            <br><hr style="width:100%;text-align:left;margin-left:0">
+            <hr style="width:100%;text-align:left;margin-left:0">
 
             <div class="row">
                 <div class="col-12">
@@ -84,8 +82,6 @@
                             {{ sentence.original_content }}
                         {% endfor %}
                     </blockquote>
-                </div>
-                <div class="col-12">
                     <table class="likert">
                         <thead>
                             <tr class="likert">
@@ -143,7 +139,7 @@
                 </div>
             </div>
 
-            <br><hr style="width:100%;text-align:left;margin-left:0">
+            <hr style="width:100%;text-align:left;margin-left:0">
 
             <div class="row">
                 <div class="col-12">
@@ -152,19 +148,19 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <b>Complex Sentence:</b><br>
+                    <b>Complex Sentence:</b>
                     <blockquote>
                         {% for sentence in alignmentpair.complex_element.all %}
                             {{ sentence.original_content }}
                         {% endfor %}
                     </blockquote>
-                    <b>Simple Sentence:</b><br>
+                    <b>Simple Sentence:</b>
                     <blockquote>
                         {% for sentence in alignmentpair.simple_element.all %}
                             {{ sentence.original_content }}
                         {% endfor %}
                     </blockquote>
-                    <p>Text Source: {{ doc.url }} (Last accessed: {{ doc.access_date }})</p>
+                    <p class="text-source">Text Source: <a href="{{ doc_url }}" title="link to source" target="_blank">{{ doc_url }}</a> (Last accessed: {{ doc_access_date }})</p>
                     <!--<div class="fieldWrapper">-->
                         <table class="likert">
                             <thead>
@@ -231,22 +227,25 @@
 
                     <!--</div>-->
                 </div>
-                <br><hr style="width:100%;text-align:left;margin-left:0">
+                <hr style="width:100%;text-align:left;margin-left:0">
                 <div class="row">
-                    <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
-                    {{ form.certainty.label_tag }}
-                    <br>
-                    {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
-                    <br><br>
-                    <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
-                    {{ form.comment.label_tag }}
-                    <br>
-                    {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
+                    <div class="col-md-12">
+                        <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
+                        {{ form.certainty.label_tag }}
+                        {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
+                        <br>
+                        <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
+                        {{ form.comment.label_tag }}
+
+                        {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
+                    </div>
                 </div>
                 <div class="row">
-                    <button type="submit" class="save btn btn-default" title="save button" name="save" value="save"><i class="fas fa-save"></i></i> Save</button>
-                    <button type="submit" class="save btn btn-default" title="save and go to transformations" name="transformation" value="transformation"><i class="fas fa-route"></i> Transformations</button>
-{#                    transformations: <i class="fas fa-hat-wizard"></i> <i class="fas fa-user-edit"></i> <i class="fas fa-tools"></i> <i class="fas fa-head-side-virus"></i> <i class="fas fa-bezier-curve"></i> <i class="fas fa-project-diagram"></i>#}
+                    <div class="col-md-12">
+                        <button type="submit" class="save btn btn-default" title="save button" name="save" value="save"><i class="fas fa-save"></i></i> Save</button>
+                        <button type="submit" class="save btn btn-default" title="save and go to transformations" name="transformation" value="transformation"><i class="fas fa-route"></i> Transformations</button>
+    {#                    transformations: <i class="fas fa-hat-wizard"></i> <i class="fas fa-user-edit"></i> <i class="fas fa-tools"></i> <i class="fas fa-head-side-virus"></i> <i class="fas fa-bezier-curve"></i> <i class="fas fa-project-diagram"></i>#}
+                    </div>
                 </div>
             </div>
         </form>
