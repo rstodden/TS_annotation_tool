@@ -53,6 +53,27 @@
 - python3
 - requirements.txt `pip3 install -r requirements.txt`
 
+### Deployment
+ video: https://www.youtube.com/watch?v=nh1ynJGJuT8
+- create a directory one level above the annotation tool and clone the following git repo `https://github.com/LondonAppDeveloper/demo-django-docker-nginx-prod.git`
+- rename directory `mv demo-django-docker-nginx-prod docker-files-prodcution` (optional)  
+- make sure that the complete annotation tool repository is inside the docker-files-production directory
+- install Docker `https://docs.docker.com/engine/install/ubuntu/`
+- install Docker-Compose `https://docs.docker.com/compose/install/`
+- `cd docker-files-production`
+- run `python3 -m venv env` to create a virtual environment
+- run `source env/bin/activate` to activate the virtual environment
+- Run `pip install -r requirements.txt` to install dependencies
+- add correct directory to docker. replace `COPY ./app /app
+` with  `COPY ../TS_annotation_tool /app`
+- add the input of TS_annotation_tool/requirements.txt to docker-files-production/requirements.txt
+- add deployment secret key to dockerfile
+- install nginx
+- enable nginx
+- open port 8080 to specified IP addresses or everyone
+    - `sudo ufw allow proto tcp from 176.198.199.118 to any port 8080`
+    - `sudo ufw allow port 8080`
+- build and run docker `docker-compose -f docker-compose-deploy.yml up --build`
 
 ## Structure
 The django project has different apps:
@@ -60,3 +81,12 @@ The django project has different apps:
 - alignment: aligning the documents
 - rating: rating the alignment pairs
 - evaluation: for admin only to export data and generate inter-annotator-agreement
+
+# deployment 2:
+- move  /etc/nginx/sites-available/TS_annotation_tool.conf to etc/nginx/sites-available and sites-enabled
+- sudo /etc/init.d/nginx restart
+- uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi --chmod-socket=666
+- uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi --chmod-socket=664
+- uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi
+- add IP adress to allowed hosts in setting.py
+- uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi --chmod-socket=666
