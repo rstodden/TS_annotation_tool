@@ -83,6 +83,9 @@ The django project has different apps:
 - evaluation: for admin only to export data and generate inter-annotator-agreement
 
 # deployment 2:
+- clone repository
+- create virtualenv
+- fake migrations
 - move  /etc/nginx/sites-available/TS_annotation_tool.conf to etc/nginx/sites-available and sites-enabled
 - sudo /etc/init.d/nginx restart
 - uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi --chmod-socket=666

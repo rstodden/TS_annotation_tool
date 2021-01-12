@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 
 def export_rating():  #output_path
+	# todo: use all rating and transformations in output
 	# using same export format as proposed in Alva-Manchego etal. (2020) https://www.aclweb.org/anthology/2020.acl-main.424.pdf
 	result_frame = pd.DataFrame(
 		columns=["original", "simplification", "original_sentence_id", "aspect", "worker_id", "rating"])

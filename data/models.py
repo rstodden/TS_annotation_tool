@@ -60,6 +60,7 @@ class Document(models.Model):
 	path = models.FileField(upload_to='media/uploads/', blank=True, null=True)
 	domain = models.CharField(max_length=50, blank=True, null=True)
 	sentences = models.ManyToManyField("data.Sentence", blank=True)
+	last_changes = models.DateTimeField(auto_now=True)
 
 	def scraping_content(self):
 		# extracting the content of the html tree
@@ -186,6 +187,8 @@ class Corpus(models.Model):
 	domain = models.CharField(max_length=100)
 	language = LanguageField(blank=True, max_length=8)
 	path = models.CharField(max_length=500, blank=True, null=True)
+	simple_level = models.CharField(max_length=50, choices=language_level_list)
+	complex_level = models.CharField(max_length=50, choices=language_level_list)
 
 	def fill_corpus(self):
 		# read urls and save plain text
@@ -276,7 +279,8 @@ class Corpus(models.Model):
 				simple_document.parallel_document = complex_document
 				simple_document.save()
 				self.complex_documents.add(complex_document)
-
+		self.complex_level = form_upload.cleaned_data["language_level_complex"]
+		self.simple_level = form_upload.cleaned_data["language_level_simple"]
 		self.save()
 		return self
 
@@ -309,7 +313,7 @@ def create_document_by_upload(document, language_level, domain, nlp, annotators=
 		document_tmp = Document.objects.get(title=title, url=url)
 	else:
 		document_tmp = Document(url=url, title=title, access_date=date, plain_data=document_content[1].decode("utf-8"),
-											level=language_level, domain=domain)
+								level=language_level, domain=domain)
 		document_tmp.save()
 		if annotators:
 			for user in annotators:
