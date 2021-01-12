@@ -5,7 +5,7 @@ import alignment.models
 from .forms import RatingForm, TransformationForm
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .models import transformation_dict
+from TS_annotation_tool.utils import transformation_dict
 import data.models
 # from django_tables2 import SingleTableView
 # from .tables import PairTable

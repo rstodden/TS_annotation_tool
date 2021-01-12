@@ -1,5 +1,6 @@
 from django import forms
-from .models import Rating, Transformation, LIKERT_CHOICES_NEUTRAL, LIKERT_CHOICES
+from .models import Rating, Transformation
+from TS_annotation_tool.utils import LIKERT_CHOICES_NEUTRAL, LIKERT_CHOICES
 from django.utils import timezone
 
 

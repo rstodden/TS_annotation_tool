@@ -5,19 +5,18 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
 import datetime
 from rating.models import Rating, Transformation
-from data.models import Token
+from data.models import Token, Sentence, DocumentPair
+from django.db.models import Q
+
 
 class Pair(models.Model):
-	# id = models.ForeignKey(on_delete=models.CASCADE, unique=True, primary_key=True)
-	simple_element = models.ManyToManyField("data.Sentence", related_name="simple_sentence")
-	complex_element = models.ManyToManyField("data.Sentence", related_name="complex_sentence")
 	manually_checked = models.BooleanField(default=True)
 	origin_annotator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="origin_annotator", blank=True, null=True)
 	annotator = models.ManyToManyField(User, related_name="current_annotator", blank=True)
 	rating = models.ManyToManyField("rating.Rating", blank=True)
 	transformation_of_pair = models.ManyToManyField("rating.Transformation", blank=True)
 	# manually_added = models.BooleanField(default=False, blank=True)
-	pair_identifier = models.IntegerField()
+	pair_identifier = models.IntegerField(default=1)
 	created_at = models.DateTimeField(auto_now_add=True, blank=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	finished_at = models.DateTimeField(auto_now=True, blank=True)
@@ -27,6 +26,29 @@ class Pair(models.Model):
 					("simplified", "manually simplified"),
 					("parallel_online_uploaded", "parallel online documents manually aligned and uploaded"))
 	type = models.CharField(choices=type_choices, max_length=50)
+	document_pair = models.ForeignKey("data.DocumentPair", on_delete=models.CASCADE, blank=True, null=True)
+
+	def save_sentence_alignment_from_form(self, simple_elements, complex_elements, user, document):
+		self.type = "parallel_online"
+		self.manually_checked = True
+		self.origin_annotator = user
+		self.pair_identifier = get_sentence_pair_identifier()
+		self.document_pair = document
+		self.save()
+		self.annotator.add(user)
+		for sentence_id in complex_elements:
+			sentence = Sentence.objects.get(id=sentence_id)
+			sentence.complex_element.add(self)
+		for sentence_id in simple_elements:
+			sentence = Sentence.objects.get(id=sentence_id)
+			sentence.simple_element.add(self)
+
+		return self
+
+
+
+	# ------- unchecked -----------
+
 
 	def update_or_save_rating(self, form, rater):
 		rating_tmp = form.save(commit=False)
@@ -41,23 +63,6 @@ class Pair(models.Model):
 		self.save()
 		return self
 
-		# if self.rating.objects.filter(rater=rater):
-		# 	rating_tmp = self.rating.objects.get(rater=rater)
-		# else:
-		# 	rating_tmp = Rating()
-		# rating_tmp.simplicity = form.cleaned_data["simplicity"]
-		# rating_tmp.grammaticality = form.cleaned_data["grammaticality"]
-		# rating_tmp.meaning_preservation = form.cleaned_data["meaning_preservation"]
-		# rating_tmp.comment = form.cleaned_data["comment"]
-		# rating_tmp.certainty = form.cleaned_data["certainty"]
-		# self.manually_checked = True
-		# rating_tmp.rater_id = rater.id
-		# rating_tmp.save()
-		# if not self.rating.filter(rater=rater):
-		# 	print(rating_tmp)
-		# 	self.rating.add(rating_tmp)
-		# self.save()
-		# return self
 
 	def delete_transformation(self, transformation_id, rater):
 		transformation_tmp = Transformation.objects.get(id=transformation_id, rater=rater)
@@ -80,39 +85,17 @@ class Pair(models.Model):
 		self.transformation_of_pair.add(transformation_tmp)
 		self.save()
 		return self
-		# transformation_tmp = Transformation(rater=rater)
-		# transformation_tmp.comment = form_dict.get("comment")
-		# transformation_tmp.certainty = form_dict.get("certainty")
-		# transformation_tmp.transformation = form_dict.get("transformation")
-		# transformation_tmp.transformation_level = form_dict.get("transformation_level")
-		# if form_dict.get("subtransformation") and [element for element in form_dict.getlist("other_text") if element]:
-		# 	transformation_tmp.sub_transformation = form_dict.get("sub_transformation") + ":" + " ".join([element for element in form_dict.getlist("other_text") if element])
-		# else:
-		# 	transformation_tmp.sub_transformation = form_dict.get("sub_transformation")
-		# transformation_tmp.save()
-		# for token_id in form_dict.getlist("complex_token"):
-		# 	transformation_tmp.complex_token.add(Token.objects.get(id=token_id))
-		# for token_id in form_dict.getlist("simple_token"):
-		# 	transformation_tmp.simple_token.add(Token.objects.get(id=token_id))
-		# # transformation_tmp.simple_token = form.cleaned_data["meaning_preservation"]
-		# # transformation_tmp.complex_token = form.cleaned_data["meaning_preservation"]
-		# self.manually_checked = True
-		# transformation_tmp.save()
-		# # if not self.transformation_of_pair.filter(rater=rater):
-		# # 	print(transformation_tmp)
-		# self.transformation_of_pair.add(transformation_tmp)
-		# self.save()
-		# return self
 
-	def update_sentences(self, simple_sents, complex_sents):
-		self.simple_element.clear()
-		self.complex_element.clear()
-		self.simple_element.add(*simple_sents)
-		self.complex_element.add(*complex_sents)
-		self.type = "parallel_online"
-		self.manually_checked = 1
-		self.save()
-		return self
+
+	# def update_sentences(self, simple_sents, complex_sents):
+	# 	self.simple_element.clear()
+	# 	self.complex_element.clear()
+	# 	self.simple_element.add(*simple_sents)
+	# 	self.complex_element.add(*complex_sents)
+	# 	self.type = "parallel_online"
+	# 	self.manually_checked = 1
+	# 	self.save()
+	# 	return self
 
 	def save_rating(self, form, rater):
 		rating_tmp = Rating(form.save(commit=False))
@@ -127,12 +110,20 @@ class Pair(models.Model):
 			self.annotator.add(user)
 		pass
 
-	def __str__(self):
-		if self.complex_element.exists() and self.simple_element.exists() and \
-				None not in list(self.complex_element.all().values_list("tokens__text", flat=True)) and \
-				None not in list(self.simple_element.all().values_list("tokens__text", flat=True)):
+	# def __str__(self):
+	# 	if self.complex_element.exists() and self.simple_element.exists() and \
+	# 			None not in list(self.complex_element.all().values_list("tokens__text", flat=True)) and \
+	# 			None not in list(self.simple_element.all().values_list("tokens__text", flat=True)):
+	#
+	# 		return " ".join(self.complex_element.all().values_list("tokens__text", flat=True)[:5]) + '... \u2194 ' +\
+	# 			   " ".join(self.simple_element.all().values_list("tokens__text", flat=True)[:5]) + '...'
+	# 	else:
+	# 		return "Pair object (" + str(self.id) + ")"
 
-			return " ".join(self.complex_element.all().values_list("tokens__text", flat=True)[:5]) + '... \u2194 ' +\
-				   " ".join(self.simple_element.all().values_list("tokens__text", flat=True)[:5]) + '...'
-		else:
-			return "Pair object (" + str(self.id) + ")"
+
+def get_sentence_pair_identifier():
+	list_ids = Pair.objects.values_list("pair_identifier")
+	if list_ids:
+		return max(list_ids)[0] + 1
+	else:
+		return 1

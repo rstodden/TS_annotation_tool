@@ -9,7 +9,7 @@ import data.models
 #
 
 
-class AlignmentForm(forms.ModelForm):
-	class Meta:
-		model = Pair
-		fields = ["complex_element", "simple_element"]
+# class AlignmentForm(forms.ModelForm):
+# 	class Meta:
+# 		model = data.models.Sentence
+# 		fields = ["complex_element", "simple_element"]

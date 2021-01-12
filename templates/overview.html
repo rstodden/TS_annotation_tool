@@ -1,146 +1,66 @@
-{#{% extends 'base.html' %}#}
-{##}
-{#{% block content %}#}
-{#{% load crispy_forms_tags %}#}
-{##}
-{#    <h1>Document Overview</h1>#}
-{#    <div class="row">#}
-{#        <div class="col-md-12">#}
-{#        {% if error %}#}
-{#            <p> {{ error }} </p>#}
-{#        {% endif %}#}
-{#        {% if success %}#}
-{#            <p> {{ success }} </p>#}
-{#        {% endif %}#}
-{#        </div>#}
-{#    </div>#}
-{#    <h2>Align or rate the sentences of the listed documents.</h2>#}
-{#    <div class="row">#}
-{#        <div class="col-md-12">#}
-{#            TODO: show progress for each document#}
-{#            <h3>Not Aligned Documents:</h3>#}
-{#                <ul>#}
-{#                {%  for domain_not_aligned in domains_not_aligned %}#}
-{#                    <li>#}
-{#                        <a href="{% url 'overview' domain=domain_not_aligned corpus=0 %}" class="btn btn-default">Domain: {{ domain_not_aligned }}</a>#}
-{#                    </li>#}
-{#                    <ul>#}
-{#                    {% for corpus_not_aligned in corpora_not_aligned %}#}
-{#                        {% if corpus_not_aligned.domain == domain_not_aligned %}#}
-{#                            <li>#}
-{#                                <a href="{% url 'overview' domain=domain_not_aligned corpus=corpus_not_aligned.id %}" class="btn btn-default">Corpus: {{ corpus_not_aligned.name }}</a>#}
-{#                            </li>#}
-{#                            {% if documents_not_aligned %}#}
-{#                                <br>#}
-{#                                <div class="row">#}
-{#                                    <table border="1">#}
-{#                                        <thead>#}
-{#                                            <tr>#}
-{#                                                <td>ID</td>#}
-{#                                                <td>URL</td>#}
-{#                                                <td>Level</td>#}
-{#                                                <td>Domain</td>#}
-{#                                                <td>Parallel</td>#}
-{#                                            </tr>#}
-{#                                        </thead>#}
-{#                                        <tbody>#}
-{#                                            {% for doc_not_aligned in documents_not_aligned %}#}
-{#                                                <tr>#}
-{#                                                    <td>{{ doc_not_aligned.id }}</td>#}
-{#                                                    <td>#}
-{#                                                        {% if doc_not_aligned.title %}#}
-{#                                                            <a href="{% url 'overview_per_doc' doc_id=doc_not_aligned.id %}">{{ doc_not_aligned.title }}</a>#}
-{#                                                        {% else %}#}
-{#                                                            <a href="{% url 'overview_per_doc' doc_id=doc_not_aligned.id %}">{{ doc_not_aligned.url }}</a>#}
-{#                                                        {% endif %}#}
-{#                                                    </td>#}
-{#                                                    <td>{{ doc_not_aligned.level|upper }}</td>#}
-{#                                                    <td>{{ doc_not_aligned.domain }}</td>#}
-{#                                                    {% if doc_not_aligned.parallel_document %}#}
-{#                                                        <td>x</td>#}
-{#                                                    {% else %}#}
-{#                                                        <td></td>#}
-{#                                                    {% endif %}#}
-{##}
-{##}
-{#                                                </tr>#}
-{##}
-{#                                            {% endfor %}#}
-{#                                        </tbody>#}
-{#                                    </table>#}
-{#                                </div>#}
-{#                            {% endif %}#}
-{#                            <br>#}
-{#                        {% endif %}#}
-{#                    {% endfor %}#}
-{#                    </ul>#}
-{#                {% endfor %}#}
-{#                </ul>#}
-{#            <h3> Documents:</h3>#}
-{#            <ul>#}
-{#                {%  for domain in domains %}#}
-{#                    <li>#}
-{#                        <a href="{% url 'overview' domain=domain corpus=0 %}" class="btn btn-default">Domain: {{ domain }}</a>#}
-{#                    </li>#}
-{#                    <ul>#}
-{#                    {% for corpus in corpora %}#}
-{#                        {% if corpus.domain == domain %}#}
-{#                            <li>#}
-{#                                <a href="{% url 'overview' domain=domain corpus=corpus.id %}" class="btn btn-default">Corpus: {{ corpus.name }}</a>#}
-{#                            </li>#}
-{#                            {% if documents %}#}
-{#                                <br>#}
-{#                                <div class="row">#}
-{#                                    <table border="1">#}
-{#                                        <thead>#}
-{#                                            <tr>#}
-{#                                                <td>ID</td>#}
-{#                                                <td>URL</td>#}
-{#                                                <td>Level</td>#}
-{#                                                <td>Domain</td>#}
-{#                                                <td>Parallel</td>#}
-{#                                            </tr>#}
-{#                                        </thead>#}
-{#                                        <tbody>#}
-{#                                            {% for doc in documents %}#}
-{#                                                <tr>#}
-{#                                                    <td>{{ doc.id }}</td>#}
-{#                                                    <td>#}
-{#                                                        {% if doc.title %}#}
-{#                                                            <a href="{% url 'overview_per_doc' doc_id=doc.id %}">{{ doc.title }}</a>#}
-{#                                                        {% else %}#}
-{#                                                            <a href="{% url 'overview_per_doc' doc_id=doc.id %}">{{ doc.url }}</a>#}
-{#                                                        {% endif %}#}
-{#                                                    </td>#}
-{#                                                    <td>{{ doc.level }}</td>#}
-{#                                                    <td>{{ doc.domain }}</td>#}
-{#                                                    {% if doc.parallel_document %}#}
-{#                                                        <td>x</td>#}
-{#                                                    {% else %}#}
-{#                                                        <td></td>#}
-{#                                                    {% endif %}#}
-{##}
-{##}
-{#                                                </tr>#}
-{##}
-{#                                            {% endfor %}#}
-{#                                        </tbody>#}
-{#                                    </table>#}
-{#                                </div>#}
-{#                            {% endif %}#}
-{#                            <br>#}
-{#                        {% endif %}#}
-{#                    {% endfor %}#}
-{#                    </ul>#}
-{#                {% endfor %}#}
-{#            </ul>#}
-{#        </div>#}
-{#    </div>#}
-{#{% endblock %}#}
-
-{% extends "base.html" %}
-{% load django_tables2 %}
+{% extends 'base.html' %}
 
 {% block content %}
-    {% render_table table %}
-{% endblock content %}
+{% load crispy_forms_tags %}
+
+    <h1>Document Overview</h1>
+    <div class="row">
+        <div class="col-md-12">
+        {% if error %}
+            <p> {{ error }} </p>
+        {% endif %}
+        {% if success %}
+            <p> {{ success }} </p>
+        {% endif %}
+        </div>
+    </div>
+    <h2>Align or rate the sentences of the listed documents.</h2>
+    <div class="row">
+        <h3> Documents:</h3>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Corpus</th>
+                        <th>Title</th>
+                        <th>Domain</th>
+                        <th>Simple Level</th>
+                        <th>Complex Level</th>
+                        <th>Last Change</th>
+                        <th>Aligned</th>
+                        <th>Rating</th>
+                        <th>Transformation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for corpus_name, corpus in corpora.items %}
+                        {% for doc_pair_id, doc_pair in corpus.items %}
+                            <tr>
+                                <td>{{ doc_pair_id }}</td>
+                                <td>{{ corpus_name }}</td>
+                                <td>
+                                    <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair_id %}">{{ doc_pair.title }}</a>
+                                </td>
+                                <td>{{ doc_pair.domain }}</td>
+                                <td>{{ doc_pair.simple_level }}</td>
+                                <td>{{ doc_pair.complex_level }}</td>
+                                <td>{{ doc_pair.last_change }}</td>
+                                {% if doc_pair.aligned %}
+                                    <td style="text-align: center"><i class="fas fa-check-circle" style="color: #8ACBAE"></i></td>
+                                {% else %}
+                                    <td style="text-align: center"><i class="fas fa-times-circle" style="color: indianred;"></i></td>
+                                {% endif %}
+                                <td>{{ doc_pair.rating }} %</td>
+                                <td>{{ doc_pair.transformations }} %</td>
+                            </tr>
+                        {% endfor %}
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

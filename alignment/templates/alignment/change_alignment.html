@@ -2,7 +2,7 @@
 
 {% block content %}
     <h2> Change Alignment</h2>
-    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_id=doc_id %}>{% csrf_token %}
+    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}
     <p class="error_form">
         {{ form.errors }}
     </p>
@@ -55,7 +55,11 @@
             </div>
 {#        </div>#}
 {#        <div class="row">#}
-        <p class="text-source">Text Source: <a href="{{ doc_url }}" title="link to source" target="_blank">{{ doc_url }}</a> (Last accessed: {{ doc_access_date }})</p>
+            <p class="text-source">
+                Text Source Complex Document: <a href="{{ doc_complex_url }}" title="link to source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})
+                <br>
+                Text Source Simple Document: <a href="{{ doc_simple_url }}" title="link to source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})
+            </p>
 
         </div>
 {#        <div class="row">#}

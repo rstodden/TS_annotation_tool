@@ -33,7 +33,7 @@
                                     <ul>
                                         {% for doc in documents %}
                                             <li>
-                                                <a href="{% url 'overview_per_doc' doc_id=doc.id %}">
+                                                <a href="{% url 'overview_per_doc' doc_pair_id=doc.id %}">
                                                     {{ doc.url }} {{ doc.parallel_document.url }}
                                                 </a>
                                             </li>

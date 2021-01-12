@@ -52,7 +52,8 @@
 ### Dependencies
 - python3
 - requirements.txt `pip3 install -r requirements.txt`
-
+python -m spacy download de_core_news_sm
+  
 ### Deployment
  video: https://www.youtube.com/watch?v=nh1ynJGJuT8
 - create a directory one level above the annotation tool and clone the following git repo `https://github.com/LondonAppDeveloper/demo-django-docker-nginx-prod.git`
@@ -93,3 +94,9 @@ The django project has different apps:
 - uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi
 - add IP adress to allowed hosts in setting.py
 - uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi --chmod-socket=666
+
+# Material
+- see https://stackoverflow.com/questions/25386119/whats-the-difference-between-a-onetoone-manytomany-and-a-foreignkey-field-in-d for decision on filed version
+echo ">> Deleting old migrations" 
+`find . -path "*/migrations/*.py" -not -name "__init__.py" -delete` 
+`find . -path "*/migrations/*.pyc"  -delete`
