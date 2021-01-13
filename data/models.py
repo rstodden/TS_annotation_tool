@@ -97,6 +97,28 @@ class DocumentPair(models.Model):
 	last_changes = models.DateTimeField(auto_now=True)
 	corpus = models.ForeignKey(Corpus, on_delete=models.CASCADE, blank=True, null=True)
 
+	def get_all_complex_annotated_sentences_by_user(self, user, content=False):
+		complex_annotated_sents_content = list()
+		for sent in Sentence.objects.filter(document=self.complex_document):
+			for pair in sent.complex_element.all():
+				if user in pair.annotator.all():
+					if content:
+						complex_annotated_sents_content.append(sent.original_content)
+					else:
+						complex_annotated_sents_content.append(sent)
+		return complex_annotated_sents_content
+
+	def get_all_simple_annotated_sentences_by_user(self, user, content=False):
+		simple_annotated_sents_content = list()
+		for sent in Sentence.objects.filter(document=self.simple_document):
+			for pair in sent.simple_element.all():
+				if user in pair.annotator.all():
+					if content:
+						simple_annotated_sents_content.append(sent.original_content)
+					else:
+						simple_annotated_sents_content.append(sent)
+		return simple_annotated_sents_content
+
 
 class Sentence(models.Model):
 	original_content = models.TextField()
@@ -105,8 +127,8 @@ class Sentence(models.Model):
 	level = models.CharField(max_length=50, blank=True, choices=TS_annotation_tool.utils.language_level_list)
 	simplification = models.ForeignKey("simplification.Simplification", blank=True, on_delete=models.CASCADE, null=True)
 	document = models.ForeignKey("data.Document", on_delete=models.CASCADE, blank=True)
-	simple_element = models.ManyToManyField("alignment.Pair", related_name="simple_sentence", blank=True)
-	complex_element = models.ManyToManyField("alignment.Pair", related_name="complex_sentence", blank=True)
+	simple_element = models.ManyToManyField("alignment.Pair", related_name="simple_elements", blank=True)
+	complex_element = models.ManyToManyField("alignment.Pair", related_name="complex_elements", blank=True)
 
 	def tokenize(self, doc):
 		for token in doc:
@@ -140,3 +162,4 @@ def get_spacy_model(language):
 	else:
 		nlp = spacy.load("en_core_web_sm")
 	return nlp
+

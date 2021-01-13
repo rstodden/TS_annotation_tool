@@ -44,6 +44,6 @@ def overview_per_doc(request, doc_pair_id):
 			"alignments": page_obj,
 			"doc_simple_url": doc_pair_tmp.simple_document.url,
 			"doc_complex_url": doc_pair_tmp.complex_document.url,
-			"doc_id": doc_pair_tmp.id})
+			"doc_pair_id": doc_pair_tmp.id})
 	else:
 		return redirect("alignment:change_alignment", doc_pair_id=doc_pair_tmp.id)

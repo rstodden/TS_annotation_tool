@@ -1,12 +1,9 @@
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
 import datetime
 from rating.models import Rating, Transformation
 from data.models import Token, Sentence, DocumentPair
-from django.db.models import Q
 
 
 class Pair(models.Model):
@@ -36,19 +33,11 @@ class Pair(models.Model):
 		self.document_pair = document
 		self.save()
 		self.annotator.add(user)
-		for sentence_id in complex_elements:
-			sentence = Sentence.objects.get(id=sentence_id)
+		for sentence in complex_elements:
 			sentence.complex_element.add(self)
-		for sentence_id in simple_elements:
-			sentence = Sentence.objects.get(id=sentence_id)
+		for sentence in simple_elements:
 			sentence.simple_element.add(self)
-
 		return self
-
-
-
-	# ------- unchecked -----------
-
 
 	def update_or_save_rating(self, form, rater):
 		rating_tmp = form.save(commit=False)
@@ -63,13 +52,9 @@ class Pair(models.Model):
 		self.save()
 		return self
 
-
 	def delete_transformation(self, transformation_id, rater):
 		transformation_tmp = Transformation.objects.get(id=transformation_id, rater=rater)
-		if self.transformation_of_pair.filter(id=transformation_id, rater=rater):
-			self.transformation_of_pair.remove(transformation_tmp)
 		transformation_tmp.delete()
-		self.save()
 		return self
 
 	def save_transformation(self, form, rater):
@@ -85,40 +70,6 @@ class Pair(models.Model):
 		self.transformation_of_pair.add(transformation_tmp)
 		self.save()
 		return self
-
-
-	# def update_sentences(self, simple_sents, complex_sents):
-	# 	self.simple_element.clear()
-	# 	self.complex_element.clear()
-	# 	self.simple_element.add(*simple_sents)
-	# 	self.complex_element.add(*complex_sents)
-	# 	self.type = "parallel_online"
-	# 	self.manually_checked = 1
-	# 	self.save()
-	# 	return self
-
-	def save_rating(self, form, rater):
-		rating_tmp = Rating(form.save(commit=False))
-		rating_tmp.rater = rater
-		self.manually_checked = True
-		self.rating = rating_tmp
-		self.save()
-		return self
-
-	def assign_to_user(self, users):
-		for user in users:
-			self.annotator.add(user)
-		pass
-
-	# def __str__(self):
-	# 	if self.complex_element.exists() and self.simple_element.exists() and \
-	# 			None not in list(self.complex_element.all().values_list("tokens__text", flat=True)) and \
-	# 			None not in list(self.simple_element.all().values_list("tokens__text", flat=True)):
-	#
-	# 		return " ".join(self.complex_element.all().values_list("tokens__text", flat=True)[:5]) + '... \u2194 ' +\
-	# 			   " ".join(self.simple_element.all().values_list("tokens__text", flat=True)[:5]) + '...'
-	# 	else:
-	# 		return "Pair object (" + str(self.id) + ")"
 
 
 def get_sentence_pair_identifier():

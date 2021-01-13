@@ -2,20 +2,19 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-    <h2>Rate Alignment Pair #{{ alignmentpair.id }}</h2>
-    <div class="container">
+    <h2>Rate Alignment Pair #{{ alignmentpair_id }}</h2>
+{#    <div class="container">#}
 
-        <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_id=alignmentpair.id %}>{% csrf_token %}
+        <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_id=alignmentpair_id %}>{% csrf_token %}
 {#            {{ form.errors }}#}
             <div class="row">
-                <div class="col-12">
+                <div class="col-md-12">
                     <h4>Please rate the following <u>complex</u> sentence(s).</h4>
                     <!--<b>Complex Sentence:</b>-->
                     <blockquote>
-                        {% for sentence in alignmentpair.complex_element.all %}
-                            {{ sentence.original_content }}
-                        {% endfor %}
+                        {{ complex_elements }}
                     </blockquote>
+                    <p class="text-source">Complex Text Source: <a href="{{ doc_complex_url }}" title="link to complex source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})</p>
                     <table  class="likert">
                         <thead>
                             <tr>
@@ -71,17 +70,15 @@
                 </div>
             </div>
 
-            <hr style="width:100%;text-align:left;margin-left:0">
-
             <div class="row">
-                <div class="col-12">
+                <div class="col-md-12">
+                    <hr style="width:100%;text-align:left;margin-left:0">
                     <h4>Please rate the following <u>simplified</u> sentence(s).</h4>
                     <!--<b>Simple Sentence:</b>-->
                     <blockquote>
-                        {% for sentence in alignmentpair.simple_element.all %}
-                            {{ sentence.original_content }}
-                        {% endfor %}
+                        {{ simple_elements }}
                     </blockquote>
+                    <p class="text-source">Simple Text Source: <a href="{{ doc_simple_url }}" title="link to simple source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})</p>
                     <table class="likert">
                         <thead>
                             <tr class="likert">
@@ -139,28 +136,25 @@
                 </div>
             </div>
 
-            <hr style="width:100%;text-align:left;margin-left:0">
 
             <div class="row">
-                <div class="col-12">
+                <div class="col-md-12">
+                    <hr style="width:100%;text-align:left;margin-left:0">
                     <h4>Please rate the following <u>alignment pair</u>.</h4>
                 </div>
             </div>
             <div class="row">
-                <div class="col-12">
+                <div class="col-md-12">
                     <b>Complex Sentence:</b>
                     <blockquote>
-                        {% for sentence in alignmentpair.complex_element.all %}
-                            {{ sentence.original_content }}
-                        {% endfor %}
+                        {{ complex_elements }}
                     </blockquote>
                     <b>Simple Sentence:</b>
                     <blockquote>
-                        {% for sentence in alignmentpair.simple_element.all %}
-                            {{ sentence.original_content }}
-                        {% endfor %}
+                        {{ simple_elements }}
                     </blockquote>
-                    <p class="text-source">Text Source: <a href="{{ doc_url }}" title="link to source" target="_blank">{{ doc_url }}</a> (Last accessed: {{ doc_access_date }})</p>
+                    <p class="text-source">Complex Text Source: <a href="{{ doc_complex_url }}" title="link to complex source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})</p>
+                    <p class="text-source">Simple Text Source: <a href="{{ doc_simple_url }}" title="link to simple source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})</p>
                     <!--<div class="fieldWrapper">-->
                         <table class="likert">
                             <thead>
@@ -227,13 +221,13 @@
 
                     <!--</div>-->
                 </div>
-                <hr style="width:100%;text-align:left;margin-left:0">
                 <div class="row">
                     <div class="col-md-12">
+                        <hr style="width:100%;text-align:left;margin-left:0">
                         <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
                         {{ form.certainty.label_tag }}
                         {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
-                        <br>
+                        <br><br>
                         <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
                         {{ form.comment.label_tag }}
 
@@ -250,5 +244,5 @@
             </div>
         </form>
 
-    </div>
+{#    </div>#}
 {% endblock %}
