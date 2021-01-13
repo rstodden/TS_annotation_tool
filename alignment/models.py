@@ -23,7 +23,7 @@ class Pair(models.Model):
 					("simplified", "manually simplified"),
 					("parallel_online_uploaded", "parallel online documents manually aligned and uploaded"))
 	type = models.CharField(choices=type_choices, max_length=50)
-	document_pair = models.ForeignKey("data.DocumentPair", on_delete=models.CASCADE, blank=True, null=True)
+	document_pair = models.ForeignKey("data.DocumentPair", on_delete=models.CASCADE, blank=True, null=True, related_name="sentence_alignment_pair")
 
 	def save_sentence_alignment_from_form(self, simple_elements, complex_elements, user, document):
 		self.type = "parallel_online"

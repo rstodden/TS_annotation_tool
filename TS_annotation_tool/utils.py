@@ -60,10 +60,10 @@ transformation_dict = {"word": {
 						   # "no_operation: []",
 					   		},
 					   "paragraph": {
-						   "reorder": ["sentence-order-changed"],
+						   "reorder": ["sentence-order-changed", "other"],
 						   "merge": [],
 						   "deletion": [],
-						   "insert": ["explanation", "examplification"]
+						   "insert": ["explanation", "examplification", "other"]
 					   }
 				   }
 

@@ -100,3 +100,17 @@ The django project has different apps:
 echo ">> Deleting old migrations" 
 `find . -path "*/migrations/*.py" -not -name "__init__.py" -delete` 
 `find . -path "*/migrations/*.pyc"  -delete`
+  
+# PostgreSQL
+- https://www.postgresqltutorial.com/install-postgresql-linux/
+- `$ sudo apt-get install postgresql`
+- `$sudo -u postgres createuser regina`
+- `$ sudo -u postgres psql`
+- `#alter user regina with encrypted password 'text_simplification_DE_2021';`
+- `#CREATE DATABASE german_text_simplification_corpus;`
+- `#grant all privileges on database german_text_simplification_corpus to regina ;`
+- `#\q`
+- `$ python mangage.py makemigrations`
+- `$ python mangage.py migrate`
+- `$ python mangage.py createsuperuser`
+- dump to database `pg_dump --file=/home/stodden/Downloads/german_text_simplification-2021_01_13_19_01_17-dump.sql --username=regina --host=localhost --port=5432 --password german_text_simplification_corpus`

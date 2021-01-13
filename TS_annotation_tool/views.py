@@ -17,14 +17,21 @@ def overview(request):
 		documents_dict = dict()
 		for doc_pair in data.models.DocumentPair.objects.all().filter(corpus=corpus, annotator=request.user):
 			alignments_tmp = alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair.id, origin_annotator=request.user)
+
+			rating = 0
+			transformations = 0
 			if alignments_tmp.exists():
 				aligned = True
-				transformations = 0  # todo range from 0 to 100, percentage of finished transformations
-				rating = 0  # todo range from 0 to 100, percentage of finished ratings
+				num_alignments = len(alignments_tmp.all())
+				for pair in alignments_tmp.all():
+					if pair.rating.exists():
+						rating += 1
+					if pair.transformation_of_pair.exists():
+						transformations += 1
+				transformations = round((transformations/num_alignments)*100, 2)
+				rating = round((rating/num_alignments)*100, 2)
 			else:
 				aligned = False
-				rating = 0
-				transformations = 0
 			documents_dict[doc_pair.id] = {"domain": corpus.domain, "simple_level": doc_pair.simple_document.level,
 										   "complex_level": doc_pair.complex_document.level, "aligned": aligned, "rating": rating,
 										   "transformations": transformations, "title": doc_pair.simple_document.title, "last_change": doc_pair.last_changes}
@@ -42,6 +49,7 @@ def overview_per_doc(request, doc_pair_id):
 		page_obj = paginator.get_page(page_number)
 		return render(request, 'overview_per_doc.html', {
 			"alignments": page_obj,
+			"domain": doc_pair_tmp.simple_document.domain,
 			"doc_simple_url": doc_pair_tmp.simple_document.url,
 			"doc_complex_url": doc_pair_tmp.complex_document.url,
 			"doc_pair_id": doc_pair_tmp.id})

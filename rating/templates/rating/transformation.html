@@ -1,6 +1,7 @@
 {% extends '../base.html' %}
 {% block title %}Transformation of #{{ alignmentpair_id }}{% endblock %}
 {% block content %}
+{% load rating_extras %}
 {% load crispy_forms_tags %}
     <h2>Choose all Transformations of the Alignment Pair #{{ alignmentpair_id }}</h2>
 {#    <div class="container">#}
@@ -18,7 +19,7 @@
                                 {{ sentence.original_content }}
                             {% elif type == "add" %}
                                 <div class="form-check list-inline list-group-horizontal btn-group" role="group" data-toggle="buttons">
-                                    {% for token in sentence.tokens.all %}
+                                    {% for token in sentence.tokens.all|sort_by:'id' %}
                                         <label for="complex_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
                                     {% endfor %}
                                 </div>
@@ -32,7 +33,7 @@
                                 {{ sentence.original_content }}
                             {% elif type == "add" %}
                                 <div class="form-check list-inline list-group-horizontal btn-group" role="group" data-toggle="buttons">
-                                    {% for token in sentence.tokens.all %}
+                                    {% for token in sentence.tokens.all|sort_by:'id' %}
                                         <label for="complex_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
                                     {% endfor %}
                                 </div>

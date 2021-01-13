@@ -12,8 +12,8 @@ def home(request):
 @login_required
 def change_alignment(request, doc_pair_id):
 	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user)
-	simple_elements = data.models.Sentence.objects.filter(document_id=doc_pair_tmp.simple_document.id)
-	complex_elements = data.models.Sentence.objects.filter(document_id=doc_pair_tmp.complex_document.id)
+	simple_elements = data.models.Sentence.objects.filter(document_id=doc_pair_tmp.simple_document.id).order_by("id")
+	complex_elements = data.models.Sentence.objects.filter(document_id=doc_pair_tmp.complex_document.id).order_by("id")
 	complex_selected = []
 	simple_selected = []
 	type_action = "show"
@@ -25,8 +25,8 @@ def change_alignment(request, doc_pair_id):
 		elif request.POST.get("edit"):
 			type_action = "edit"
 			sentence_pair_tmp = Pair.objects.get(id=request.POST.get("edit"), annotator=request.user)
-			complex_selected = data.models.Sentence.objects.filter(complex_element=sentence_pair_tmp)
-			simple_selected = data.models.Sentence.objects.filter(simple_element=sentence_pair_tmp)
+			complex_selected = data.models.Sentence.objects.filter(complex_element=sentence_pair_tmp).order_by("id")
+			simple_selected = data.models.Sentence.objects.filter(simple_element=sentence_pair_tmp).order_by("id")
 			sentence_pair_tmp_id = sentence_pair_tmp.id
 		elif request.POST.get("delete"):
 			sentence_pair_tmp = Pair.objects.get(id=request.POST.get("delete"), annotator=request.user)
@@ -59,7 +59,7 @@ def change_alignment(request, doc_pair_id):
 	complex_annotated_sents = doc_pair_tmp.get_all_complex_annotated_sentences_by_user(request.user, content=False)
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
 															   "complex_elements": complex_elements,
-															   "pairs": alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user),
+															   "pairs": alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user).order_by("id"),
 															   "complex_sents": complex_selected,
 															   "simple_sents": simple_selected,
 															   "complex_sents_content": [sent.original_content for sent in complex_elements.all()],

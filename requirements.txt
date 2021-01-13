@@ -12,3 +12,4 @@ bs4
 spacy
 django-multiupload
 uwsgi
+psycopg2

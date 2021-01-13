@@ -76,20 +76,20 @@
                         {% endfor %}
                     </td>
                     <td>
-                        {{ pair.domain }}
+                        {{ domain }}
                     </td>
                     <td>
-                        {% for sentence in pair.simple_element.all %}
-                            {{ sentence.original_content|slice:140 }}
-                            {% if sentence.original_content|length > 140 %}
+                        {% for sentence in pair.simple_elements.all %}
+                            {{ sentence.original_content|slice:50 }}
+                            {% if sentence.original_content|length > 50 %}
                                 [...]
                             {% endif %}
                         {% endfor %}
                     </td>
                     <td>
-                        {% for sentence in pair.complex_element.all %}
-                            {{ sentence.original_content|slice:140 }}
-                            {% if sentence.original_content|length > 140 %}
+                        {% for sentence in pair.complex_elements.all %}
+                            {{ sentence.original_content|slice:50 }}
+                            {% if sentence.original_content|length > 50 %}
                                 ...
                             {% endif %}
                         {% endfor %}
