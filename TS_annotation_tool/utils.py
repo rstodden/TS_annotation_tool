@@ -4,6 +4,7 @@ list_licenses = (
 					("to_add", "to_add"),
 					("not_allowed", "not_allowed"),
 					("save_use", "save_use"),
+					("save_use_share", "save_use_share"),
 					("save_use_share_with_password", "save_use_share_with_password"),
 					("CC_BY_NC_SA_DE_2", "CC_BY_NC_SA_DE_2"),
 					("CC_BY_NC_DE_3", "CC_BY_NC_DE_3"),
