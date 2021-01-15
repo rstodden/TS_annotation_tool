@@ -84,6 +84,7 @@ The django project has different apps:
 - evaluation: for admin only to export data and generate inter-annotator-agreement
 
 # deployment 2:
+- I used this tutorial https://tonyteaches.tech/django-nginx-uwsgi-tutorial/ and https://tonyteaches.tech/django-production-server-settings/
 - clone repository
 - create virtualenv
 pip install -r requirements
@@ -95,6 +96,13 @@ pip install -r requirements
 - uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi
 - add IP adress to allowed hosts in setting.py
 - uwsgi --socket TS_annotation_tool.sock --module TS_annotation_tool.wsgi --chmod-socket=666
+
+- start server: 
+  - systemctl enable emperor.uwsgi.service
+  - systemctl start emperor.uwsgi.service
+- stop server:
+  - systemctl status emperor.uwsgi.service
+  - systemctl stop emperor.uwsgi.service
 
 # Material
 - see https://stackoverflow.com/questions/25386119/whats-the-difference-between-a-onetoone-manytomany-and-a-foreignkey-field-in-d for decision on filed version

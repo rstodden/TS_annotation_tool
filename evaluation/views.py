@@ -31,6 +31,76 @@ def export_rating():  #output_path
 	return result_frame
 
 
+def get_automatic_transformations():
+	columns = ["original", "simplification", "original_sentence_id", "transformation_level", "transformation",
+			   "subtransformation", "old text", "new_text", "worker_id"]
+	automatic_transformations = list()
+	for doc_pair in data.models.DocumentPair.objects.all():
+		simple_sentences = doc_pair.simple_document.sentences.all()  # values_list("original_content", flat=True)
+		complex_sentences = doc_pair.complex_document.sentences.all()  # values_list("original_content", flat=True)
+		automatic_transformations.extend(get_transformation_no_change(simple_sentences, complex_sentences, doc_pair.id))
+		if doc_pair.sentence_alignment_pair.exists():
+			print("# todo")  # todo: automatic insertion and deletion
+			# automatic_transformations.extend(get_transformation_insertion(simple_sentences))
+			# automatic_transformations.extend(get_transformation_deletion(complex_sentences, doc_pair))
+	return automatic_transformations
+
+
+def get_transformation_no_change(simple_sentences, complex_sentences, doc_id):
+	list_no_changes = list()
+	old_text, new_text = "", ""
+	worker_id = "0_auto"  # automated annotated
+	transformation_level = "sentence"
+	transformation = "no_operation"
+	sub_transformation = ""
+
+	simple_sentences_content = [sent.original_content for sent in simple_sentences]
+	for complex_sentence in complex_sentences:
+		if complex_sentence.original_content in simple_sentences_content:
+			original = complex_sentence.original_content
+			simplification = complex_sentence.original_content
+			list_no_changes.append([original, simplification, complex_sentence.id,
+								   transformation_level,
+								   transformation,
+								   sub_transformation,
+								   old_text, new_text, worker_id])
+	return list_no_changes
+
+
+# def get_transformation_deletion(complex_sentences, doc_pair):
+# 	list_deletions = ()
+# 	transformation_level = "paragraph"
+# 	transformation = "deletion"
+# 	sub_transformation = ""
+# 	new_text = ""
+# 	worker_id = "_auto"  # automated annotated
+# 	# todo pay attention to user
+# 	# todo: get all complex sentences ehich have no complex element and add user?
+# 	anno = doc_pair.annotator
+# 	print(doc_pair)
+# 	for annotator_of_doc_pair in doc_pair.annotator.all():
+# 		for doc_pair_of_one_annotator in doc_pair.filter(annotator=annotator_of_doc_pair):
+# 			print(doc_pair_of_one_annotator)
+#
+# 	# for complex_sentence in complex_sentences:
+# 	# 	for alignment_pair in complex_sentence.complex_element.all():
+# 	# 		print("complex", complex_sentence.id, alignment_pair.annotator.all())
+# 	return list_deletions
+#
+#
+# def get_transformation_insertion(simple_sentences):
+# 	list_insertions = ()
+# 	transformation_level = "paragraph"
+# 	transformation = "insertion"
+# 	sub_transformation = ""
+# 	old_text = ""
+# 	worker_id = "_auto"  # automated annotated
+# 	for simple_sentence in simple_sentences:
+# 		if not simple_sentence.simple_element.exists():
+# 			print("insert", simple_sentence.id, simple_sentence.simple_element.annotator.all())
+# 	return list_insertions
+
+
 def export_transformation():
 	result_frame = pd.DataFrame(
 		columns=["original", "simplification", "original_sentence_id", "transformation_level", "transformation",
@@ -42,7 +112,6 @@ def export_transformation():
 			simplification = " ".join(pair.simple_elements.values_list("original_content", flat=True))
 			original_sentence_id = pair.pair_identifier
 			worker_id = pair_transformations.rater.id
-			print(pair_transformations)
 			old_text = ' '.join(pair_transformations.complex_token.values_list("text", flat=True))
 			new_text = ' '.join(pair_transformations.simple_token.values_list("text", flat=True))
 			result_frame.loc[i] = [original, simplification, original_sentence_id,
@@ -51,6 +120,9 @@ def export_transformation():
 								   pair_transformations.sub_transformation,
 								   old_text, new_text, worker_id]
 			i += 1
+		i += 1
+	for no_change_pair in get_transformation_no_change():
+		result_frame.loc[i] = no_change_pair
 		i += 1
 	return result_frame
 

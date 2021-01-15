@@ -126,7 +126,7 @@ class Sentence(models.Model):
 	translation = models.TextField(blank=True)
 	level = models.CharField(max_length=50, blank=True, choices=TS_annotation_tool.utils.language_level_list)
 	simplification = models.ForeignKey("simplification.Simplification", blank=True, on_delete=models.CASCADE, null=True)
-	document = models.ForeignKey("data.Document", on_delete=models.CASCADE, blank=True)
+	document = models.ForeignKey("data.Document", on_delete=models.CASCADE, blank=True, related_name="sentences")
 	simple_element = models.ManyToManyField("alignment.Pair", related_name="simple_elements", blank=True)
 	complex_element = models.ManyToManyField("alignment.Pair", related_name="complex_elements", blank=True)
 
