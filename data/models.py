@@ -9,7 +9,8 @@ import io, csv
 from django.core.files.base import ContentFile
 import numpy as np
 from django.conf import settings
-import spacy
+import stanza
+from spacy_stanza import StanzaLanguage
 import TS_annotation_tool.utils
 
 
@@ -155,11 +156,13 @@ def save_uploaded_file(f):
 
 
 def get_spacy_model(language):
-	if language == "de":
-		nlp = spacy.load("de_core_news_sm")
-	elif language == "en":
-		nlp = spacy.load("en_core_web_sm")
-	else:
-		nlp = spacy.load("en_core_web_sm")
+	snlp = stanza.Pipeline(lang=language)
+	nlp = StanzaLanguage(snlp)
+	# if language == "de":
+	# 	nlp = spacy.load("de_core_news_lg")
+	# elif language == "en":
+	# 	nlp = spacy.load("en_core_web_sm")
+	# else:
+	# 	nlp = spacy.load("en_core_web_sm")
 	return nlp
 

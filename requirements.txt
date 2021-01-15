@@ -9,7 +9,7 @@ django-sortable
 sortable
 requests
 bs4
-spacy
 django-multiupload
 uwsgi
 psycopg2
+spacy-stanza
