@@ -121,7 +121,7 @@ def export_transformation():
 								   old_text, new_text, worker_id]
 			i += 1
 		i += 1
-	for no_change_pair in get_transformation_no_change():
+	for no_change_pair in get_automatic_transformations():
 		result_frame.loc[i] = no_change_pair
 		i += 1
 	return result_frame
