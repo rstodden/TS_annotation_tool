@@ -66,7 +66,7 @@ def change_alignment(request, doc_pair_id):
 	print(last_complex_item, last_simple_item)
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
 															   "complex_elements": complex_elements,
-															   "pairs": alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user),
+															   "pairs": alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user).order_by("id"),
 															   "complex_sents": complex_selected,
 															   "simple_sents": simple_selected,
 															   "complex_sents_content": [sent.original_content for sent in complex_elements.all()],
