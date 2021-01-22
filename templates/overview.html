@@ -2,59 +2,51 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-
-    <h1>Document Overview</h1>
     <div class="row">
         <div class="col-md-12">
-        {% if error %}
-            <p> {{ error }} </p>
-        {% endif %}
-        {% if success %}
-            <p> {{ success }} </p>
-        {% endif %}
+            <h1>
+                <i class="fas fa-book"></i>
+                Corpora Overview
+            </h1>
         </div>
     </div>
-    <h2>Align or rate the sentences of the listed documents.</h2>
-    <div class="row">
-        <h3> Documents:</h3>
-    </div>
     <div class="row">
         <div class="col-md-12">
-            <table border="1">
+            <table class="corpus">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Corpus</th>
-                        <th>Title</th>
-                        <th>Domain</th>
-                        <th>Simple Level</th>
-                        <th>Complex Level</th>
-                        <th>Last Change</th>
-                        <th>Aligned</th>
-                        <th>Rating</th>
-                        <th>Transformation</th>
+                        <th class="corpus">ID</th>
+                        <th class="corpus">Corpus</th>
+                        <th class="corpus">Title</th>
+                        <th class="corpus">Domain</th>
+                        <th class="corpus">Simple Level</th>
+                        <th class="corpus">Complex Level</th>
+                        <th class="corpus">Last Change</th>
+                        <th class="corpus">Aligned</th>
+                        <th class="corpus">Rating</th>
+                        <th class="corpus">Transformation</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for corpus_name, corpus in corpora.items %}
                         {% for doc_pair_id, doc_pair in corpus.items %}
                             <tr>
-                                <td>{{ doc_pair_id }}</td>
-                                <td>{{ corpus_name }}</td>
-                                <td>
+                                <td class="corpus">{{ doc_pair_id }}</td>
+                                <td class="corpus">{{ corpus_name }}</td>
+                                <td class="corpus">
                                     <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair_id %}">{{ doc_pair.title }}</a>
                                 </td>
-                                <td>{{ doc_pair.domain }}</td>
-                                <td>{{ doc_pair.simple_level }}</td>
-                                <td>{{ doc_pair.complex_level }}</td>
-                                <td>{{ doc_pair.last_change }}</td>
+                                <td class="corpus">{{ doc_pair.domain }}</td>
+                                <td class="corpus">{{ doc_pair.simple_level }}</td>
+                                <td class="corpus">{{ doc_pair.complex_level }}</td>
+                                <td class="corpus">{{ doc_pair.last_change }}</td>
                                 {% if doc_pair.aligned %}
-                                    <td style="text-align: center"><i class="fas fa-check-circle" style="color: #8ACBAE"></i></td>
+                                    <td class="corpus" style="text-align: center"><i class="fas fa-check-circle" style="color: #8ACBAE"></i></td>
                                 {% else %}
-                                    <td style="text-align: center"><i class="fas fa-times-circle" style="color: indianred;"></i></td>
+                                    <td class="corpus" style="text-align: center"><i class="fas fa-times-circle" style="color: indianred;"></i></td>
                                 {% endif %}
-                                <td>{{ doc_pair.rating }} %</td>
-                                <td>{{ doc_pair.transformations }} %</td>
+                                <td class="corpus">{{ doc_pair.rating }} %</td>
+                                <td class="corpus">{{ doc_pair.transformations }} %</td>
                             </tr>
                         {% endfor %}
 

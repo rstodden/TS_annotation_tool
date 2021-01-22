@@ -5,8 +5,8 @@ import alignment.forms
 from django.contrib.auth.decorators import login_required
 
 
-def home(request):
-	return render(request, 'overview.html')
+# def home(request):
+# 	return render(request, 'overview.html')
 
 
 @login_required
@@ -73,4 +73,5 @@ def change_alignment(request, doc_pair_id):
 															   "doc_complex_access_date": doc_pair_tmp.complex_document.access_date,
 															   "doc_pair_id": doc_pair_tmp.id,
 																"form": form, "pair_tmp_id": sentence_pair_tmp_id,
+															   "title": "Alignment - Text Simplification Annotation Tool"
 															   })

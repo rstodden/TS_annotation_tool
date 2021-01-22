@@ -36,7 +36,8 @@ def overview(request):
 										   "complex_level": doc_pair.complex_document.level, "aligned": aligned, "rating": rating,
 										   "transformations": transformations, "title": doc_pair.simple_document.title, "last_change": doc_pair.last_changes}
 		corpus_dict[corpus.name] = documents_dict
-	return render(request, 'overview.html', {"corpora": corpus_dict})
+	return render(request, 'overview.html', {"corpora": corpus_dict,
+											 "title": "Corpora Overview - Text Simplification Annotation Tool"})
 
 
 @login_required
@@ -52,6 +53,8 @@ def overview_per_doc(request, doc_pair_id):
 			"domain": doc_pair_tmp.simple_document.domain,
 			"doc_simple_url": doc_pair_tmp.simple_document.url,
 			"doc_complex_url": doc_pair_tmp.complex_document.url,
-			"doc_pair_id": doc_pair_tmp.id})
+			"doc_pair_id": doc_pair_tmp.id,
+			"doc_title": doc_pair_tmp.simple_document.title,
+			"title": "Document Overview - Text Simplification Annotation Tool"})
 	else:
 		return redirect("alignment:change_alignment", doc_pair_id=doc_pair_tmp.id)

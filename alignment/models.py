@@ -71,6 +71,24 @@ class Pair(models.Model):
 		self.save()
 		return self
 
+	def next(self, user):
+		doc_pair_tmp = self.document_pair
+		all_pairs = list(doc_pair_tmp.sentence_alignment_pair.filter(annotator=user).order_by("id"))
+		index_self = all_pairs.index(self)
+		if index_self+1 < len(all_pairs):
+			return all_pairs[index_self+1]
+		else:
+			return None
+
+	def prev(self, user):
+		doc_pair_tmp = self.document_pair
+		all_pairs = list(doc_pair_tmp.sentence_alignment_pair.filter(annotator=user).order_by("id"))
+		index_self = all_pairs.index(self)
+		if index_self != 0:
+			return all_pairs[index_self-1]
+		else:
+			return None
+
 
 def get_sentence_pair_identifier():
 	list_ids = Pair.objects.values_list("pair_identifier")

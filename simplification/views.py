@@ -12,4 +12,4 @@ def home(request):
 def simplify(request, doc_id):
 	doc_tmp = get_object_or_404(data.models.Document, id=doc_id)
 	# todo: simplification text field
-	return render(request, "simplification/home.html")
+	return render(request, "simplification/home.html", {"title": "Simplification - Text Simplification Annotation Tool"})

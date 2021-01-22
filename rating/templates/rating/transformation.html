@@ -3,125 +3,142 @@
 {% block content %}
 {% load rating_extras %}
 {% load crispy_forms_tags %}
-    <h2>Choose all Transformations of the Alignment Pair #{{ alignmentpair_id }}</h2>
-{#    <div class="container">#}
-
-        <form method="POST" class="transformation-form" action={% url 'rating:select_transformation' pair_id=alignmentpair_id %}>{% csrf_token %}
-{#            <p class="error_form">#}
-{#                {{ form.errors }}#}
-{#            </p>#}
-            <div class="row">
-                <div class="col-md-12">
-                    <b>Complex Sentence:</b><br>
-                    <blockquote>
-                        {% for sentence in complex_elements %}
-                            {% if type == "show" %}
-                                {{ sentence.original_content }}
-                            {% elif type == "add" %}
-                                <div class="form-check list-inline list-group-horizontal btn-group" role="group" data-toggle="buttons">
-                                    {% for token in sentence.tokens.all|sort_by:'id' %}
-                                        <label for="complex_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </blockquote>
-                    <b>Simple Sentence:</b><br>
-                    <blockquote>
-                        {% for sentence in simple_elements %}
-                            {% if type == "show" %}
-                                {{ sentence.original_content }}
-                            {% elif type == "add" %}
-                                <div class="form-check list-inline list-group-horizontal btn-group" role="group" data-toggle="buttons">
-                                    {% for token in sentence.tokens.all|sort_by:'id' %}
-                                        <label for="complex_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </blockquote>
-                    <p class="text-source">
-                        Text Source Complex Document: <a href="{{ doc_complex_url }}" title="link to source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})
-                        <br>
-                        Text Source Simple Document: <a href="{{ doc_simple_url }}" title="link to source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})
-                    </p>
-                </div>
-            </div>
-
-            {% if type == "add" %}
-                <p>Select the level of the transformation and afterwards the type of transformation.
-                    If the subtype of the transformation is obvious, please select it as well.
-                </p>
-                {% for trans_level, transformation_list in transformation_dict.items %}
+    <div class="row subclass-header">
+        <div class="col-md-12">
+            <h2>
+                <i class="fas fa-route"></i>
+                Choose all Transformations of the Alignment Pair #{{ alignmentpair_id }}
+            </h2>
+        </div>
+    </div>
+    <div class="row error_log">
+        <p class="error_form">
+            {{ form.errors }}
+        </p>
+    </div>
+    <div class="row subpage content">
+        <div class="col-md-12">
+                <form method="POST" class="transformation-form" action={% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=alignmentpair_id %}>{% csrf_token %}
+        {#            <p class="error_form">#}
+        {#                {{ form.errors }}#}
+        {#            </p>#}
                     <div class="row">
                         <div class="col-md-12">
-                            <label for="transformation_{{ trans_level }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="transformation_level"> {{ trans_level|capfirst }}</label>
-    {#                        <button type="button" class="collapsible" value="{{ trans_level }}"><input type="radio" name="transformation_level" id="transformation_{{ trans_level }}"> <label for="transformation_{{ trans_level }}"> {{ trans_level|capfirst }}</label></button>#}
-                            <div class="collapsible_content" style="display: none">
-                                {% for trans, subtransformation_list in transformation_list.items %}
-    {#                            <label title="{{ form.transaction.help_text }}" for="{{ form.transaction.id }}">&#9432;</label>#}
-                                    <label for="transformation_{{ trans_level }}_{{ trans }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans }}" id="transformation_{{ trans_level }}_{{ trans }}" name="transformation"> {{ trans }}</label>
-
-                                    <div class="collapsible_subcontent" style="display: none">
-                                    {% for subtrans in subtransformation_list %}
-                                        {% if subtrans == "other" %}
-                                            <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation"> {{ subtrans }} <input type="text" maxlength="100" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}_freetext" name="other_text"></label>
-                                        {% else %}
-                                            <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation"> {{ subtrans }}</label>
-                                        {% endif %}
-                                    {% endfor %}
-                                    </div>
+                            <b>Complex Sentence:</b><br>
+                            <blockquote>
+                                {% for sentence in complex_elements %}
+                                    {% if type == "show" %}
+                                        {{ sentence.original_content }}
+                                    {% elif type == "add" %}
+                                        <div class="form-check list-inline list-group-horizontal btn-group" role="group" data-toggle="buttons">
+                                            {% for token in sentence.tokens.all|sort_by:'id' %}
+                                                <label for="complex_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 {% endfor %}
-                            </div>
+                            </blockquote>
+                            <b>Simple Sentence:</b><br>
+                            <blockquote>
+                                {% for sentence in simple_elements %}
+                                    {% if type == "show" %}
+                                        {{ sentence.original_content }}
+                                    {% elif type == "add" %}
+                                        <div class="form-check list-inline list-group-horizontal btn-group" role="group" data-toggle="buttons">
+                                            {% for token in sentence.tokens.all|sort_by:'id' %}
+                                                <label for="complex_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </blockquote>
+                            <p class="text-source">
+                                Text Source Complex Document: <a href="{{ doc_complex_url }}" title="link to source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})
+                                <br>
+                                Text Source Simple Document: <a href="{{ doc_simple_url }}" title="link to source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})
+                            </p>
                         </div>
                     </div>
-                {% endfor %}
-                <div class="row">
-                    <div class="col-md-12">
-                        <hr style="width:100%;text-align:left;margin-left:0">
-                        <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
-                        {{ form.certainty.label_tag }}
-                        {{ form.certainty }}{{ form.certainty.data.value|default_if_none:0 }}
-                        <br><br>
 
-                        <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
-                        {{ form.comment.label_tag }}
-                        {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
-                    </div>
-                </div>
-            {% endif %}
-            <div class="row scrollable-box">
-                <div class="col-md-12">
-                    <hr style="width:100%;text-align:left;margin-left:0">
-                    <b>List of annotated transformations:</b>
-                    <ul>
-                    {% for transformation in transformations %}
-                        <li>
-                            {{ transformation }}
-    {#                        <button class="btn btn-default" title="edit transformation" type="submit" name="edit" value="{{ transaction.id }}"><i class="fas fa-edit"></i> Edit</button>#}
-                            <button class="btn btn-default" title="delete transformation" type="submit" name="delete" value="{{ transformation.id }}"><i class="fas fa-trash-alt"></i> Delete</button>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </div>
-            </div>
+                    {% if type == "add" %}
+                        <p>Select the level of the transformation and afterwards the type of transformation.
+                            If the subtype of the transformation is obvious, please select it as well.
+                        </p>
+                        {% for trans_level, transformation_list in transformation_dict.items %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label for="transformation_{{ trans_level }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="transformation_level"> {{ trans_level|capfirst }}</label>
+            {#                        <button type="button" class="collapsible" value="{{ trans_level }}"><input type="radio" name="transformation_level" id="transformation_{{ trans_level }}"> <label for="transformation_{{ trans_level }}"> {{ trans_level|capfirst }}</label></button>#}
+                                    <div class="collapsible_content" style="display: none">
+                                        {% for trans, subtransformation_list in transformation_list.items %}
+            {#                            <label title="{{ form.transaction.help_text }}" for="{{ form.transaction.id }}">&#9432;</label>#}
+                                            <label for="transformation_{{ trans_level }}_{{ trans }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans }}" id="transformation_{{ trans_level }}_{{ trans }}" name="transformation"> {{ trans }}</label>
 
-            <div class="row">
-                <div class="col-md-12">
-                {% if type == "add" %}
-                    <button class="btn btn-default" title="reset current annotation" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>
-                    <button class="btn btn-default" title="save annotation" type="submit" name="save" value="save"><i class="fas fa-save"></i> Save</button>
-                {% else %}
+                                            <div class="collapsible_subcontent" style="display: none">
+                                            {% for subtrans in subtransformation_list %}
+                                                {% if subtrans == "other" %}
+                                                    <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation"> {{ subtrans }} <input type="text" maxlength="100" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}_freetext" name="other_text"></label>
+                                                {% else %}
+                                                    <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation"> {{ subtrans }}</label>
+                                                {% endif %}
+                                            {% endfor %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <hr style="width:100%;text-align:left;margin-left:0">
+                                <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
+                                {{ form.certainty.label_tag }}
+                                {{ form.certainty }}{{ form.certainty.data.value|default_if_none:0 }}
+                                <br><br>
 
-                    <button class="btn btn-default" title="add new transformation" type="submit" name="add" value="new"><i class="fas fa-plus-circle"></i> Add</button>
-    {#                <button class="btn btn-default" title="reset and align next pair" type="submit" name="skip" value="skip"><i class="fas fa-forward"></i> Skip</button>#}
-                    <button class="btn btn-default" title="do not save and rate pair" type="submit" name="rate" value="rate"><i class="fas fa-balance-scale-left"></i> Rate</button>
-    {#               rating: <i class="fas fa-star-half-alt"></i> <i class="fas fa-spell-check"></i>#}
-
+                                <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
+                                {{ form.comment.label_tag }}
+                                {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
+                            </div>
+                        </div>
                     {% endif %}
-                </div>
-            </div>
-        </form>
+                    <div class="row scrollable-box">
+                        <div class="col-md-12">
+                            <hr style="width:100%;text-align:left;margin-left:0">
+                            <b>List of annotated transformations:</b>
+                            <ul>
+                            {% for transformation in transformations %}
+                                <li>
+                                    {{ transformation }}
+            {#                        <button class="btn btn-default" title="edit transformation" type="submit" name="edit" value="{{ transaction.id }}"><i class="fas fa-edit"></i> Edit</button>#}
+                                    <button class="btn btn-default" title="delete transformation" type="submit" name="delete" value="{{ transformation.id }}"><i class="fas fa-trash-alt"></i> Delete</button>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                        {% if type == "add" %}
+                            <button class="btn btn-default" title="reset current annotation" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>
+                            <button class="btn btn-default" title="save annotation" type="submit" name="save" value="save"><i class="fas fa-save"></i> Save</button>
+                        {% else %}
+
+                            <button class="btn btn-default" title="add new transformation" type="submit" name="add" value="new"><i class="fas fa-plus-circle"></i> Add</button>
+                            <button type="submit" class="save btn btn-default" title="add transformations to previous alignment pair" name="prev" value="prev"><i class="fas fa-arrow-circle-left"></i> Previous</button>
+                            <button type="submit" class="save btn btn-default" title="add transformations to next alignment pair" name="next" value="next"><i class="fas fa-arrow-circle-right"></i> Next</button>
+        {#                    <button type="submit" class="save btn btn-default" title="go back to document overview" name="document_overview" value="document_overview"><i class="fas fa-save"></i> Back to Document</button>#}
+            {#                <button class="btn btn-default" title="reset and align next pair" type="submit" name="skip" value="skip"><i class="fas fa-forward"></i> Skip</button>#}
+                            <button class="btn btn-default" title="rate pair" type="submit" name="rate" value="rate"><i class="fas fa-balance-scale-left"></i> Rating</button>
+            {#               rating: <i class="fas fa-star-half-alt"></i> <i class="fas fa-spell-check"></i>#}
+
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+        </div>
+    </div>
 {#    </div>#}
     <script>
         var coll = document.getElementsByClassName("collapsible");

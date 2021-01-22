@@ -1,0 +1,20 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <h2>Add Item on ToDo List</h2>
+    <form method="POST" class="add-form" action={% url 'change_log:add_item' %}>{% csrf_token %}
+        <p class="error_form">
+            {{ form.errors }}
+        </p>
+        <div class="row">
+            <div class="col-md-12">
+                {{ form.as_p }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-default" value="save" name="save" type="submit">Save</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

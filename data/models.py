@@ -1,14 +1,7 @@
 from django.db import models
 from languages.fields import LanguageField
-import datetime
 from django.contrib.auth.models import User
-import alignment.models
 from django.core.files.storage import FileSystemStorage
-import pandas as pd
-import io, csv
-from django.core.files.base import ContentFile
-import numpy as np
-from django.conf import settings
 import stanza
 from spacy_stanza import StanzaLanguage
 import TS_annotation_tool.utils

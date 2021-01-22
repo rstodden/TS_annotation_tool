@@ -1,0 +1,53 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <div class="row subclass-header">
+        <div class="col-md-12">
+            <h2> Change Log</h2>
+        </div>
+    </div>
+    <div class="row error_log">
+        <p class="error_form">
+            {{ form.errors }}
+        </p>
+    </div>
+    <div class="row subpage content">
+        <div class="col-md-12">
+            <form method="POST" class="change-form" action={% url 'change_log:save_finished' %}>{% csrf_token %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>New Changes:</h3>
+                        <ul>
+                        {% for change in changes %}
+                            {% if change.finished %}
+                                <li>
+                                    <i class="fas fa-check"></i>
+                                    {{ change.headline }} [{{ change.finished_at }}]
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>ToDo List:</h3>
+                        <ul>
+                        {% for change in changes %}
+                            {% if not change.finished %}
+                                <li><label for="todo_item"><input type="checkbox" name="todo_item" value="{{ change.id }}"> {{ change.headline }} [{{ change.created_at }}]</label></li>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <a class="btn btn-default" href="{% url 'change_log:add_item' %}">Add new item</a>
+                        <button class="btn btn-default" name="save" value="save" type="submit">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

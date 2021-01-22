@@ -1,84 +1,80 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-    <h1>Alignment Overview</h1>
-    <div class="row">
+    <div class="row subpage-header">
         <div class="col-md-12">
-            {% if error %}
-                <p> {{ error }} </p>
-            {% endif %}
-            {% if success %}
-                <p> {{ success }} </p>
-            {% endif %}
+            <h1>
+                <i class="fas fa-file-alt"></i>
+                Document Overview
+            </h1>
         </div>
     </div>
-    <div class="row">
+    <div class="row subpage-content">
         <div class="col-md-12">
-            <h2>Document: {{ doc_url }}</h2>
-            <table border=1>
+            <h2>Document: {{ doc_title }}</h2>
+            <table class="doc">
                 <thead>
                 <tr>
-                    <td>ID</td>
-                    <td>grammaticality</td>
-                    <td>meaning preservation</td>
-                    <td>simplicity</td>
-                    <td>certainty</td>
-                    <td>transformation</td>
-                    <td>domain</td>
-                    <td>simple sentence</td>
-                    <td>complex sentence</td>
-                    <td> </td>
-                    <td> </td>
-                    <td> </td>
+                    <td class="doc">ID</td>
+{#                    <td>grammaticality</td>#}
+{#                    <td>meaning preservation</td>#}
+{#                    <td>simplicity</td>#}
+{#                    <td>certainty</td>#}
+{#                    <td>transformation</td>#}
+{#                    <td>domain</td>#}
+                    <td class="doc">simple sentence</td>
+                    <td class="doc">complex sentence</td>
+                    <td class="doc"> </td>
+                    <td class="doc"> </td>
+                    <td class="doc"> </td>
 
                 </tr>
                 </thead>
                 <tbody>
                 {% for pair in alignments %}
                     <tr>
-                        <td>
+                        <td class="doc">
                             {{ pair.pair_identifier }}
                         </td>
-                        <td>
-                            {% for rate in pair.rating.all %}
-                                {% if rate.rater == user and rate.rater in pair.annotator.all %}
-                                    {{ rate.grammaticality_simple }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for rate in pair.rating.all %}
-                                {% if rate.rater == user and rate.rater in pair.annotator.all %}
-                                    {{ rate.meaning_preservation }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for rate in pair.rating.all %}
-                                {% if rate.rater == user and rate.rater in pair.annotator.all %}
-                                    {{ rate.simplicity }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for rate in pair.rating.all %}
-                                {% if rate.rater == user and rate.rater in pair.annotator.all %}
-                                    {{ rate.certainty }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for transformation in pair.transformation_of_pair.all %}
-                                {% if transformation.rater == user and transformation.rater in pair.annotator.all %}
-                                    {{ transformation.transformation }},
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {{ domain }}
-                        </td>
-                        <td>
+{#                        <td>#}
+{#                            {% for rate in pair.rating.all %}#}
+{#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
+{#                                    {{ rate.grammaticality_simple }}#}
+{#                                {% endif %}#}
+{#                            {% endfor %}#}
+{#                        </td>#}
+{#                        <td>#}
+{#                            {% for rate in pair.rating.all %}#}
+{#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
+{#                                    {{ rate.meaning_preservation }}#}
+{#                                {% endif %}#}
+{#                            {% endfor %}#}
+{#                        </td>#}
+{#                        <td>#}
+{#                            {% for rate in pair.rating.all %}#}
+{#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
+{#                                    {{ rate.simplicity }}#}
+{#                                {% endif %}#}
+{#                            {% endfor %}#}
+{#                        </td>#}
+{#                        <td>#}
+{#                            {% for rate in pair.rating.all %}#}
+{#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
+{#                                    {{ rate.certainty }}#}
+{#                                {% endif %}#}
+{#                            {% endfor %}#}
+{#                        </td>#}
+{#                        <td>#}
+{#                            {% for transformation in pair.transformation_of_pair.all %}#}
+{#                                {% if transformation.rater == user and transformation.rater in pair.annotator.all %}#}
+{#                                    {{ transformation.transformation }},#}
+{#                                {% endif %}#}
+{#                            {% endfor %}#}
+{#                        </td>#}
+{#                        <td>#}
+{#                            {{ domain }}#}
+{#                        </td>#}
+                        <td class="doc">
                             {% for sentence in pair.simple_elements.all %}
                                 {{ sentence.original_content|slice:50 }}
                                 {% if sentence.original_content|length > 50 %}
@@ -86,7 +82,7 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
-                        <td>
+                        <td class="doc">
                             {% for sentence in pair.complex_elements.all %}
                                 {{ sentence.original_content|slice:50 }}
                                 {% if sentence.original_content|length > 50 %}
@@ -94,17 +90,17 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
-                        <td>
-                            <a href="{% url 'rating:rate_pair' pair_id=pair.id %}" class="btn btn-default">
+                        <td class="doc">
+                            <a href="{% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
                                 change rating
                             </a>
                         </td>
-                        <td>
-                            <a href="{% url 'rating:select_transformation' pair_id=pair.id %}" class="btn btn-default">
+                        <td class="doc">
+                            <a href="{% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
                                 change transformation
                             </a>
                         </td>
-                        <td>
+                        <td class="doc">
                             <a href="{% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}" class="btn btn-default">
                                 change alignment
                             </a>

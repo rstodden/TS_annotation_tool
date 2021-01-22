@@ -2,163 +2,34 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-    <h2>Rate Alignment Pair #{{ alignmentpair_id }}</h2>
-{#    <div class="container">#}
-
-        <form method="POST" class="rating-form" action={% url 'rating:rate_pair' pair_id=alignmentpair_id %}>{% csrf_token %}
-{#            {{ form.errors }}#}
-            <div class="row">
-                <div class="col-md-12">
-                    <h4>Please rate the following <u>complex</u> sentence(s).</h4>
-                    <!--<b>Complex Sentence:</b>-->
-                    <blockquote>
-                        {{ complex_elements }}
-                    </blockquote>
-                    <p class="text-source">Complex Text Source: <a href="{{ doc_complex_url }}" title="link to complex source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})</p>
-                    <table  class="likert">
-                        <thead>
-                            <tr>
-                                <th class="likert">short form</th>
-                                <th class="likert">long form</th>
-                                {% for radio in form.meaning_preservation %}
-                                {% if radio.data.value != "" %}
-                                    <th class="likert likert-scale">{{ radio.choice_label }}</th>
-                                {% endif %}
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="likert">grammaticality</td>
-                            <td class="likert">{{ form.grammaticality_original.help_text }}</td>
-                            {% for radio in form.grammaticality_original %}
-                                {% if radio.data.value != "" %}
-                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="likert">simplicity</td>
-                            <td class="likert">{{ form.simplicity_original.help_text }}</td>
-                            {% for radio in form.simplicity_original %}
-                                {% if radio.data.value != "" %}
-                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="likert">coherence</td>
-                            <td class="likert">{{ form.coherence_original.help_text }}</td>
-                            {% for radio in form.coherence_original %}
-                                {% if radio.data.value != "" %}
-                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="likert">ambiguity</td>
-                            <td class="likert">{{ form.ambiguity_original.help_text }}</td>
-                            {% for radio in form.ambiguity_original %}
-                                {% if radio.data.value != "" %}
-                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <hr style="width:100%;text-align:left;margin-left:0">
-                    <h4>Please rate the following <u>simplified</u> sentence(s).</h4>
-                    <!--<b>Simple Sentence:</b>-->
-                    <blockquote>
-                        {{ simple_elements }}
-                    </blockquote>
-                    <p class="text-source">Simple Text Source: <a href="{{ doc_simple_url }}" title="link to simple source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})</p>
-                    <table class="likert">
-                        <thead>
-                            <tr class="likert">
-                                <th class="likert">short form</th>
-                                <th class="likert">long form</th>
-
-                                {% for radio in form.meaning_preservation %}
-                                {% if radio.data.value != "" %}
-                                    <th class="likert likert-scale">{{ radio.choice_label }}</th>
-                                {% endif %}
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                        <tr class="likert">
-                            <td class="likert">grammaticality</td>
-                            <td class="likert">{{ form.grammaticality_simple.help_text }}</td>
-                            {% for radio in form.grammaticality_simple %}
-                                <!--{% if radio.data.value != "" %}-->
-                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                <!--{% endif %}-->
-                            {% endfor %}
-                        </tr>
-                        <tr class="likert">
-                            <td class="likert">simplicity</td>
-                            <td class="likert">{{ form.simplicity_simple.help_text }}</td>
-                            {% for radio in form.simplicity_simple %}
-                                {% if radio.data.value != "" %}
-                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr class="likert">
-                            <td class="likert">coherence</td>
-                            <td class="likert">{{ form.coherence_simple.help_text }}</td>
-                            {% for radio in form.coherence_simple %}
-                                {% if radio.data.value != "" %}
-                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr class="likert">
-                            <td class="likert">ambiguity</td>
-                            <td class="likert">{{ form.ambiguity_simple.help_text }}</td>
-                            {% for radio in form.ambiguity_simple %}
-                                {% if radio.data.value != "" %}
-                                    <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-md-12">
-                    <hr style="width:100%;text-align:left;margin-left:0">
-                    <h4>Please rate the following <u>alignment pair</u>.</h4>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <b>Complex Sentence:</b>
-                    <blockquote>
-                        {{ complex_elements }}
-                    </blockquote>
-                    <b>Simple Sentence:</b>
-                    <blockquote>
-                        {{ simple_elements }}
-                    </blockquote>
-                    <p class="text-source">Complex Text Source: <a href="{{ doc_complex_url }}" title="link to complex source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})</p>
-                    <p class="text-source">Simple Text Source: <a href="{{ doc_simple_url }}" title="link to simple source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})</p>
-                    <!--<div class="fieldWrapper">-->
-                        <table class="likert">
+    <div class="row subclass-header">
+        <div class="col-md-12">
+            <h2>
+                <i class="fas fa-balance-scale-left"></i>
+                Rate Alignment Pair #{{ alignmentpair_id }}
+            </h2>
+        </div>
+    </div>
+    <div class="row error_log">
+        <p class="error_form">
+            {{ form.errors }}
+        </p>
+    </div>
+    <div class="row subpage content">
+        <div class="col-md-12">
+            <form method="POST" class="rating-form" action={% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=alignmentpair_id %}>{% csrf_token %}
+    {#            {{ form.errors }}#}
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4>Please rate the following <u>complex</u> sentence(s).</h4>
+                        <!--<b>Complex Sentence:</b>-->
+                        <blockquote>
+                            {{ complex_elements }}
+                        </blockquote>
+                        <p class="text-source">Complex Text Source: <a href="{{ doc_complex_url }}" title="link to complex source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})</p>
+                        <table  class="likert">
                             <thead>
-                                <tr class="likert">
+                                <tr>
                                     <th class="likert">short form</th>
                                     <th class="likert">long form</th>
                                     {% for radio in form.meaning_preservation %}
@@ -169,47 +40,37 @@
                                 </tr>
                             </thead>
                             <tbody>
-
-                            <tr class="likert">
-                                <td class="likert">meaning preservation</td>
-                                <td class="likert">{{ form.meaning_preservation.help_text }}</td>
-                                {% for radio in form.meaning_preservation %}
+                            <tr>
+                                <td class="likert">grammaticality</td>
+                                <td class="likert">{{ form.grammaticality_original.help_text }}</td>
+                                {% for radio in form.grammaticality_original %}
                                     {% if radio.data.value != "" %}
                                         <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                            <tr class="likert">
-                                <td class="likert">information gain</td>
-                                <td class="likert">{{ form.information_gain.help_text }}</td>
-                                {% for radio in form.information_gain %}
+                            <tr>
+                                <td class="likert">simplicity</td>
+                                <td class="likert">{{ form.simplicity_original.help_text }}</td>
+                                {% for radio in form.simplicity_original %}
                                     {% if radio.data.value != "" %}
                                         <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                            <tr class="likert">
-                                <td class="likert">overall simplicity</td>
-                                <td class="likert">{{ form.simplicity.help_text }}</td>
-                                {% for radio in form.simplicity %}
+                            <tr>
+                                <td class="likert">coherence</td>
+                                <td class="likert">{{ form.coherence_original.help_text }}</td>
+                                {% for radio in form.coherence_original %}
                                     {% if radio.data.value != "" %}
                                         <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
-                            <tr class="likert">
-                                <td class="likert">structural simplicity</td>
-                                <td class="likert">{{ form.structural_simplicity.help_text }}</td>
-                                {% for radio in form.structural_simplicity %}
-                                    {% if radio.data.value != "" %}
-                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-                            <tr class="likert">
-                                <td class="likert">lexical simplicity</td>
-                                <td class="likert">{{ form.lexical_simplicity.help_text }}</td>
-                                {% for radio in form.lexical_simplicity %}
+                            <tr>
+                                <td class="likert">ambiguity</td>
+                                <td class="likert">{{ form.ambiguity_original.help_text }}</td>
+                                {% for radio in form.ambiguity_original %}
                                     {% if radio.data.value != "" %}
                                         <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
                                     {% endif %}
@@ -218,31 +79,185 @@
 
                             </tbody>
                         </table>
-
-                    <!--</div>-->
+                    </div>
                 </div>
+
                 <div class="row">
                     <div class="col-md-12">
                         <hr style="width:100%;text-align:left;margin-left:0">
-                        <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
-                        {{ form.certainty.label_tag }}
-                        {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
-                        <br><br>
-                        <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
-                        {{ form.comment.label_tag }}
+                        <h4>Please rate the following <u>simplified</u> sentence(s).</h4>
+                        <!--<b>Simple Sentence:</b>-->
+                        <blockquote>
+                            {{ simple_elements }}
+                        </blockquote>
+                        <p class="text-source">Simple Text Source: <a href="{{ doc_simple_url }}" title="link to simple source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})</p>
+                        <table class="likert">
+                            <thead>
+                                <tr class="likert">
+                                    <th class="likert">short form</th>
+                                    <th class="likert">long form</th>
 
-                        {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
+                                    {% for radio in form.meaning_preservation %}
+                                    {% if radio.data.value != "" %}
+                                        <th class="likert likert-scale">{{ radio.choice_label }}</th>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            <tr class="likert">
+                                <td class="likert">grammaticality</td>
+                                <td class="likert">{{ form.grammaticality_simple.help_text }}</td>
+                                {% for radio in form.grammaticality_simple %}
+                                    <!--{% if radio.data.value != "" %}-->
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                    <!--{% endif %}-->
+                                {% endfor %}
+                            </tr>
+                            <tr class="likert">
+                                <td class="likert">simplicity</td>
+                                <td class="likert">{{ form.simplicity_simple.help_text }}</td>
+                                {% for radio in form.simplicity_simple %}
+                                    {% if radio.data.value != "" %}
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr class="likert">
+                                <td class="likert">coherence</td>
+                                <td class="likert">{{ form.coherence_simple.help_text }}</td>
+                                {% for radio in form.coherence_simple %}
+                                    {% if radio.data.value != "" %}
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr class="likert">
+                                <td class="likert">ambiguity</td>
+                                <td class="likert">{{ form.ambiguity_simple.help_text }}</td>
+                                {% for radio in form.ambiguity_simple %}
+                                    {% if radio.data.value != "" %}
+                                        <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <hr style="width:100%;text-align:left;margin-left:0">
+                        <h4>Please rate the following <u>alignment pair</u>.</h4>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <button type="submit" class="save btn btn-default" title="save button" name="save" value="save"><i class="fas fa-save"></i></i> Save</button>
-                        <button type="submit" class="save btn btn-default" title="save and go to transformations" name="transformation" value="transformation"><i class="fas fa-route"></i> Transformations</button>
-    {#                    transformations: <i class="fas fa-hat-wizard"></i> <i class="fas fa-user-edit"></i> <i class="fas fa-tools"></i> <i class="fas fa-head-side-virus"></i> <i class="fas fa-bezier-curve"></i> <i class="fas fa-project-diagram"></i>#}
+                        <b>Complex Sentence:</b>
+                        <blockquote>
+                            {{ complex_elements }}
+                        </blockquote>
+                        <b>Simple Sentence:</b>
+                        <blockquote>
+                            {{ simple_elements }}
+                        </blockquote>
+                        <p class="text-source">Complex Text Source: <a href="{{ doc_complex_url }}" title="link to complex source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})</p>
+                        <p class="text-source">Simple Text Source: <a href="{{ doc_simple_url }}" title="link to simple source" target="_blank">{{ doc_simple_url }}</a> (Last accessed: {{ doc_simple_access_date }})</p>
+                        <!--<div class="fieldWrapper">-->
+                            <table class="likert">
+                                <thead>
+                                    <tr class="likert">
+                                        <th class="likert">short form</th>
+                                        <th class="likert">long form</th>
+                                        {% for radio in form.meaning_preservation %}
+                                        {% if radio.data.value != "" %}
+                                            <th class="likert likert-scale">{{ radio.choice_label }}</th>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr class="likert">
+                                    <td class="likert">meaning preservation</td>
+                                    <td class="likert">{{ form.meaning_preservation.help_text }}</td>
+                                    {% for radio in form.meaning_preservation %}
+                                        {% if radio.data.value != "" %}
+                                            <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                                <tr class="likert">
+                                    <td class="likert">information gain</td>
+                                    <td class="likert">{{ form.information_gain.help_text }}</td>
+                                    {% for radio in form.information_gain %}
+                                        {% if radio.data.value != "" %}
+                                            <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                                <tr class="likert">
+                                    <td class="likert">overall simplicity</td>
+                                    <td class="likert">{{ form.simplicity.help_text }}</td>
+                                    {% for radio in form.simplicity %}
+                                        {% if radio.data.value != "" %}
+                                            <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                                <tr class="likert">
+                                    <td class="likert">structural simplicity</td>
+                                    <td class="likert">{{ form.structural_simplicity.help_text }}</td>
+                                    {% for radio in form.structural_simplicity %}
+                                        {% if radio.data.value != "" %}
+                                            <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                                <tr class="likert">
+                                    <td class="likert">lexical simplicity</td>
+                                    <td class="likert">{{ form.lexical_simplicity.help_text }}</td>
+                                    {% for radio in form.lexical_simplicity %}
+                                        {% if radio.data.value != "" %}
+                                            <td class="likert likert-radio" title="{{ radio.data.value }}">{{ radio.tag }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+
+                                </tbody>
+                            </table>
+
+                        <!--</div>-->
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <hr style="width:100%;text-align:left;margin-left:0">
+                            <label title="{{ form.certainty.help_text }}" for="{{ form.certainty.id }}">&#9432;</label>
+                            {{ form.certainty.label_tag }}
+                            {{ form.certainty }}{{ form.certainty.data.value|default_if_none:"" }}
+                            <br><br>
+                            <label title="{{ form.comment.help_text }}" for="{{ form.comment.id }}">&#9432;</label>
+                            {{ form.comment.label_tag }}
+
+                            {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="submit" class="save btn btn-default" title="save" name="save" value="save"><i class="fas fa-save"></i> Save</button>
+                            <button type="submit" class="save btn btn-default" title="save and rate previous alignment pair" name="prev" value="prev"><i class="fas fa-arrow-circle-left"></i> Previous</button>
+                            <button type="submit" class="save btn btn-default" title="save and rate next alignment pair" name="next" value="next"><i class="fas fa-arrow-circle-right"></i> Next</button>
+                            <button type="submit" class="save btn btn-default" title="save and add transformations" name="transformation" value="transformation"> <i class="fas fa-route"></i> Transformations</button>
+        {#                    transformations: <i class="fas fa-hat-wizard"></i> <i class="fas fa-user-edit"></i> <i class="fas fa-tools"></i> <i class="fas fa-head-side-virus"></i> <i class="fas fa-bezier-curve"></i> <i class="fas fa-project-diagram"></i>#}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-
+            </form>
+        </div>
+    </div>
 {#    </div>#}
 {% endblock %}

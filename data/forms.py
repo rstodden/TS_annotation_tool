@@ -32,3 +32,9 @@ class UploadFilesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UploadFilesForm, self).__init__(*args, **kwargs)
         self.fields['annotator'].required = False
+
+
+class UploadAnnotatedFilesForm(forms.ModelForm):
+    class Meta:
+        model = data.models.Corpus
+        fields = ["name", "home_page", "language", "license", "domain", "parallel"]

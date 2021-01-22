@@ -6,17 +6,30 @@ from TS_annotation_tool.utils import transformation_dict
 
 
 @login_required
-def rate_pair(request, pair_id):
-	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user)
+def rate_pair(request, doc_pair_id, pair_id):
+	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
 	if request.method == "POST":
 		# redirected from rating.html. save rating of pair here.
 		form = RatingForm(request.POST)
 		if form.is_valid():
 			alignmentpair_tmp.update_or_save_rating(form, request.user)
 			if request.POST.get("transformation"):
-				return redirect('rating:select_transformation', pair_id=alignmentpair_tmp.id)
+				return redirect('rating:select_transformation', doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
+
+			elif request.POST.get("next"):
+				next_pair = alignmentpair_tmp.next(request.user)
+				if next_pair:
+					return redirect('rating:rate_pair', doc_pair_id=doc_pair_id, pair_id=next_pair.id)
+				else:
+					return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
+			elif request.POST.get("prev"):
+				prev_pair = alignmentpair_tmp.prev(request.user)
+				if prev_pair:
+					return redirect('rating:rate_pair', doc_pair_id=doc_pair_id, pair_id=prev_pair.id)
+				else:
+					return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
 			else:
-				return redirect('overview')
+				return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
 		else:
 			print("not valid", form.errors)
 	if alignmentpair_tmp.rating.filter(rater=request.user).exists():
@@ -35,12 +48,13 @@ def rate_pair(request, pair_id):
 												  "doc_complex_access_date": doc_pair_tmp.complex_document.access_date,
 												  "complex_elements": complex_elements,
 												  "simple_elements": simple_elements,
+												  "title": "Rating Annotation - Text Simplification Annotation Tool"
 												  })
 
 
 @login_required
-def select_transformation(request, pair_id):
-	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user)
+def select_transformation(request, doc_pair_id, pair_id):
+	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
 	doc_pair_tmp = alignmentpair_tmp.document_pair
 	complex_elements = alignmentpair_tmp.complex_elements.all()
 	simple_elements = alignmentpair_tmp.simple_elements.all()
@@ -65,8 +79,22 @@ def select_transformation(request, pair_id):
 			type_form = "show"
 			# return render(request, 'rating/transformation.html',
 			# 			  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
+		elif request.POST.get("next"):
+			next_pair = alignmentpair_tmp.next(request.user)
+			if next_pair:
+				return redirect('rating:select_transformation', doc_pair_id=doc_pair_id, pair_id=next_pair.id)
+			else:
+				return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
+		elif request.POST.get("prev"):
+			prev_pair = alignmentpair_tmp.prev(request.user)
+			if prev_pair:
+				return redirect('rating:select_transformation', doc_pair_id=doc_pair_id, pair_id=prev_pair.id)
+			else:
+				return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
 		elif request.POST.get("rate"):
-			return redirect('rating:rate_pair', pair_id=alignmentpair_tmp.id)
+			return redirect('rating:rate_pair', doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
+		elif request.POST.get("document_overview"):
+			return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
 		else:
 			type_form = "show"
 			# return render(request, 'rating/transformation.html',
@@ -82,11 +110,11 @@ def select_transformation(request, pair_id):
 														  "doc_simple_access_date": doc_pair_tmp.simple_document.access_date,
 														  "doc_complex_access_date": doc_pair_tmp.complex_document.access_date,
 														  'type': type_form,
+														  "doc_pair_id": doc_pair_id,
 														  "transformations": alignmentpair_tmp.transformation_of_pair.all(),
-														  "transformation_dict": transformation_dict_obj})
+														  "transformation_dict": transformation_dict_obj,
+														  "title": "Transformation Annotation - Text Simplification Annotation Tool"})
 
 
-def home(request):
-	return redirect('overview')
-
-
+# def home(request):
+# 	return redirect('overview')

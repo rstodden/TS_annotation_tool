@@ -201,8 +201,9 @@ def export(request):
 			iaa_simplicity = get_inter_annotator_agreement("simplicity")
 			iaa_grammaticality = get_inter_annotator_agreement("grammaticality")
 			return render(request, 'evaluation/iaa.html', {"iaa_meaning": iaa_meaning, "iaa_simplicity": iaa_simplicity,
-														   "iaa_grammaticality": iaa_grammaticality})
-	return render(request, 'evaluation/home.html', {})
+														   "iaa_grammaticality": iaa_grammaticality,
+														   "title": "Evaluation - Text Simplification Annotation Tool"})
+	return render(request, 'evaluation/home.html', {"title": "Evaluation - Text Simplification Annotation Tool"})
 
 
 # @user_passes_test(lambda u: u.is_superuser)
