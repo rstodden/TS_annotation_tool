@@ -36,11 +36,11 @@ def change_alignment(request, doc_pair_id):
 			sentence_pair_tmp = Pair.objects.get(id=request.POST.get("delete"), annotator=request.user)
 			sentence_pair_tmp.delete()
 		elif request.POST.get("rate"):
-			return redirect("rating:rate_pair", pair_id=request.POST.get("rate"))
+			return redirect("rating:rate_pair", doc_pair_id=doc_pair_id, pair_id=request.POST.get("rate"))
 		elif request.POST.get("transformation"):
-			return redirect("rating:select_transformation", pair_id=request.POST.get("transformation"))
+			return redirect("rating:select_transformation", doc_pair_id=doc_pair_id, pair_id=request.POST.get("transformation"))
 		elif request.POST.get("save-edit"):
-			type_action = "edit"
+			type_action = "add"
 			form = alignment.forms.AlignmentForm(request.POST)
 			if form.is_valid():
 				sentence_pair_tmp = Pair.objects.get(id=request.POST.get("save-edit"), annotator=request.user)

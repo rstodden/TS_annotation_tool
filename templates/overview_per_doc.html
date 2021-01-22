@@ -22,8 +22,8 @@
 {#                    <td>certainty</td>#}
 {#                    <td>transformation</td>#}
 {#                    <td>domain</td>#}
-                    <td class="doc">simple sentence</td>
                     <td class="doc">complex sentence</td>
+                    <td class="doc">simple sentence</td>
                     <td class="doc"> </td>
                     <td class="doc"> </td>
                     <td class="doc"> </td>
@@ -75,14 +75,6 @@
 {#                            {{ domain }}#}
 {#                        </td>#}
                         <td class="doc">
-                            {% for sentence in pair.simple_elements.all %}
-                                {{ sentence.original_content|slice:50 }}
-                                {% if sentence.original_content|length > 50 %}
-                                    [...]
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td class="doc">
                             {% for sentence in pair.complex_elements.all %}
                                 {{ sentence.original_content|slice:50 }}
                                 {% if sentence.original_content|length > 50 %}
@@ -90,6 +82,16 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
+
+                        <td class="doc">
+                            {% for sentence in pair.simple_elements.all %}
+                                {{ sentence.original_content|slice:50 }}
+                                {% if sentence.original_content|length > 50 %}
+                                    [...]
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+
                         <td class="doc">
                             <a href="{% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
                                 change rating

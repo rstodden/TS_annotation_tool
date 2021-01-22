@@ -7,7 +7,6 @@ from datetime import datetime
 
 @login_required
 def show_changelog(request):
-	print(change_log.models.ChangeLog.objects.all())
 	return render(request, "change_log/change_log.html", {"changes": change_log.models.ChangeLog.objects.all(),
 														  "title": "Change Log - Text Simplification Annotation Tool"})
 
