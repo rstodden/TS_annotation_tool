@@ -4,26 +4,28 @@ import change_log.forms
 import change_log.models
 from datetime import datetime
 
-# Create your views here.
 
 @login_required
 def show_changelog(request):
 	print(change_log.models.ChangeLog.objects.all())
-	return render(request, "change_log/change_log.html", {"changes": change_log.models.ChangeLog.objects.all()})
+	return render(request, "change_log/change_log.html", {"changes": change_log.models.ChangeLog.objects.all(),
+														  "title": "Change Log - Text Simplification Annotation Tool"})
 
 
+@login_required
 def add_item(request):
 	if request.POST:
 		form = change_log.forms.AddChange(request.POST)
 		if form.is_valid():
 			form.save()
-		return render(request, "change_log/change_log.html", {"changes": change_log.models.ChangeLog.objects.all(),
-														  "form": form})
+		return redirect("change_log:show_changelog")
 	else:
 		form = change_log.forms.AddChange()
-		return render(request, "change_log/add_todo.html", {"form": form})
+		return render(request, "change_log/add_todo.html", {"form": form,
+															"title": "Add Todo - Text Simplification Annotation Tool"})
 
 
+@login_required
 def save_finished(request):
 	if "todo_item" in request.POST:
 		for item in request.POST.getlist("todo_item"):
