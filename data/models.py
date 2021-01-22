@@ -149,7 +149,7 @@ def save_uploaded_file(f):
 
 
 def get_spacy_model(language):
-	stanza.download(language)
+	# stanza.download(language)
 	snlp = stanza.Pipeline(lang=language)
 	nlp = StanzaLanguage(snlp)
 	# if language == "de":
