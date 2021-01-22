@@ -37,7 +37,7 @@ class Pair(models.Model):
 			sentence.complex_element.add(self)
 		for sentence in simple_elements:
 			sentence.simple_element.add(self)
-		return self
+		return simple_elements.order_by("-id")[0], complex_elements.order_by("-id")[0]
 
 	def update_or_save_rating(self, form, rater):
 		rating_tmp = form.save(commit=False)
