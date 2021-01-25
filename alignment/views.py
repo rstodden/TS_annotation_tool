@@ -21,7 +21,9 @@ def change_alignment(request, doc_pair_id):
 	type_action = "show"
 	form = alignment.forms.AlignmentForm()
 	sentence_pair_tmp_id = None
-	last_simple_item, last_complex_item = sorted(simple_annotated_sents, key=lambda x: x.id, reverse=True)[0], sorted(complex_annotated_sents, key=lambda x: x.id, reverse=True)[0]
+	last_simple_item, last_complex_item = None, None
+	if simple_annotated_sents and complex_annotated_sents:
+		last_simple_item, last_complex_item = sorted(simple_annotated_sents, key=lambda x: x.id, reverse=True)[0], sorted(complex_annotated_sents, key=lambda x: x.id, reverse=True)[0]
 	if request.method == "POST":
 		if request.POST.get("add"):
 			type_action = "add"
@@ -63,7 +65,6 @@ def change_alignment(request, doc_pair_id):
 				print(form.errors)
 		else:
 			last_simple_item, last_complex_item = None, None
-	print(last_complex_item, last_simple_item)
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
 															   "complex_elements": complex_elements,
 															   "pairs": alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user).order_by("id"),
