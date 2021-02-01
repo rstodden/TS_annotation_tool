@@ -6,6 +6,10 @@ from nltk import agreement
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.contrib.auth.decorators import user_passes_test
 # from django.forms.models import model_to_dict
+from datetime import datetime
+import io
+import os
+import zipfile
 
 
 def export_rating():  #output_path
@@ -131,11 +135,13 @@ def export_alignment():
 	"""create one simple and complex file per annotator. The simple and the complex file contains all alignments no matter their domain or corpus."""
 	# todo: add sources and copyright information to texts!
 	corpus_name = "DEplain"
+	file_names = list()
 	for rater in set(data.models.DocumentPair.objects.values_list("annotator", flat=True)):
-		print(rater)
 		rater_str = ".rater." + str(rater)
-		file_name_complex = corpus_name + ".orig" + rater_str
-		file_name_simple = corpus_name + ".simp" + rater_str
+		file_name_complex = corpus_name + ".orig" + rater_str+".txt"
+		file_name_simple = corpus_name + ".simp" + rater_str+".txt"
+		file_names.append(file_name_simple)
+		file_names.append(file_name_complex)
 		output_text_simple = ""
 		output_text_complex = ""
 		for document_pair in data.models.DocumentPair.objects.filter(annotator=rater):
@@ -146,7 +152,26 @@ def export_alignment():
 			f.write(output_text_complex)
 		with open(file_name_simple, "w") as f:
 			f.write(output_text_simple)
-	return 1
+
+	return generate_zip_file(file_names)
+
+
+def generate_zip_file(filenames):
+	zip_subdir = "alignments_"+str(datetime.today().strftime('%Y-%m-%d'))
+	zip_filename = zip_subdir+".zip"
+	buffer_zip = io.BytesIO()
+	zf = zipfile.ZipFile(buffer_zip, "w")
+	for fpath in filenames:
+		fdir, fname = os.path.split(fpath)
+		zip_path = os.path.join(zip_subdir, fname)
+		zf.write(fpath, zip_path)
+		os.remove(fpath)
+	zf.close()
+	response = HttpResponse(buffer_zip.getvalue())
+	response['Content-Type'] = 'application/x-zip-compressed'
+	response['Content-Disposition'] = 'attachment; filename='+zip_filename
+	return response
+
 
 def get_inter_annotator_agreement(aspect):
 	# extract all raters
@@ -184,12 +209,7 @@ def export(request):
 			output_frame.to_csv(path_or_buf=response)
 			return response
 		elif "export_alignment" in request.POST:
-			# todo: export as zip file
-			output_frame = export_alignment()
-			# response = HttpResponse(content_type='text/csv')
-			# response['Content-Disposition'] = 'attachment; filename="human_ratings_ts.csv"'
-			# output_frame.to_csv(path_or_buf=response)
-			# return response
+			return export_alignment()
 		elif "export_transformation" in request.POST:
 			output_frame = export_transformation()
 			response = HttpResponse(content_type='text/csv')
