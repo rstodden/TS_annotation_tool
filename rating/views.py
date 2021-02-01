@@ -3,6 +3,8 @@ import alignment.models
 from .forms import RatingForm, TransformationForm
 from django.contrib.auth.decorators import login_required
 from TS_annotation_tool.utils import transformation_dict
+import datetime, json
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 @login_required
@@ -12,7 +14,7 @@ def rate_pair(request, doc_pair_id, pair_id):
 		# redirected from rating.html. save rating of pair here.
 		form = RatingForm(request.POST)
 		if form.is_valid():
-			alignmentpair_tmp.update_or_save_rating(form, request.user)
+			alignmentpair_tmp.update_or_save_rating(form, request.user, request.session["start"])
 			if request.POST.get("transformation"):
 				return redirect('rating:select_transformation', doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
 
@@ -40,6 +42,7 @@ def rate_pair(request, doc_pair_id, pair_id):
 	doc_pair_tmp = alignmentpair_tmp.document_pair
 	complex_elements = " ".join(alignmentpair_tmp.complex_elements.values_list("original_content", flat=True))
 	simple_elements = " ".join(alignmentpair_tmp.simple_elements.values_list("original_content", flat=True))
+	request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
 	return render(request, 'rating/rating.html', {'form': form, 'alignmentpair_id': alignmentpair_tmp.id,
 												  "doc_pair_id": doc_pair_tmp.id,
 												  "doc_simple_url": doc_pair_tmp.simple_document.url,
@@ -65,6 +68,7 @@ def select_transformation(request, doc_pair_id, pair_id):
 		if request.POST.get("add"):
 			transformation_dict_obj = transformation_dict
 			type_form = "add"
+			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
 		elif request.POST.get("delete"):
 			alignmentpair_tmp.delete_transformation(request.POST.get("delete"), request.user)
 			type_form = "show"
@@ -75,7 +79,7 @@ def select_transformation(request, doc_pair_id, pair_id):
 		# elif request.POST.get("reset"):
 		# 	return redirect('overview')
 		elif request.POST.get("save"):
-			alignmentpair_tmp.save_transformation(form, request.user)
+			alignmentpair_tmp.save_transformation(form, request.user, request.session["start"])
 			type_form = "show"
 			# return render(request, 'rating/transformation.html',
 			# 			  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})

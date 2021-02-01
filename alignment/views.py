@@ -3,7 +3,8 @@ from .models import Pair
 import data.models
 import alignment.forms
 from django.contrib.auth.decorators import login_required
-
+import datetime, json
+from django.core.serializers.json import DjangoJSONEncoder
 
 # def home(request):
 # 	return render(request, 'overview.html')
@@ -27,8 +28,10 @@ def change_alignment(request, doc_pair_id):
 	if request.method == "POST":
 		if request.POST.get("add"):
 			type_action = "add"
+			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
 		elif request.POST.get("edit"):
 			type_action = "edit"
+			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
 			sentence_pair_tmp = Pair.objects.get(id=request.POST.get("edit"), annotator=request.user)
 			complex_selected = data.models.Sentence.objects.filter(complex_element=sentence_pair_tmp).order_by("-id")
 			simple_selected = data.models.Sentence.objects.filter(simple_element=sentence_pair_tmp).order_by("-id")
@@ -46,11 +49,12 @@ def change_alignment(request, doc_pair_id):
 			form = alignment.forms.AlignmentForm(request.POST)
 			if form.is_valid():
 				sentence_pair_tmp = Pair.objects.get(id=request.POST.get("save-edit"), annotator=request.user)
+				duration = sentence_pair_tmp.duration
 				sentence_pair_tmp.delete()
 				sentence_pair_tmp = alignment.models.Pair()
 				last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(form.cleaned_data["simple_element"],
 																	form.cleaned_data["complex_element"],
-																	request.user, doc_pair_tmp)
+																	request.user, doc_pair_tmp, request.session["start"], duration=duration)
 			else:
 				print(form.errors)
 		elif request.POST.get("save"):
@@ -60,11 +64,12 @@ def change_alignment(request, doc_pair_id):
 				sentence_pair_tmp = alignment.models.Pair()
 				last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(form.cleaned_data["simple_element"],
 																	form.cleaned_data["complex_element"],
-																	request.user, doc_pair_tmp)
+																	request.user, doc_pair_tmp, start_time=request.session["start"])
 			else:
 				print(form.errors)
 		else:
 			last_simple_item, last_complex_item = None, None
+	print(request.session.items())
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
 															   "complex_elements": complex_elements,
 															   "pairs": alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user).order_by("id"),

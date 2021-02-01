@@ -13,10 +13,10 @@ class Annotation(models.Model):
 	certainty = TS_annotation_tool.utils.IntegerRangeField(min_value=1, max_value=5,
 								  help_text="How certain are you regarding your annotation? 1 = uncertain, 5 = very certain", null=True, blank=True)
 	comment = models.TextField(max_length=1000, blank=True, help_text="Do you have any comment regarding your annotation? Is something unclear in the sentence which influence your annotation?")
-	created_at = models.DateTimeField(auto_now_add=True, blank=True)
-	updated_at = models.DateTimeField(auto_now=True)
-	finished_at = models.DateTimeField(auto_now=True, blank=True)
-	duration = models.DurationField(default=datetime.timedelta(), blank=True)
+	created_at = models.DateTimeField(null=True, blank=True)
+	updated_at = models.DateTimeField(null=True, blank=True)
+	finished_at = models.DateTimeField(null=True, blank=True)
+	duration = models.DurationField(null=True, blank=True)
 
 	class Meta:
 		abstract = True
