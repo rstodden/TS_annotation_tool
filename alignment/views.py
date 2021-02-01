@@ -65,11 +65,13 @@ def change_alignment(request, doc_pair_id):
 				last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(form.cleaned_data["simple_element"],
 																	form.cleaned_data["complex_element"],
 																	request.user, doc_pair_tmp, start_time=request.session["start"])
+				simple_annotated_sents = doc_pair_tmp.get_all_simple_annotated_sentences_by_user(request.user, content=False)
+				complex_annotated_sents = doc_pair_tmp.get_all_complex_annotated_sentences_by_user(request.user, content=False)
+
 			else:
 				print(form.errors)
 		else:
 			last_simple_item, last_complex_item = None, None
-	print(request.session.items())
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
 															   "complex_elements": complex_elements,
 															   "pairs": alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user).order_by("id"),
