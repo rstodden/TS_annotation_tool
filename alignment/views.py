@@ -70,6 +70,8 @@ def change_alignment(request, doc_pair_id):
 
 			else:
 				print(form.errors)
+		elif request.POST.get("sentence-problem"):
+			return redirect("data:sentence_problem", sentence_id=request.POST.get("sentence-problem"))
 		else:
 			last_simple_item, last_complex_item = None, None
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,

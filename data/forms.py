@@ -38,3 +38,9 @@ class UploadAnnotatedFilesForm(forms.ModelForm):
     class Meta:
         model = data.models.Corpus
         fields = ["name", "home_page", "language", "license", "domain", "parallel"]
+
+
+class SentenceProblemForm(forms.ModelForm):
+    class Meta:
+        model = data.models.Sentence
+        fields = ["malformed", "malformed_comment"]

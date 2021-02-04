@@ -123,6 +123,8 @@ class Sentence(models.Model):
 	document = models.ForeignKey("data.Document", on_delete=models.CASCADE, blank=True, related_name="sentences")
 	simple_element = models.ManyToManyField("alignment.Pair", related_name="simple_elements", blank=True)
 	complex_element = models.ManyToManyField("alignment.Pair", related_name="complex_elements", blank=True)
+	malformed = models.BooleanField(default=False)
+	malformed_comment = models.TextField(blank=True, max_length=250)
 
 	def tokenize(self, doc):
 		for token in doc:

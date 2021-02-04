@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
-import data.models
+from django.shortcuts import render, redirect, get_object_or_404
+import data.models, alignment.models
 from django.contrib.auth.decorators import user_passes_test
-from .forms import UploadFilesForm, UploadAnnotatedFilesForm
+from .forms import UploadFilesForm, UploadAnnotatedFilesForm, SentenceProblemForm
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 
 # @user_passes_test(lambda u: u.is_superuser)
@@ -42,3 +43,24 @@ def insert_annotation(request):
 		form_upload = UploadAnnotatedFilesForm()
 	return render(request, "data/insertion.html", {"form_upload": form_upload,
 												   "title": "Data Upload - Text Simplification Annotation Tool"})
+
+
+@login_required
+def sentence_problem(request, sentence_id):
+	sentence_tmp = get_object_or_404(data.models.Sentence, id=sentence_id)
+	sentence_content = sentence_tmp.original_content
+	if request.method == "POST":
+		form = SentenceProblemForm(request.POST, instance=sentence_tmp)
+		if form.is_valid():
+			sentence_tmp = form.save()
+			if sentence_tmp.document.simple_document.all():
+				doc_pair_id = sentence_tmp.document.simple_document.values_list("id", flat=True)[0]
+			elif sentence_tmp.document.complex_document.all():
+				doc_pair_id = sentence_tmp.document.complex_document.values_list("id", flat=True)[0]
+			else:
+				return render(request, "data/sentence_problem.html",
+						  {"form": form, "sentence_content": sentence_content})
+			return redirect("alignment:change_alignment", doc_pair_id=doc_pair_id)
+	else:
+		form = SentenceProblemForm()
+	return render(request, "data/sentence_problem.html", {"form": form, "sentence_content": sentence_content})
