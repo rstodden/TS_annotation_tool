@@ -72,6 +72,10 @@ def change_alignment(request, doc_pair_id):
 				print(form.errors)
 		elif request.POST.get("sentence-problem"):
 			return redirect("data:sentence_problem", sentence_id=request.POST.get("sentence-problem"))
+		elif request.POST.get("not-possible"):
+			doc_pair_tmp.no_alignment_possible = request.POST.get("not-possible")
+			doc_pair_tmp.save(update_fields=['no_alignment_possible'])
+			return redirect("overview")
 		else:
 			last_simple_item, last_complex_item = None, None
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
@@ -92,5 +96,6 @@ def change_alignment(request, doc_pair_id):
 																"form": form, "pair_tmp_id": sentence_pair_tmp_id,
 															   "title": "Alignment - Text Simplification Annotation Tool",
 															   "last_simple_item": last_simple_item,
-															   "last_complex_item": last_complex_item
+															   "last_complex_item": last_complex_item,
+																"no_alignment_possible": doc_pair_tmp.no_alignment_possible
 															   })

@@ -40,7 +40,9 @@
                                 <td class="corpus">{{ doc_pair.simple_level }}</td>
                                 <td class="corpus">{{ doc_pair.complex_level }}</td>
                                 <td class="corpus">{{ doc_pair.last_change }}</td>
-                                {% if doc_pair.aligned %}
+                                {% if doc_pair.no_alignment_possible %}
+                                    <td class="corpus" style="text-align: center"><i class="fas fa-ban"></i></td>
+                                {% elif doc_pair.aligned %}
                                     <td class="corpus" style="text-align: center"><i class="fas fa-check-circle" style="color: #8ACBAE"></i></td>
                                 {% else %}
                                     <td class="corpus" style="text-align: center"><i class="fas fa-times-circle" style="color: indianred;"></i></td>

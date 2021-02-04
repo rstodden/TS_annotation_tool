@@ -34,7 +34,8 @@ def overview(request):
 				aligned = False
 			documents_dict[doc_pair.id] = {"domain": corpus.domain, "simple_level": doc_pair.simple_document.level,
 										   "complex_level": doc_pair.complex_document.level, "aligned": aligned, "rating": rating,
-										   "transformations": transformations, "title": doc_pair.simple_document.title, "last_change": doc_pair.last_changes}
+										   "transformations": transformations, "title": doc_pair.simple_document.title,
+										   "last_change": doc_pair.last_changes, "no_alignment_possible": doc_pair.no_alignment_possible}
 		corpus_dict[corpus.name] = documents_dict
 	return render(request, 'overview.html', {"corpora": corpus_dict,
 											 "title": "Corpora Overview - Text Simplification Annotation Tool"})

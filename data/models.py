@@ -89,6 +89,7 @@ class DocumentPair(models.Model):
 	complex_document = models.ForeignKey(Document, blank=True, related_name="complex_document", on_delete=models.CASCADE)
 	annotator = models.ManyToManyField(User, blank=True)
 	last_changes = models.DateTimeField(auto_now=True)
+	no_alignment_possible = models.BooleanField(default=False)
 	corpus = models.ForeignKey(Corpus, on_delete=models.CASCADE, blank=True, null=True)
 
 	def get_all_complex_annotated_sentences_by_user(self, user, content=False):

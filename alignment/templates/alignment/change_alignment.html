@@ -147,6 +147,12 @@
                         {% else %}
             {#              <button type="submit" class="save btn btn-default" value="rate" name="submit">Save & Rate</button>#}
                             <button class="btn btn-default" title="add new alignment" type="submit" name="add" value="new"><i class="fas fa-plus-circle"></i> Add</button>
+                            {{ no_alignment_possible }}
+                            {% if no_alignment_possible %}
+                                <button class="btn btn-default" title="documents are possible to align" type="submit" name="not-possible" value="False"><i class="far fa-check-circle"></i> Possible to align</button>
+                            {% else %}
+                                <button class="btn btn-default" title="documents are not possible to align" type="submit" name="not-possible" value="True"><i class="fas fa-ban"></i> Not possible to align</button>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
