@@ -24,91 +24,103 @@
 {#                    <td>domain</td>#}
                     <td class="doc">complex sentence</td>
                     <td class="doc">simple sentence</td>
-                    <td class="doc"> </td>
-                    <td class="doc"> </td>
-                    <td class="doc"> </td>
+                    <td class="doc">Rating</td>
+                    <td class="doc">Transformation</td>
+                    <td class="doc">Alignment</td>
 
                 </tr>
                 </thead>
                 <tbody>
-                {% for pair in alignments %}
-                    <tr>
-{#                        <td class="doc">#}
-{#                            {{ pair.pair_identifier }}#}
-{#                        </td>#}
-{#                        <td>#}
-{#                            {% for rate in pair.rating.all %}#}
-{#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
-{#                                    {{ rate.grammaticality_simple }}#}
-{#                                {% endif %}#}
-{#                            {% endfor %}#}
-{#                        </td>#}
-{#                        <td>#}
-{#                            {% for rate in pair.rating.all %}#}
-{#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
-{#                                    {{ rate.meaning_preservation }}#}
-{#                                {% endif %}#}
-{#                            {% endfor %}#}
-{#                        </td>#}
-{#                        <td>#}
-{#                            {% for rate in pair.rating.all %}#}
-{#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
-{#                                    {{ rate.simplicity }}#}
-{#                                {% endif %}#}
-{#                            {% endfor %}#}
-{#                        </td>#}
-{#                        <td>#}
-{#                            {% for rate in pair.rating.all %}#}
-{#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
-{#                                    {{ rate.certainty }}#}
-{#                                {% endif %}#}
-{#                            {% endfor %}#}
-{#                        </td>#}
-{#                        <td>#}
-{#                            {% for transformation in pair.transformation_of_pair.all %}#}
-{#                                {% if transformation.rater == user and transformation.rater in pair.annotator.all %}#}
-{#                                    {{ transformation.transformation }},#}
-{#                                {% endif %}#}
-{#                            {% endfor %}#}
-{#                        </td>#}
-{#                        <td>#}
-{#                            {{ domain }}#}
-{#                        </td>#}
-                        <td class="doc">
-                            {% for sentence in pair.complex_elements.all %}
-                                {{ sentence.original_content|slice:50 }}
-                                {% if sentence.original_content|length > 50 %}
-                                    ...
-                                {% endif %}
-                            {% endfor %}
-                        </td>
+                <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}
+                    {% for pair in alignments %}
+                        <tr>
+    {#                        <td class="doc">#}
+    {#                            {{ pair.pair_identifier }}#}
+    {#                        </td>#}
+    {#                        <td>#}
+    {#                            {% for rate in pair.rating.all %}#}
+    {#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
+    {#                                    {{ rate.grammaticality_simple }}#}
+    {#                                {% endif %}#}
+    {#                            {% endfor %}#}
+    {#                        </td>#}
+    {#                        <td>#}
+    {#                            {% for rate in pair.rating.all %}#}
+    {#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
+    {#                                    {{ rate.meaning_preservation }}#}
+    {#                                {% endif %}#}
+    {#                            {% endfor %}#}
+    {#                        </td>#}
+    {#                        <td>#}
+    {#                            {% for rate in pair.rating.all %}#}
+    {#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
+    {#                                    {{ rate.simplicity }}#}
+    {#                                {% endif %}#}
+    {#                            {% endfor %}#}
+    {#                        </td>#}
+    {#                        <td>#}
+    {#                            {% for rate in pair.rating.all %}#}
+    {#                                {% if rate.rater == user and rate.rater in pair.annotator.all %}#}
+    {#                                    {{ rate.certainty }}#}
+    {#                                {% endif %}#}
+    {#                            {% endfor %}#}
+    {#                        </td>#}
+    {#                        <td>#}
+    {#                            {% for transformation in pair.transformation_of_pair.all %}#}
+    {#                                {% if transformation.rater == user and transformation.rater in pair.annotator.all %}#}
+    {#                                    {{ transformation.transformation }},#}
+    {#                                {% endif %}#}
+    {#                            {% endfor %}#}
+    {#                        </td>#}
+    {#                        <td>#}
+    {#                            {{ domain }}#}
+    {#                        </td>#}
+                            <td class="doc">
+                                {% for sentence in pair.complex_elements.all %}
+                                    {{ sentence.original_content|slice:50 }}
+                                    {% if sentence.original_content|length > 50 %}
+                                        ...
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
 
-                        <td class="doc">
-                            {% for sentence in pair.simple_elements.all %}
-                                {{ sentence.original_content|slice:50 }}
-                                {% if sentence.original_content|length > 50 %}
-                                    [...]
-                                {% endif %}
-                            {% endfor %}
-                        </td>
+                            <td class="doc">
+                                {% for sentence in pair.simple_elements.all %}
+                                    {{ sentence.original_content|slice:50 }}
+                                    {% if sentence.original_content|length > 50 %}
+                                        [...]
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
 
-                        <td class="doc">
-                            <a href="{% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
-                                change rating
-                            </a>
-                        </td>
-                        <td class="doc">
-                            <a href="{% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
-                                change transformation
-                            </a>
-                        </td>
-                        <td class="doc">
-                            <a href="{% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}" class="btn btn-default">
-                                change alignment
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
+                            <td class="doc">
+                                {% if pair.rating.all %}
+                                    <a href="{% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                        <i class="fas fa-edit"></i> edit
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                        <i class="fas fa-plus-circle"></i> add
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="doc">
+                                {% if pair.transformation_of_pair.all %}
+                                    <a href="{% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                        <i class="fas fa-edit"></i> edit
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                        <i class="fas fa-plus-circle"></i> add
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="doc">
+                                <button class="btn btn-default" title="edit alignment of pair" type="submit" name="edit" value="{{ pair.id }}"><i class="fas fa-edit"></i> edit </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </form>
                 </tbody>
             </table>
             {% if alignments.has_other_pages %}
