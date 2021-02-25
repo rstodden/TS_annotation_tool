@@ -45,6 +45,12 @@ class Corpus(models.Model):
 		self.save()
 		return self
 
+	def __str__(self):
+		if self.name:
+			return self.name
+		else:
+			return "Sentence ("+str(self.id)+")"
+
 
 class Document(models.Model):
 	url = models.URLField(max_length=500)
@@ -82,6 +88,12 @@ class Document(models.Model):
 			document_tmp.add_sentences(nlp(document_content[1].decode("utf-8")).sents, language_level)
 			document_tmp.save()
 		return document_tmp
+
+	def __str__(self):
+		if self.title:
+			return self.title
+		else:
+			return "Document ("+str(+self.id)+")"
 
 
 class DocumentPair(models.Model):

@@ -58,7 +58,7 @@ transformation_dict = {"word": {
 						   "lexical_substitution": ["verbalization", "other"],
 						   "reorder": ["subject-verb-reorder", "genitive to dative", "negative to positive", "other"],
 						   "rephrase": [],
-						   # "no_operation: []",
+						    "no_operation": [],
 					   		},
 					   "paragraph": {
 						   "reorder": ["sentence-order-changed", "other"],

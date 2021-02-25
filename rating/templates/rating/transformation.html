@@ -62,7 +62,9 @@
 
                     {% if type == "add" %}
                         <p>Select the level of the transformation and afterwards the type of transformation.
-                            If the subtype of the transformation is obvious, please select it as well.
+                            If the subtype of the transformation is obvious, please select it as well.<br>
+                            Please also mark all tokens which are affected by the current transformation.
+                        If no token can be clearly marked, because for example the whole sentence was transformed, please do select no token.
                         </p>
                         {% for trans_level, transformation_list in transformation_dict.items %}
                             <div class="row">
