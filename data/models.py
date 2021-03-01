@@ -73,13 +73,14 @@ class Document(models.Model):
 
 	def create_or_load_document_by_upload(self, document, language_level, domain, nlp):
 		document_content = document.readlines()
-		copyright_line = document_content[0].decode("utf-8").strip().split(" ")
+		copyright_line, title = document_content[0].decode("utf-8").strip().split("\t")
+		copyright_line = copyright_line.split(" ")
 		date = copyright_line[-1][:-1]
 		url = copyright_line[3]
-		title = url.split("/")[-1]
+		# title = url.split("/")[-1]
 
-		if Document.objects.filter(title=title, url=url):
-			document_tmp = Document.objects.get(title=title, url=url)
+		if Document.objects.filter(title=title, url=url, level=language_level):
+			document_tmp = Document.objects.get(title=title, url=url, level=language_level)
 		else:
 			document_tmp = Document(url=url, title=title, access_date=date,
 									plain_data=document_content[1].decode("utf-8"),
