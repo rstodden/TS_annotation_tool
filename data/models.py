@@ -85,7 +85,7 @@ class Document(models.Model):
 									plain_data=document_content[1].decode("utf-8"),
 									level=language_level, domain=domain)
 			document_tmp.save()
-			document_tmp.add_sentences(nlp(document_content[1].decode("utf-8")).sents, language_level)
+			document_tmp.add_sentences(nlp(document_content[1].strip().decode("utf-8")).sents, language_level)
 			document_tmp.save()
 		return document_tmp
 
