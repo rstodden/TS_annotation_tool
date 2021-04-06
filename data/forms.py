@@ -18,7 +18,7 @@ class UploadFileForm(forms.Form):
 class UploadFilesForm(forms.ModelForm):
     class Meta:
         model = data.models.Corpus
-        fields = ["name", "home_page", "language", "license", "domain", "parallel"]
+        fields = ["name", "home_page", "author", "license", "license_file", "parallel",  "pre_aligned", "manually_aligned", "domain", "language"]
     # corpus_name = forms.CharField(max_length=50)
     # url = forms.URLField()
     # language = forms.ChoiceField(choices=LANGUAGES)
@@ -32,6 +32,9 @@ class UploadFilesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UploadFilesForm, self).__init__(*args, **kwargs)
         self.fields['annotator'].required = False
+        self.fields['license_file'].required = False
+        self.fields['home_page'].required = False
+        self.fields['author'].required = False
 
 
 class UploadAnnotatedFilesForm(forms.ModelForm):

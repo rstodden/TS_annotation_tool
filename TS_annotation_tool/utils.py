@@ -17,6 +17,7 @@ list_licenses = (
 					("CC_BY_NC_ND_4", "CC_BY_NC_ND_4"),
 					("CC_BY_NC_4", "CC_BY_NC_4"),
 					("CC_BY_NC_SA_4", "CC_BY_NC_SA_4"),
+					("MIT", "MIT")
 					 )
 
 language_level_list = (("a1", "Leichte Sprache"),

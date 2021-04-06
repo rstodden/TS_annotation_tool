@@ -40,8 +40,8 @@ def rate_pair(request, doc_pair_id, pair_id):
 	else:
 		form = RatingForm()
 	doc_pair_tmp = alignmentpair_tmp.document_pair
-	complex_elements = " ".join(alignmentpair_tmp.complex_elements.values_list("original_content", flat=True))
-	simple_elements = " ".join(alignmentpair_tmp.simple_elements.values_list("original_content", flat=True))
+	complex_elements = " ".join(alignmentpair_tmp.complex_elements.values_list("original_content", flat=True).order_by("id"))
+	simple_elements = " ".join(alignmentpair_tmp.simple_elements.values_list("original_content", flat=True).order_by("id"))
 	request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
 	return render(request, 'rating/rating.html', {'form': form, 'alignmentpair_id': alignmentpair_tmp.id,
 												  "doc_pair_id": doc_pair_tmp.id,
@@ -59,8 +59,8 @@ def rate_pair(request, doc_pair_id, pair_id):
 def select_transformation(request, doc_pair_id, pair_id):
 	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
 	doc_pair_tmp = alignmentpair_tmp.document_pair
-	complex_elements = alignmentpair_tmp.complex_elements.all()
-	simple_elements = alignmentpair_tmp.simple_elements.all()
+	complex_elements = alignmentpair_tmp.complex_elements.all().order_by("id")
+	simple_elements = alignmentpair_tmp.simple_elements.all().order_by("id")
 	transformation_dict_obj = None
 	type_form = "show"
 	if request.method == "POST":

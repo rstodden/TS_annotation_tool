@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
 from rating.models import Rating, Transformation
-from data.models import Token, Sentence, DocumentPair
+# from data.models import Token, Sentence, DocumentPair
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -28,9 +28,9 @@ class Pair(models.Model):
 	type = models.CharField(choices=type_choices, max_length=50)
 	document_pair = models.ForeignKey("data.DocumentPair", on_delete=models.CASCADE, blank=True, null=True, related_name="sentence_alignment_pair")
 
-	def save_sentence_alignment_from_form(self, simple_elements, complex_elements, user, document, start_time, duration=datetime.timedelta()):
+	def save_sentence_alignment_from_form(self, simple_elements, complex_elements, user, document, start_time, duration=datetime.timedelta(), manually_aligned=True):
 		self.type = "parallel_online"
-		self.manually_checked = True
+		self.manually_checked = manually_aligned
 		self.origin_annotator = user
 		self.pair_identifier = get_sentence_pair_identifier()
 		self.document_pair = document
@@ -50,7 +50,7 @@ class Pair(models.Model):
 		self.annotator.add(user)
 		# 2021-02-01T17:33:55.707
 		# %Y-%m-%dT%H:%M:%S.%f
-		print(self.created_at, self.updated_at, start_time, type(self.created_at), type(self.updated_at))
+		# print(self.created_at, self.updated_at, start_time, type(self.created_at), type(self.updated_at))
 		for sentence in complex_elements:
 			sentence.complex_element.add(self)
 		for sentence in simple_elements:

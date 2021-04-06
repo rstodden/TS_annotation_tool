@@ -11,6 +11,8 @@
 - mark changes in two different sentences if aligned.
 - show metadata as URL during the annotation process.
 - insert copied texts (without webscraping) and do sentence splitting?
+- translation part
+	- include some CAT feature, highligh complex words based on a list. or use languagetool?
 
 ## Texts
 ### verwenden und veröffentlichen
@@ -122,4 +124,13 @@ echo ">> Deleting old migrations"
 - `$ python mangage.py makemigrations`
 - `$ python mangage.py migrate`
 - `$ python mangage.py createsuperuser`
-- dump to database `pg_dump --file=/home/stodden/Downloads/german_text_simplification-2021_01_13_19_01_17-dump.sql --username=regina --host=localhost --port=5432 --password german_text_simplification_corpus`
+- dump to database `pg_dump --file=backups/dump_german_text_simplification-$(date +%Y%m%d-%H%M).sql --username=regina --host=localhost --port=5432 --password german_text_simplification_corpus`
+- touch ~/.pgpass/ 
+- content: localhost:5432:german_text_simplification_corpus:regina:text_simplification_DE_2021 
+- chmod 600 ~/.pgpass
+
+# ToDo:
+- Datenverträge unetrszeichne und Maya vorlegen
+- Stanza Sätze korrigieren, original_text parsen und neu abspeichern?
+- python -m spacy download de_dep_news_trf
+- update all packages on server

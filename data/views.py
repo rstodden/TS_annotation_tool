@@ -20,6 +20,7 @@ def insert_data(request):
 		# else:
 		# 	user_machine = User.objects.get(username="automatic")
 		if form_upload.is_valid():
+			print(form_upload.cleaned_data)
 			files = form_upload.cleaned_data["attachments"]
 			if data.models.Corpus.objects.filter(name=form_upload.cleaned_data["name"], home_page=form_upload.cleaned_data["home_page"]):
 				corpus_tmp = data.models.Corpus.objects.get(name=form_upload.cleaned_data["name"], home_page=form_upload.cleaned_data["home_page"])

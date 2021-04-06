@@ -4,5 +4,5 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('home', views.home, name="home"),
-    path('simplify/<int:doc_id>', views.simplify, name="simplify"),
+    path('simplify/<int:doc_pair_id>', views.simplify, name="simplify"),
 ]

@@ -2,14 +2,18 @@ from django.db import models
 from languages.fields import LanguageField
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
-import stanza
-from spacy_stanza import StanzaLanguage
+# import stanza
+# from spacy_stanza import StanzaLanguage
+import spacy
 import TS_annotation_tool.utils
+from alignment.models import Pair
+import datetime, json
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 class Corpus(models.Model):
 	name = models.CharField(max_length=100, blank=True)
-	home_page = models.URLField(max_length=500)
+	home_page = models.URLField(max_length=500, blank=True)
 	license = models.CharField(max_length=250, choices=TS_annotation_tool.utils.list_licenses)
 	parallel = models.BooleanField(default=False)
 	domain = models.CharField(max_length=100)
@@ -17,6 +21,10 @@ class Corpus(models.Model):
 	path = models.CharField(max_length=500, blank=True, null=True)
 	simple_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.language_level_list)
 	complex_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.language_level_list)
+	pre_aligned = models.BooleanField(default=False)
+	license_file = models.FileField(blank=True, null=True)
+	author = models.CharField(max_length=500, blank=True)  # copyright owner
+	manually_aligned = 	models.BooleanField(default=False, blank=True)
 
 	def add_documents_by_upload(self, files, form_upload):
 		simple_files = [file for file in files if "simple" in file.name]
@@ -27,17 +35,22 @@ class Corpus(models.Model):
 			simple_document = Document()
 			simple_document = simple_document.create_or_load_document_by_upload(document=file,
 														language_level=form_upload.cleaned_data["language_level_simple"],
-														domain=form_upload.cleaned_data["domain"], nlp=nlp)
+														domain=form_upload.cleaned_data["domain"], nlp=nlp,
+														pre_aligned=form_upload.cleaned_data["pre_aligned"])
 			complex_file_obj = [file for file in files if "complex" in file.name and "_" + file_id + "." in file.name]
 			if complex_file_obj:
 				complex_document = Document()
 				complex_document = complex_document.create_or_load_document_by_upload(complex_file_obj[0], form_upload.cleaned_data[
-					"language_level_complex"], form_upload.cleaned_data["domain"], nlp)
+					"language_level_complex"], form_upload.cleaned_data["domain"], nlp, pre_aligned=form_upload.cleaned_data["pre_aligned"])
 				document_pair_tmp = DocumentPair(corpus=self)
 				document_pair_tmp.complex_document = complex_document
 				document_pair_tmp.simple_document = simple_document
 				document_pair_tmp.save()
 				document_pair_tmp.annotator.add(*form_upload.cleaned_data["annotator"])
+				if form_upload.cleaned_data["pre_aligned"]:
+					document_pair_tmp.add_aligned_sentences(nlp=nlp, manually_aligned=form_upload.cleaned_data["manually_aligned"],
+															language_level_simple=form_upload.cleaned_data["language_level_simple"],
+															language_level_complex=form_upload.cleaned_data["language_level_complex"])
 				document_pair_tmp.save()
 				self.document_pair = document_pair_tmp
 		self.complex_level = form_upload.cleaned_data["language_level_complex"]
@@ -65,13 +78,16 @@ class Document(models.Model):
 	domain = models.CharField(max_length=50, blank=True, null=True)
 
 	def add_sentences(self, sentences, language_level):
+		sentence_ids = list()
 		for sent in sentences:
+			# print(sent, sent.text, sent.text_with_ws, type(sent))
 			sent_tmp = Sentence(original_content=sent, level=language_level, document=self)
 			sent_tmp.save()
+			sentence_ids.append(sent_tmp.id)
 			sent_tmp.tokenize(sent)
-		return 1
+		return sentence_ids
 
-	def create_or_load_document_by_upload(self, document, language_level, domain, nlp):
+	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, pre_aligned=False):
 		document_content = document.readlines()
 		copyright_line, title = document_content[0].decode("utf-8").strip().split("\t")
 		copyright_line = copyright_line.split(" ")
@@ -82,11 +98,19 @@ class Document(models.Model):
 		if Document.objects.filter(title=title, url=url, level=language_level):
 			document_tmp = Document.objects.get(title=title, url=url, level=language_level)
 		else:
-			document_tmp = Document(url=url, title=title, access_date=date,
+			if not pre_aligned:
+				document_tmp = Document(url=url, title=title, access_date=date,
 									plain_data=document_content[1].decode("utf-8"),
 									level=language_level, domain=domain)
+			else:
+				plain_data = ""
+				for data in document_content[1:]:
+					plain_data += data.decode("utf-8")
+				document_tmp = Document(url=url, title=title, access_date=date,
+										plain_data=plain_data.strip(), level=language_level, domain=domain)
 			document_tmp.save()
-			document_tmp.add_sentences(nlp(document_content[1].strip().decode("utf-8")).sents, language_level)
+			if not pre_aligned:
+				document_tmp.add_sentences(nlp(document_content[1].strip().decode("utf-8")).sents, language_level)
 			document_tmp.save()
 		return document_tmp
 
@@ -127,6 +151,28 @@ class DocumentPair(models.Model):
 						simple_annotated_sents_content.append(sent)
 		return simple_annotated_sents_content
 
+	def add_aligned_sentences(self, nlp, language_level_simple, language_level_complex, manually_aligned):
+		simple_doc = self.simple_document
+		complex_doc = self.complex_document
+		simple_sentences = simple_doc.plain_data.split("\n")
+		complex_sentences = complex_doc.plain_data.split("\n")
+		# print(simple_sentences, complex_sentences)
+		for simple_sent, complex_sent in zip(simple_sentences, complex_sentences):
+			simple_elements_ids = simple_doc.add_sentences(nlp(simple_sent).sents, language_level_simple)
+			complex_elements_ids = complex_doc.add_sentences(nlp(complex_sent).sents, language_level_complex)
+			simple_elements = Sentence.objects.filter(id__in=simple_elements_ids)
+			complex_elements = Sentence.objects.filter(id__in=complex_elements_ids)
+			if simple_sent != complex_sent:
+				sentence_pair_tmp = Pair()
+				user, created = User.objects.get_or_create(username="tool")
+				sentence_pair_tmp.save_sentence_alignment_from_form(simple_elements, complex_elements, user, self,
+																json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder),
+																manually_aligned=manually_aligned)
+				sentence_pair_tmp.save()
+			# else:
+			# 	print(simple_sent, "!!!", complex_sent)
+		return self
+
 
 class Sentence(models.Model):
 	original_content = models.TextField()
@@ -165,14 +211,20 @@ def save_uploaded_file(f):
 
 
 def get_spacy_model(language):
-	# stanza.download(language)
-	snlp = stanza.Pipeline(lang=language)
-	nlp = StanzaLanguage(snlp)
-	# if language == "de":
-	# 	nlp = spacy.load("de_core_news_lg")
-	# elif language == "en":
-	# 	nlp = spacy.load("en_core_web_sm")
-	# else:
-	# 	nlp = spacy.load("en_core_web_sm")
+	# # stanza.download(language)
+	# snlp = stanza.Pipeline(lang=language)
+	# nlp = StanzaLanguage(snlp)
+	if language == "de":
+		nlp = spacy.load("de_dep_news_trf")
+	elif language == "en":
+		nlp = spacy.load("en_core_web_sm")
+	else:
+		nlp = spacy.load("en_core_web_sm")
 	return nlp
 
+
+# def repair_original_text():
+# 	sentences = Sentence.objects.all()
+# 	nlp = get_spacy_model("de")
+# 	for sent in sentences:
+# 		print(sent.original_content, nlp(sent.original_content).text)

@@ -216,6 +216,9 @@ def export(request):
 			response['Content-Disposition'] = 'attachment; filename="human_ratings_ts.csv"'
 			output_frame.to_csv(path_or_buf=response)
 			return response
+		# elif "repair_sentence" in request.POST:
+		# 	data.models.repair_original_text()
+
 		elif "get_iaa" in request.POST:
 			iaa_meaning = get_inter_annotator_agreement("meaning_preservation")
 			iaa_simplicity = get_inter_annotator_agreement("simplicity")
