@@ -1,5 +1,5 @@
 from django.db import models
-from languages.fields import LanguageField
+# from languages.fields import LanguageField
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 # import stanza
@@ -17,7 +17,7 @@ class Corpus(models.Model):
 	license = models.CharField(max_length=250, choices=TS_annotation_tool.utils.list_licenses)
 	parallel = models.BooleanField(default=False)
 	domain = models.CharField(max_length=100)
-	language = LanguageField(blank=True, max_length=8)
+	language = 	models.CharField(max_length=8, choices=TS_annotation_tool.utils.LANGUAGE_CHOICES)
 	path = models.CharField(max_length=500, blank=True, null=True)
 	simple_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.language_level_list)
 	complex_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.language_level_list)
