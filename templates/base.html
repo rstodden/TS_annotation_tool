@@ -13,13 +13,14 @@
         <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="{% static 'css/main.css' %}">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
+        <link rel="shortcut icon" type="image/png" style="max-height: 50%;max-width: 100%" href="{% static 'img/favicon.ico' %}"/>
     </head>
     <body>
         <div class="container-fluid">
             <div class="row header">
                 <div class="page-header col-md-12">
                     <h1>
-                        <a href="{% url 'home' %}" class="headline"><i class="fas fa-book-reader"></i> Text Simplification Annotation Tool </a>
+                        <a href="{% url 'home' %}" class="headline"><img style="height: 1.1em" src="{%  static 'img/text_simplification_logo_white.png'  %}" alt="text simplification logo"> Text Simplification Annotation Tool </a>
                     </h1>
                 </div>
             </div>
@@ -30,7 +31,8 @@
                         {% if user.is_authenticated %}
                             <li>
                                 <a href="{% url 'overview_all_corpora' %}">
-                                <i class="fas fa-book"></i>
+{#                                <i class="fas fa-book"></i>#}
+                                    <img class="fas" style="height: 1.1em; color: #8ACBAE" src="https://toppng.com/uploads/preview/book-shelf-icon-book-on-shelf-icon-11553457588j7kv5lb8si.png" alt="books on a shelf. based on icons of fontawesome.">
                                     Corpora Overview
                                 </a>
                             </li>
