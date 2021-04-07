@@ -51,6 +51,7 @@ def rate_pair(request, doc_pair_id, pair_id):
 												  "doc_complex_access_date": doc_pair_tmp.complex_document.access_date,
 												  "complex_elements": complex_elements,
 												  "simple_elements": simple_elements,
+												  "corpus_id": doc_pair_tmp.corpus.id,
 												  "title": "Rating Annotation - Text Simplification Annotation Tool"
 												  })
 
@@ -115,6 +116,7 @@ def select_transformation(request, doc_pair_id, pair_id):
 														  "doc_complex_access_date": doc_pair_tmp.complex_document.access_date,
 														  'type': type_form,
 														  "doc_pair_id": doc_pair_id,
+												  		  "corpus_id": doc_pair_tmp.corpus.id,
 														  "transformations": alignmentpair_tmp.transformation_of_pair.all(),
 														  "transformation_dict": transformation_dict_obj,
 														  "title": "Transformation Annotation - Text Simplification Annotation Tool"})

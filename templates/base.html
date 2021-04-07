@@ -29,11 +29,20 @@
                     <ul class="sidebar-nav">
                         {% if user.is_authenticated %}
                             <li>
-                                <a href="{% url 'overview' %}">
+                                <a href="{% url 'overview_all_corpora' %}">
                                 <i class="fas fa-book"></i>
                                     Corpora Overview
                                 </a>
                             </li>
+                            {% if corpus_id %}
+                                <li>
+                                    <a href="{% url 'overview_per_corpus' corpus_id=corpus_id%}">
+                                        <i class="fas fa-book"></i> Corpus Overview
+                                    </a>
+                                </li>
+                            {% else %}
+                                <i class="fas fa-book"></i> Corpus Overview
+                            {% endif %}
                             {% if doc_pair_id %}
                                 <li>
                                     <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair_id %}">

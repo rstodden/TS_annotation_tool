@@ -127,7 +127,7 @@ class DocumentPair(models.Model):
 	annotator = models.ManyToManyField(User, blank=True)
 	last_changes = models.DateTimeField(auto_now=True)
 	no_alignment_possible = models.BooleanField(default=False)
-	corpus = models.ForeignKey(Corpus, on_delete=models.CASCADE, blank=True, null=True)
+	corpus = models.ForeignKey(Corpus, on_delete=models.CASCADE, blank=True, null=True, related_name="document_pairs")
 
 	def get_all_complex_annotated_sentences_by_user(self, user, content=False):
 		complex_annotated_sents_content = list()

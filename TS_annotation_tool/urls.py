@@ -6,7 +6,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('settings_admin/', admin.site.urls),
-    path("corpora/", views.overview, name="overview"),
+    path("corpora/", views.overview_all_corpora, name="overview_all_corpora"),
+    path("corpus/<int:corpus_id>", views.overview_per_corpus, name="overview_per_corpus"),
     # path('overview/<str:domain>', views.overview, name='overview'),
     # path('overview/<str:domain>/<int:corpus>', views.overview, name='overview'),
     path("doc/<int:doc_pair_id>", views.overview_per_doc, name="overview_per_doc"),

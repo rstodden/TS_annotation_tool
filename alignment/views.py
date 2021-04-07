@@ -75,7 +75,7 @@ def change_alignment(request, doc_pair_id):
 		elif request.POST.get("not-possible"):
 			doc_pair_tmp.no_alignment_possible = request.POST.get("not-possible")
 			doc_pair_tmp.save(update_fields=['no_alignment_possible'])
-			return redirect("overview")
+			return redirect("overview_per_corpus", corpus_id=doc_pair_tmp.corpus)
 		else:
 			last_simple_item, last_complex_item = None, None
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,
@@ -88,6 +88,7 @@ def change_alignment(request, doc_pair_id):
 															   "simple_annotated_sents" : simple_annotated_sents,
 															   "complex_annotated_sents": complex_annotated_sents,
 															   "type": type_action,
+															   "corpus_id": doc_pair_tmp.corpus.id,
 															   "doc_simple_url": doc_pair_tmp.simple_document.url,
 															   "doc_complex_url": doc_pair_tmp.complex_document.url,
 															   "doc_simple_access_date": doc_pair_tmp.simple_document.access_date,
