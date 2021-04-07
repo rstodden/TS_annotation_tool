@@ -36,12 +36,14 @@ class Corpus(models.Model):
 			simple_document = simple_document.create_or_load_document_by_upload(document=file,
 														language_level=form_upload.cleaned_data["language_level_simple"],
 														domain=form_upload.cleaned_data["domain"], nlp=nlp,
-														pre_aligned=form_upload.cleaned_data["pre_aligned"])
+														pre_aligned=form_upload.cleaned_data["pre_aligned"],
+														selected_license=form_upload.cleaned_data["license"])
 			complex_file_obj = [file for file in files if "complex" in file.name and "_" + file_id + "." in file.name]
 			if complex_file_obj:
 				complex_document = Document()
 				complex_document = complex_document.create_or_load_document_by_upload(complex_file_obj[0], form_upload.cleaned_data[
-					"language_level_complex"], form_upload.cleaned_data["domain"], nlp, pre_aligned=form_upload.cleaned_data["pre_aligned"])
+					"language_level_complex"], form_upload.cleaned_data["domain"], nlp, pre_aligned=form_upload.cleaned_data["pre_aligned"],
+				    selected_license=form_upload.cleaned_data["license"])
 				document_pair_tmp = DocumentPair(corpus=self)
 				document_pair_tmp.complex_document = complex_document
 				document_pair_tmp.simple_document = simple_document
@@ -77,17 +79,21 @@ class Document(models.Model):
 	path = models.FileField(upload_to='media/uploads/', blank=True, null=True)
 	domain = models.CharField(max_length=50, blank=True, null=True)
 
-	def add_sentences(self, sentences, language_level):
+	def add_sentences(self, sentences, language_level, selected_license, number_sentences=1):
+		treshold = 1
 		sentence_ids = list()
-		for sent in sentences:
-			# print(sent, sent.text, sent.text_with_ws, type(sent))
+		if selected_license in TS_annotation_tool.utils.license_limits.keys():
+			treshold = TS_annotation_tool.utils.license_limits[selected_license]["save_use"]
+		for i, sent in enumerate(sentences):
+			if (i+1)/number_sentences >= treshold:
+				break
 			sent_tmp = Sentence(original_content=sent, level=language_level, document=self)
 			sent_tmp.save()
 			sentence_ids.append(sent_tmp.id)
 			sent_tmp.tokenize(sent)
 		return sentence_ids
 
-	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, pre_aligned=False):
+	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, selected_license, pre_aligned=False):
 		document_content = document.readlines()
 		copyright_line, title = document_content[0].decode("utf-8").strip().split("\t")
 		copyright_line = copyright_line.split(" ")
@@ -110,7 +116,8 @@ class Document(models.Model):
 										plain_data=plain_data.strip(), level=language_level, domain=domain)
 			document_tmp.save()
 			if not pre_aligned:
-				document_tmp.add_sentences(nlp(document_content[1].strip().decode("utf-8")).sents, language_level)
+				number_sentences = len([sent for sent in nlp(document_content[1].strip().decode("utf-8")).sents])
+				document_tmp.add_sentences(nlp(document_content[1].strip().decode("utf-8")).sents, language_level, selected_license, number_sentences)
 			document_tmp.save()
 		return document_tmp
 

@@ -25,7 +25,7 @@ language_level_list = (("a1", "Leichte Sprache"),
 				   ("b2", "Vereinfachte Sprache"),
 				   ("c2", "Alltagssprache")
 					)
-
+license_limits = {"not_allowed": {"save_use": 0.75, "save_use_share_with_password": 0.15}}
 
 class IntegerRangeField(models.IntegerField):
 	def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
