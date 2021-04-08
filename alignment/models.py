@@ -78,13 +78,15 @@ class Pair(models.Model):
 		transformation_tmp.delete()
 		return self
 
-	def save_transformation(self, form, rater, start_time):
+	def save_transformation(self, form, rater, start_time):  # , own_subtransformation):
 		transformation_tmp = form.save(commit=False)
 		transformation_tmp.rater = rater
 		transformation_tmp.created_at = datetime.datetime.strptime(json.loads(start_time), "%Y-%m-%dT%H:%M:%S.%f")
 		transformation_tmp.finished_at = datetime.datetime.now()
 		transformation_tmp.duration = transformation_tmp.finished_at - transformation_tmp.created_at
 		self.manually_checked = True
+		# if transformation_tmp.sub_transformation == "other" and len(own_subtransformation) >= 1:
+		# 	transformation_tmp.own_subtransformation = own_subtransformation[0]
 		transformation_tmp.save()
 		for token in form.cleaned_data["complex_token"]:
 			transformation_tmp.complex_token.add(token)

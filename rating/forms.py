@@ -22,6 +22,7 @@ class TransformationForm(forms.ModelForm):
         model = Transformation
         fields = ['certainty', "comment",
                   "transformation", "transformation_level", "sub_transformation",
+                  # "own_subtransformation",
                   "simple_token", "complex_token"]
         # , 'complex_tokens', 'simple_tokens', 'transaction', 'transaction_level',
     #     widgets = {
@@ -38,6 +39,7 @@ class TransformationForm(forms.ModelForm):
         # self.fields['transformation'].required = False
         # self.fields['transformation_level'].required = False
         self.fields['sub_transformation'].required = False
+        # self.fields['own_subtransformation'].required = False
 
 
 class RatingForm(forms.ModelForm):

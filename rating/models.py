@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 import datetime
 from django import forms
 import TS_annotation_tool.utils
+import json
 
 
 class Annotation(models.Model):
@@ -24,11 +25,41 @@ class Annotation(models.Model):
 
 class Transformation(Annotation):
 	transformation = models.CharField(max_length=100, blank=True, choices=TS_annotation_tool.utils.tuple_list_choices_transformation)  # choices=list_transactions,
-	sub_transformation = models.CharField(max_length=100, blank=True, null=True , choices=TS_annotation_tool.utils.tuple_list_choices_subtransformation)
+	sub_transformation = models.CharField(max_length=100, blank=True, null=True, choices=TS_annotation_tool.utils.tuple_list_choices_subtransformation)
+	# own_subtransformation = models.CharField(max_length=100, blank=True, null=True)
 	transformation_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.tuple_list_transformation_level)
 	# models.CharField(choices=[("paragraph", "paragraph"), ("sentence", "sentence"), ("phrase", "phrase"), ("word", "word")])
 	simple_token = models.ManyToManyField("data.Token", related_name="simple_token")
 	complex_token = models.ManyToManyField("data.Token", related_name="complex_token")
+
+	def edit(self, form, rater, start_time):  # , own_subtransformation):
+		print(form.cleaned_data)
+		self.rater = rater
+		self.finished_at = datetime.datetime.now()
+		self.duration = self.duration + (self.finished_at - datetime.datetime.strptime(json.loads(start_time), "%Y-%m-%dT%H:%M:%S.%f"))
+		self.manually_checked = True
+		self.sub_transformation = form.cleaned_data["sub_transformation"]
+		# if self.sub_transformation == "other" and len(own_subtransformation) >= 1:
+		# 	self.own_subtransformation = own_subtransformation
+		self.transformation = form.cleaned_data["transformation"]
+		self.transformation_level = form.cleaned_data["transformation_level"]
+		self.comment = form.cleaned_data["comment"]
+		self.certainty = form.cleaned_data["certainty"]
+		self.save()
+		for token in form.cleaned_data["complex_token"]:
+			if token not in self.complex_token.all():
+				self.complex_token.add(token)
+		for token in form.cleaned_data["simple_token"]:
+			if token not in self.simple_token.all():
+				self.simple_token.add(token)
+		for token in self.complex_token.all():
+			if token not in form.cleaned_data["complex_token"]:
+				self.complex_token.remove(token)
+		for token in self.simple_token.all():
+			if token not in form.cleaned_data["simple_token"]:
+				self.simple_token.remove(token)
+		self.save()
+		return self
 
 	def __str__(self):
 		if self.sub_transformation:

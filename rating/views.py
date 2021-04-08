@@ -63,6 +63,13 @@ def select_transformation(request, doc_pair_id, pair_id):
 	complex_elements = alignmentpair_tmp.complex_elements.all().order_by("id")
 	simple_elements = alignmentpair_tmp.simple_elements.all().order_by("id")
 	transformation_dict_obj = None
+	complex_token_selected = []
+	simple_token_selected = []
+	transformation_tmp_id = None
+	transformation_selected = None
+	transformation_level_selected = None
+	transformation_subtransformation_selected = None
+	transformation_own_subtransformation_selected = None
 	type_form = "show"
 	if request.method == "POST":
 		form = TransformationForm(request.POST)
@@ -70,6 +77,19 @@ def select_transformation(request, doc_pair_id, pair_id):
 			transformation_dict_obj = transformation_dict
 			type_form = "add"
 			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
+		elif request.POST.get("edit"):
+			type_form = "edit"
+			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
+			transformation_tmp = alignmentpair_tmp.transformation_of_pair.get(id=request.POST.get("edit"), rater=request.user)
+			form = TransformationForm(instance=transformation_tmp)
+			transformation_dict_obj = transformation_dict
+			complex_token_selected = transformation_tmp.complex_token.all()
+			simple_token_selected = transformation_tmp.simple_token.all()
+			transformation_selected = transformation_tmp.transformation
+			transformation_level_selected = transformation_tmp.transformation_level
+			transformation_subtransformation_selected = transformation_tmp.sub_transformation
+			# transformation_own_subtransformation_selected = transformation_tmp.own_subtransformation
+			transformation_tmp_id = transformation_tmp.id
 		elif request.POST.get("delete"):
 			alignmentpair_tmp.delete_transformation(request.POST.get("delete"), request.user)
 			type_form = "show"
@@ -80,10 +100,17 @@ def select_transformation(request, doc_pair_id, pair_id):
 		# elif request.POST.get("reset"):
 		# 	return redirect('overview')
 		elif request.POST.get("save"):
-			alignmentpair_tmp.save_transformation(form, request.user, request.session["start"])
-			type_form = "show"
-			# return render(request, 'rating/transformation.html',
-			# 			  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
+			if form.is_valid():
+				# own_subtransformation = [value for value in request.POST.getlist('own_subtransformation') if value != ""]
+				alignmentpair_tmp.save_transformation(form, request.user, request.session["start"])  # , own_subtransformation)
+				type_form = "show"
+		elif request.POST.get("save-edit"):
+			if form.is_valid():
+				# own_subtransformation = [value for value in request.POST.getlist('own_subtransformation') if value != ""]
+				transformation_tmp = alignmentpair_tmp.transformation_of_pair.get(id=request.POST.get("save-edit"),
+																				  rater=request.user)
+				transformation_tmp.edit(form, request.user, request.session["start"])  # , own_subtransformation)
+				type_form = "show"
 		elif request.POST.get("next"):
 			next_pair = alignmentpair_tmp.next(request.user)
 			if next_pair:
@@ -119,6 +146,13 @@ def select_transformation(request, doc_pair_id, pair_id):
 												  		  "corpus_id": doc_pair_tmp.corpus.id,
 														  "transformations": alignmentpair_tmp.transformation_of_pair.all(),
 														  "transformation_dict": transformation_dict_obj,
+														  "complex_token_selected": complex_token_selected,
+														  "simple_token_selected": simple_token_selected,
+														  "transformation_selected": transformation_selected,
+														  "transformation_level_selected": transformation_level_selected,
+														  "transformation_subtransformation_selected": transformation_subtransformation_selected,
+														  # "transformation_own_subtransformation_selected": transformation_own_subtransformation_selected,
+														  "transformation_id": transformation_tmp_id,
 														  "title": "Transformation Annotation - Text Simplification Annotation Tool"})
 
 
