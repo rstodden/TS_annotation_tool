@@ -98,5 +98,5 @@ def change_alignment(request, doc_pair_id):
 															   "title": "Alignment - Text Simplification Annotation Tool",
 															   "last_simple_item": last_simple_item,
 															   "last_complex_item": last_complex_item,
-																"no_alignment_possible": doc_pair_tmp.no_alignment_possible
+															   "no_alignment_possible": doc_pair_tmp.no_alignment_possible
 															   })

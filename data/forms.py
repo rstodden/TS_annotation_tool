@@ -18,7 +18,8 @@ class UploadFileForm(forms.Form):
 class UploadFilesForm(forms.ModelForm):
     class Meta:
         model = data.models.Corpus
-        fields = ["name", "home_page", "author", "license", "license_file", "parallel",  "pre_aligned", "manually_aligned", "domain", "language"]
+        fields = ["name", "home_page", "author", "license", "license_file", "parallel",  "pre_aligned",
+                  "manually_aligned", "pre_split", "to_simplify", "domain", "language"]
     # corpus_name = forms.CharField(max_length=50)
     # url = forms.URLField()
     # language = forms.ChoiceField(choices=LANGUAGES)

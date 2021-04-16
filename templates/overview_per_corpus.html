@@ -37,7 +37,7 @@
                                     <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair_id %}">{{ doc_pair.title }}</a>
                                 </td>
                                 <td class="corpus">{{ doc_pair.domain }}</td>
-                                <td class="corpus">{{ doc_pair.simple_level }}</td>
+                                <td class="corpus">{{ doc_pair.simple_level|default_if_none:"" }}</td>
                                 <td class="corpus">{{ doc_pair.complex_level }}</td>
                                 <td class="corpus">{{ doc_pair.last_change }}</td>
                                 {% if doc_pair.no_alignment_possible %}

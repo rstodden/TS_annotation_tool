@@ -14,6 +14,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
+            <h2> <i class="fas fa-user-cog"></i> Parallel Corpora</h2>
             <table class="corpus">
                 <thead>
                     <tr>
@@ -29,7 +30,54 @@
                 </thead>
                 <tbody>
                     {% for corpus in corpora %}
+                        {% if corpus not in corpora_to_simplify %}
+                            <tr>
+                                <td class="corpus">{{ corpus.id }}</td>
+                                <td class="corpus">
+                                    <a href="{% url 'overview_per_corpus' corpus_id=corpus.id%}">{{ corpus.name }}</a></td>
+    {#                            <td class="corpus">#}
+    {#                                <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair_id %}">{{ doc_pair.title }}</a>#}
+    {#                            </td>#}
+                                <td class="corpus">{{ corpus.domain }}</td>
+                                <td class="corpus">{{ corpus.simple_level|title }}</td>
+                                <td class="corpus">{{ corpus.complex_level|title }}</td>
+    {#                            <td class="corpus">{{ doc_pair.last_change }}</td>#}
+                                <td class="corpus">{{ corpus.document_pairs.all|length }}</td>
+    {#                                {% if doc_pair.no_alignment_possible %}#}
+    {#                                    <td class="corpus" style="text-align: center"><i class="fas fa-ban"></i></td>#}
+    {#                                {% elif doc_pair.aligned %}#}
+    {#                                    <td class="corpus" style="text-align: center"><i class="fas fa-check-circle" style="color: #8ACBAE"></i></td>#}
+    {#                                {% else %}#}
+    {#                                    <td class="corpus" style="text-align: center"><i class="fas fa-times-circle" style="color: indianred;"></i></td>#}
+    {#                                {% endif %}#}
+    {#                                <td class="corpus">{{ doc_pair.rating }} %</td>#}
+    {#                                <td class="corpus">{{ doc_pair.transformations }} %</td>#}
+                            </tr>
+                        {% endif %}
 
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2> <i class="fas fa-user-edit"></i> Complex Corpora (to simplify)</h2>
+            <table class="corpus">
+                <thead>
+                    <tr>
+                        <th class="corpus">ID</th>
+                        <th class="corpus">Corpus</th>
+{#                        <th class="corpus">Title</th>#}
+                        <th class="corpus">Domain</th>
+                        <th class="corpus">Simple Level</th>
+                        <th class="corpus">Complex Level</th>
+{#                        <th class="corpus">Last Change</th>#}
+                        <th class="corpus"># Documents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for corpus in corpora_to_simplify %}
                         <tr>
                             <td class="corpus">{{ corpus.id }}</td>
                             <td class="corpus">
@@ -52,7 +100,6 @@
 {#                                <td class="corpus">{{ doc_pair.rating }} %</td>#}
 {#                                <td class="corpus">{{ doc_pair.transformations }} %</td>#}
                         </tr>
-
                     {% endfor %}
                 </tbody>
             </table>

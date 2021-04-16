@@ -22,41 +22,68 @@ class Corpus(models.Model):
 	simple_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.language_level_list)
 	complex_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.language_level_list)
 	pre_aligned = models.BooleanField(default=False)
+	pre_split = models.BooleanField(default=False)
 	license_file = models.FileField(blank=True, null=True)
 	author = models.CharField(max_length=500, blank=True)  # copyright owner
 	manually_aligned = 	models.BooleanField(default=False, blank=True)
+	to_simplify = models.BooleanField(default=False, null=True)
 
 	def add_documents_by_upload(self, files, form_upload):
 		simple_files = [file for file in files if "simple" in file.name]
 		nlp = get_spacy_model(form_upload.cleaned_data["language"])
-		for file in simple_files:
-			file_name, file_ending = file.name.split(".")
-			file_id = file_name.split("_")[-1]
-			simple_document = Document()
-			simple_document = simple_document.create_or_load_document_by_upload(document=file,
-														language_level=form_upload.cleaned_data["language_level_simple"],
-														domain=form_upload.cleaned_data["domain"], nlp=nlp,
-														pre_aligned=form_upload.cleaned_data["pre_aligned"],
-														selected_license=form_upload.cleaned_data["license"])
-			complex_file_obj = [file for file in files if "complex" in file.name and "_" + file_id + "." in file.name]
-			if complex_file_obj:
+		if len(simple_files) == 0:
+			complex_file_obj = [file for file in files if "complex" in file.name]
+			for complex_file in complex_file_obj:
 				complex_document = Document()
-				complex_document = complex_document.create_or_load_document_by_upload(complex_file_obj[0], form_upload.cleaned_data[
-					"language_level_complex"], form_upload.cleaned_data["domain"], nlp, pre_aligned=form_upload.cleaned_data["pre_aligned"],
-				    selected_license=form_upload.cleaned_data["license"])
+				complex_document = complex_document.create_or_load_document_by_upload(complex_file,
+																					  form_upload.cleaned_data[
+																						  "language_level_complex"],
+																					  form_upload.cleaned_data[
+																						  "domain"], nlp, pre_aligned=
+																					  form_upload.cleaned_data[
+																						  "pre_aligned"],
+																					  selected_license=
+																					  form_upload.cleaned_data[
+																						  "license"],
+																					  pre_split=form_upload.cleaned_data[
+																						  "pre_split"])
 				document_pair_tmp = DocumentPair(corpus=self)
 				document_pair_tmp.complex_document = complex_document
-				document_pair_tmp.simple_document = simple_document
 				document_pair_tmp.save()
 				document_pair_tmp.annotator.add(*form_upload.cleaned_data["annotator"])
-				if form_upload.cleaned_data["pre_aligned"]:
-					document_pair_tmp.add_aligned_sentences(nlp=nlp, manually_aligned=form_upload.cleaned_data["manually_aligned"],
-															language_level_simple=form_upload.cleaned_data["language_level_simple"],
-															language_level_complex=form_upload.cleaned_data["language_level_complex"])
 				document_pair_tmp.save()
 				self.document_pair = document_pair_tmp
-		self.complex_level = form_upload.cleaned_data["language_level_complex"]
-		self.simple_level = form_upload.cleaned_data["language_level_simple"]
+			self.complex_level = form_upload.cleaned_data["language_level_complex"]
+		else:
+			for file in simple_files:
+				file_name, file_ending = file.name.split(".")
+				file_id = file_name.split("_")[-1]
+				simple_document = Document()
+				simple_document = simple_document.create_or_load_document_by_upload(document=file,
+															language_level=form_upload.cleaned_data["language_level_simple"],
+															domain=form_upload.cleaned_data["domain"], nlp=nlp,
+															pre_aligned=form_upload.cleaned_data["pre_aligned"],
+															selected_license=form_upload.cleaned_data["license"],
+															pre_split=form_upload.cleaned_data["pre_split"])
+				complex_file_obj = [file for file in files if "complex" in file.name and "_" + file_id + "." in file.name]
+				if complex_file_obj:
+					complex_document = Document()
+					complex_document = complex_document.create_or_load_document_by_upload(complex_file_obj[0], form_upload.cleaned_data[
+						"language_level_complex"], form_upload.cleaned_data["domain"], nlp, pre_aligned=form_upload.cleaned_data["pre_aligned"],
+						selected_license=form_upload.cleaned_data["license"], pre_split=form_upload.cleaned_data["pre_split"])
+					document_pair_tmp = DocumentPair(corpus=self)
+					document_pair_tmp.complex_document = complex_document
+					document_pair_tmp.simple_document = simple_document
+					document_pair_tmp.save()
+					document_pair_tmp.annotator.add(*form_upload.cleaned_data["annotator"])
+					if form_upload.cleaned_data["pre_aligned"]:
+						document_pair_tmp.add_aligned_sentences(nlp=nlp, manually_aligned=form_upload.cleaned_data["manually_aligned"],
+																language_level_simple=form_upload.cleaned_data["language_level_simple"],
+																language_level_complex=form_upload.cleaned_data["language_level_complex"])
+					document_pair_tmp.save()
+					self.document_pair = document_pair_tmp
+			self.complex_level = form_upload.cleaned_data["language_level_complex"]
+			self.simple_level = form_upload.cleaned_data["language_level_simple"]
 		self.save()
 		return self
 
@@ -78,22 +105,28 @@ class Document(models.Model):
 	license = models.CharField(max_length=250, choices=TS_annotation_tool.utils.list_licenses, blank=True)
 	path = models.FileField(upload_to='media/uploads/', blank=True, null=True)
 	domain = models.CharField(max_length=50, blank=True, null=True)
+	manually_simplified = models.BooleanField(default=False)
 
-	def add_sentences(self, sentences, language_level, selected_license, number_sentences=1):
+	def add_sentences(self, sentences, language_level, selected_license, number_sentences=1, tokenize=True, author=None):
 		treshold = 1
 		sentence_ids = list()
 		if selected_license in TS_annotation_tool.utils.license_limits.keys():
 			treshold = TS_annotation_tool.utils.license_limits[selected_license]["save_use"]
 		for i, sent in enumerate(sentences):
-			if (i+1)/number_sentences >= treshold:
+			print(sent, (i+1)/number_sentences)
+			if (i+1)/number_sentences > treshold:
 				break
 			sent_tmp = Sentence(original_content=sent, level=language_level, document=self)
 			sent_tmp.save()
+			if author:
+				sent_tmp.author.add(author)
+			sent_tmp.save()
 			sentence_ids.append(sent_tmp.id)
-			sent_tmp.tokenize(sent)
+			if tokenize:
+				sent_tmp.tokenize(sent)
 		return sentence_ids
 
-	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, selected_license, pre_aligned=False):
+	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, selected_license, pre_aligned=False, pre_split=False):
 		document_content = document.readlines()
 		copyright_line, title = document_content[0].decode("utf-8").strip().split("\t")
 		copyright_line = copyright_line.split(" ")
@@ -104,18 +137,27 @@ class Document(models.Model):
 		if Document.objects.filter(title=title, url=url, level=language_level):
 			document_tmp = Document.objects.get(title=title, url=url, level=language_level)
 		else:
-			if not pre_aligned:
-				document_tmp = Document(url=url, title=title, access_date=date,
-									plain_data=document_content[1].decode("utf-8"),
-									level=language_level, domain=domain)
-			else:
+			if pre_aligned or pre_split:
 				plain_data = ""
 				for data in document_content[1:]:
 					plain_data += data.decode("utf-8")
 				document_tmp = Document(url=url, title=title, access_date=date,
 										plain_data=plain_data.strip(), level=language_level, domain=domain)
+			else:
+				document_tmp = Document(url=url, title=title, access_date=date,
+										plain_data=document_content[1].decode("utf-8"),
+										level=language_level, domain=domain)
 			document_tmp.save()
-			if not pre_aligned:
+			if pre_split:
+				for data in document_content[1:]:
+					if data.startswith(b"##") and data.endswith(b"##\n"):
+						number_sentences = 1
+						document_tmp.add_sentences([data.strip().decode("utf-8") ], language_level, selected_license, number_sentences, tokenize=False)
+					else:
+						number_sentences = len([sent for sent in nlp(data.strip().decode("utf-8")).sents])
+						document_tmp.add_sentences(nlp(data.strip().decode("utf-8")).sents, language_level, selected_license, number_sentences)
+					document_tmp.save()
+			elif not pre_aligned:
 				number_sentences = len([sent for sent in nlp(document_content[1].strip().decode("utf-8")).sents])
 				document_tmp.add_sentences(nlp(document_content[1].strip().decode("utf-8")).sents, language_level, selected_license, number_sentences)
 			document_tmp.save()
@@ -129,8 +171,8 @@ class Document(models.Model):
 
 
 class DocumentPair(models.Model):
-	simple_document = models.ForeignKey(Document, blank=True, related_name="simple_document", on_delete=models.CASCADE)
-	complex_document = models.ForeignKey(Document, blank=True, related_name="complex_document", on_delete=models.CASCADE)
+	simple_document = models.ForeignKey(Document, blank=True, related_name="simple_document", on_delete=models.CASCADE, null=True)
+	complex_document = models.ForeignKey(Document, blank=True, related_name="complex_document", on_delete=models.CASCADE, null=True)
 	annotator = models.ManyToManyField(User, blank=True)
 	last_changes = models.DateTimeField(auto_now=True)
 	no_alignment_possible = models.BooleanField(default=False)
@@ -159,6 +201,7 @@ class DocumentPair(models.Model):
 		return simple_annotated_sents_content
 
 	def add_aligned_sentences(self, nlp, language_level_simple, language_level_complex, manually_aligned):
+		# todo: not sure if make sense to use add_sentences here
 		simple_doc = self.simple_document
 		complex_doc = self.complex_document
 		simple_sentences = simple_doc.plain_data.split("\n")
@@ -192,6 +235,7 @@ class Sentence(models.Model):
 	complex_element = models.ManyToManyField("alignment.Pair", related_name="complex_elements", blank=True)
 	malformed = models.BooleanField(default=False)
 	malformed_comment = models.TextField(blank=True, max_length=250)
+	author = models.ManyToManyField(User, blank=True)
 
 	def tokenize(self, doc):
 		for token in doc:

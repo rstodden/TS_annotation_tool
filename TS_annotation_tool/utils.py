@@ -20,7 +20,9 @@ list_licenses = (
 					("MIT", "MIT")
 					 )
 
-language_level_list = (("a1", "Leichte Sprache"),
+language_level_list = (
+				   ("--", "--"),
+				   ("a1", "Leichte Sprache"),
 				   ("a2", "Einfache Sprache"),
 				   ("b2", "Vereinfachte Sprache"),
 				   ("c2", "Alltagssprache")
