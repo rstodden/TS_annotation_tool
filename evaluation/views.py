@@ -131,28 +131,49 @@ def export_transformation():
 	return result_frame
 
 
-def export_alignment():
+def export_alignment(user, corpus):
 	"""create one simple and complex file per annotator. The simple and the complex file contains all alignments no matter their domain or corpus."""
 	# todo: add sources and copyright information to texts!
 	corpus_name = "DEplain"
 	file_names = list()
-	for rater in set(data.models.DocumentPair.objects.values_list("annotator", flat=True)):
-		rater_str = ".rater." + str(rater)
-		file_name_complex = corpus_name + ".orig" + rater_str+".txt"
-		file_name_simple = corpus_name + ".simp" + rater_str+".txt"
-		file_names.append(file_name_simple)
-		file_names.append(file_name_complex)
-		output_text_simple = ""
-		output_text_complex = ""
-		for document_pair in data.models.DocumentPair.objects.filter(annotator=rater):
-			for alignment in document_pair.sentence_alignment_pair.filter(annotator=rater):
-				output_text_simple += " ".join(alignment.simple_elements.values_list("original_content", flat=True)) + "\n"
-				output_text_complex += " ".join(alignment.complex_elements.values_list("original_content", flat=True)) + "\n"
-		with open(file_name_complex, "w") as f:
-			f.write(output_text_complex)
-		with open(file_name_simple, "w") as f:
-			f.write(output_text_simple)
+	if user:
+		for rater in set(data.models.DocumentPair.objects.values_list("annotator", flat=True)):
+			rater_str = ".rater." + str(rater)
+			if not corpus:
+				output_text_simple = ""
+				output_text_complex = ""
+				file_name_complex = corpus_name + ".orig" + rater_str + ".txt"
+				file_name_simple = corpus_name + ".simp" + rater_str + ".txt"
+				file_names.append(file_name_simple)
+				file_names.append(file_name_complex)
+				for document_pair in data.models.DocumentPair.objects.filter(annotator=rater):
+					for alignment in document_pair.sentence_alignment_pair.filter(annotator=rater):
+						output_text_simple += " ".join(alignment.simple_elements.values_list("original_content", flat=True)) + "\n"
+						output_text_complex += " ".join(alignment.complex_elements.values_list("original_content", flat=True)) + "\n"
 
+				with open(file_name_complex, "w") as f:
+					f.write(output_text_complex)
+				with open(file_name_simple, "w") as f:
+					f.write(output_text_simple)
+			else:
+				for corpus_obj in data.models.Corpus.objects.all():
+					file_name_complex = corpus_obj.name + ".orig" + rater_str + ".txt"
+					file_name_simple = corpus_obj.name + ".simp" + rater_str + ".txt"
+					output_text_simple = ""
+					output_text_complex = ""
+					for document_pair in data.models.DocumentPair.objects.filter(annotator=rater, corpus=corpus_obj):
+						for alignment in document_pair.sentence_alignment_pair.filter(annotator=rater):
+							output_text_simple += " ".join(alignment.simple_elements.values_list("original_content", flat=True)) + "\n"
+							output_text_complex += " ".join(alignment.complex_elements.values_list("original_content", flat=True)) + "\n"
+					if output_text_complex != "":
+						with open(file_name_complex, "w") as f:
+							f.write(output_text_complex)
+						file_names.append(file_name_complex)
+
+					if output_text_simple != "":
+						with open(file_name_simple, "w") as f:
+							f.write(output_text_simple)
+						file_names.append(file_name_simple)
 	return generate_zip_file(file_names)
 
 
@@ -208,8 +229,10 @@ def export(request):
 			response['Content-Disposition'] = 'attachment; filename="human_ratings_ts.csv"'
 			output_frame.to_csv(path_or_buf=response)
 			return response
-		elif "export_alignment" in request.POST:
-			return export_alignment()
+		elif "export_alignment_per_user" in request.POST:
+			return export_alignment(user=True, corpus=False)
+		elif "export_alignment_per_corpus_and_user" in request.POST:
+			return export_alignment(user=True, corpus=True)
 		elif "export_transformation" in request.POST:
 			output_frame = export_transformation()
 			response = HttpResponse(content_type='text/csv')
