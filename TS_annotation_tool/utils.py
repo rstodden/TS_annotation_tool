@@ -44,7 +44,7 @@ transformation_dict = {"word": {
 							"deletion": ["discourse_markers", "abbreviations", "filter_words", "other"],
 							"lexical_substitution": ["compound_segmentation", "more_frequent_word", "abbreviation",
 													 "anaphora", "shorter_word", "synonym", "hyponym", "hypernym",
-													 "nominalization", "metaphor_resolution", "number", "other"],
+													 "nominalization", "metaphor_resolution", "number", "date", "other"],
 							"insert": ["ellipsis_filled", "other"],
 							# "no_operation": [],
 							},
