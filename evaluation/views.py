@@ -180,11 +180,15 @@ def export_alignment(user, corpus):
 
 def gather_all_data(rater):
 	transformation_level = sorted(TS_annotation_tool.utils.transformation_dict.keys())
-	columns = ["original", "simplification", "original_sentence_id", "domain", "language_level_original",
-			   "language_level_simple", "grammaticality_original", "grammaticality_simple",
+	columns = ["original", "simplification", "pair_id", "domain", "language_level_original",
+			   "language_level_simple", "license", "author", "website", "access_date",
+			   "malformed_complex", "malformed_simple",
+			   "duration_rating",
+			   "grammaticality_original", "grammaticality_simple",
 			   "simplicity", "simplicity_original", "simplicity_simple", "structural_simplicity", "lexical_simplicity",
 			   "meaning_preservation", "information_gain", "coherence_original", "coherence_simple",
 			   "ambiguity_original", "ambiguity_simple",
+			   # "duration_transformation",
 			   *TS_annotation_tool.utils.transformation_list]
 	result_frame = pd.DataFrame(columns=columns)
 	i = 0
@@ -193,12 +197,16 @@ def gather_all_data(rater):
 		original = " ".join(pair.complex_elements.values_list("original_content", flat=True))
 		simplification = " ".join(pair.simple_elements.values_list("original_content", flat=True))
 		original_sentence_id = pair.pair_identifier
+		malformed_original = 1 if len(pair.complex_elements.filter(malformed=True)) >= 1 else 0
+		malformed_simple = 1 if len(pair.simple_elements.filter(malformed=True)) >= 1 else 0
 		values = [original, simplification, original_sentence_id, pair.document_pair.complex_document.domain,
-				  pair.document_pair.complex_document.level, pair.document_pair.simple_document.level]
-		# add malformed info, license
+				  pair.document_pair.complex_document.level, pair.document_pair.simple_document.level,
+				  pair.document_pair.corpus.license, pair.document_pair.corpus.author, pair.document_pair.corpus.home_page,
+				  pair.document_pair.complex_document.access_date, malformed_original, malformed_simple
+				  ]
 		if pair.rating.filter(rater=rater):
 			ratings = pair.rating.filter(rater=rater)
-			values.extend([ratings[0].grammaticality_original,
+			values.extend([ratings[0].duration, ratings[0].grammaticality_original,
 								   ratings[0].grammaticality_simple,
 								   ratings[0].simplicity,
 								   ratings[0].simplicity_original,
@@ -210,10 +218,10 @@ def gather_all_data(rater):
 								   ratings[0].coherence_original,
 								   ratings[0].coherence_simple,
 								   ratings[0].ambiguity_original,
-								   ratings[0].ambiguity_simple,
+								   ratings[0].ambiguity_simple
 						   ])
 		else:
-			values.extend([numpy.nan]*13)
+			values.extend([numpy.nan]*14)
 
 		if pair.transformation_of_pair.filter(rater=rater):
 			for trans_level in transformation_level:
