@@ -80,6 +80,14 @@ tuple_list_choices_transformation = [(trans, trans) for trans in list_choices_tr
 tuple_list_choices_subtransformation = [(subtrans, subtrans) for subtrans in list_choices_subtransformation]
 tuple_list_transformation_level = [(item, item) for item in transformation_dict.keys()]
 
+transformation_list = list()
+for transformation_level in sorted(transformation_dict.keys()):
+	transformation_list.append(transformation_level+"#")
+	for transformation in sorted(transformation_dict[transformation_level]):
+		transformation_list.append(transformation_level+"#"+transformation+"*")
+		for sub_transformation in sorted(transformation_dict[transformation_level][transformation]):
+			transformation_list.append(transformation_level+"#"+transformation+"*"+sub_transformation+"+")
+
 
 LIKERT_CHOICES = [(1, "strongly diasgree"), (2, "disagree"), (3, "neither agree nor disagree"),
 		   (4, "agree"), (5,  "strongly agree")]

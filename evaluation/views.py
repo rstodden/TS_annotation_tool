@@ -10,6 +10,8 @@ from datetime import datetime
 import io
 import os
 import zipfile
+import numpy
+import TS_annotation_tool.utils
 
 
 def export_rating():  #output_path
@@ -176,6 +178,78 @@ def export_alignment(user, corpus):
 						file_names.append(file_name_simple)
 	return generate_zip_file(file_names)
 
+def gather_all_data(rater):
+	transformation_level = sorted(TS_annotation_tool.utils.transformation_dict.keys())
+	columns = ["original", "simplification", "original_sentence_id", "domain", "language_level_original",
+			   "language_level_simple", "grammaticality_original", "grammaticality_simple",
+			   "simplicity", "simplicity_original", "simplicity_simple", "structural_simplicity", "lexical_simplicity",
+			   "meaning_preservation", "information_gain", "coherence_original", "coherence_simple",
+			   "ambiguity_original", "ambiguity_simple",
+			   *TS_annotation_tool.utils.transformation_list]
+	result_frame = pd.DataFrame(columns=columns)
+	i = 0
+	for pair in alignment.models.Pair.objects.filter(annotator=rater):
+		#for pair_transformations in pair.transformation_of_pair.all():
+		original = " ".join(pair.complex_elements.values_list("original_content", flat=True))
+		simplification = " ".join(pair.simple_elements.values_list("original_content", flat=True))
+		original_sentence_id = pair.pair_identifier
+		values = [original, simplification, original_sentence_id, pair.document_pair.complex_document.domain,
+				  pair.document_pair.complex_document.level, pair.document_pair.simple_document.level]
+		# add malformed info, license
+		if pair.rating.filter(rater=rater):
+			ratings = pair.rating.filter(rater=rater)
+			values.extend([ratings[0].grammaticality_original,
+								   ratings[0].grammaticality_simple,
+								   ratings[0].simplicity,
+								   ratings[0].simplicity_original,
+								   ratings[0].simplicity_simple,
+								   ratings[0].structural_simplicity,
+								   ratings[0].lexical_simplicity,
+								   ratings[0].meaning_preservation,
+								   ratings[0].information_gain,
+								   ratings[0].coherence_original,
+								   ratings[0].coherence_simple,
+								   ratings[0].ambiguity_original,
+								   ratings[0].ambiguity_simple,
+						   ])
+		else:
+			values.extend([numpy.nan]*13)
+
+		if pair.transformation_of_pair.filter(rater=rater):
+			for trans_level in transformation_level:
+				if pair.transformation_of_pair.filter(transformation_level=trans_level, rater=rater):
+					values.append(len(pair.transformation_of_pair.filter(transformation_level=trans_level, rater=rater)))
+				else:
+					values.append(0)
+				for trans in sorted(TS_annotation_tool.utils.transformation_dict[trans_level]):
+					if pair.transformation_of_pair.filter(transformation_level=trans_level, transformation=trans, rater=rater):
+						values.append(len(pair.transformation_of_pair.filter(transformation=trans, rater=rater)))
+					else:
+						values.append(0)
+					for sub_trans in sorted(TS_annotation_tool.utils.transformation_dict[trans_level][trans]):
+						if pair.transformation_of_pair.filter(transformation_level=trans_level, transformation=trans, sub_transformation=sub_trans, rater=rater):
+							values.append(len(pair.transformation_of_pair.filter(sub_transformation=sub_trans, rater=rater)))
+						else:
+							values.append(0)
+		else:
+			values.extend([numpy.nan]*71)
+		result_frame.loc[i] = values
+		i += 1
+	return result_frame
+
+
+def export_all(user):
+	corpus_name = "DEasy"
+	file_names = list()
+	if user:
+		for rater in set(data.models.DocumentPair.objects.values_list("annotator", flat=True)):
+			rater_str = ".rater." + str(rater)
+			# if not corpus:
+			file_name = corpus_name + "." + rater_str + ".csv"
+			file_names.append(file_name)
+			output_frame = gather_all_data(rater)
+			output_frame.to_csv(file_name)
+	return generate_zip_file(file_names)
 
 def generate_zip_file(filenames):
 	zip_subdir = "alignments_"+str(datetime.today().strftime('%Y-%m-%d'))
@@ -241,7 +315,8 @@ def export(request):
 			return response
 		# elif "repair_sentence" in request.POST:
 		# 	data.models.repair_original_text()
-
+		elif "export_all_in_csv_per_use" in request.POST:
+			return export_all(user=True)
 		elif "get_iaa" in request.POST:
 			iaa_meaning = get_inter_annotator_agreement("meaning_preservation")
 			iaa_simplicity = get_inter_annotator_agreement("simplicity")
