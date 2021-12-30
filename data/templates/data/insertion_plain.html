@@ -1,4 +1,5 @@
 {% extends '../base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
     <div class="row subpage_header">
@@ -23,7 +24,16 @@
                         </ul>
                 </ul>
                 <p></p>
-                {{ form_upload.as_p }}
+                <table class="form-check">
+                {% for field in form_upload %}
+                    <tr>
+                        <td>{{ field.help_text|safe }}</td>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{{ field }}</td>
+                    </tr>
+                {% endfor %}
+
+                </table>
                 <p>
                     <button type="submit">Upload and assign</button>
                 </p>

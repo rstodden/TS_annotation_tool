@@ -6,7 +6,7 @@ from multiupload.fields import MultiFileField
 from django.core.exceptions import FieldDoesNotExist
 import data.models
 import TS_annotation_tool.utils
-
+# from crispy_forms.helper import FormHelper
 
 class UploadFileForm(forms.Form):
     file = forms.FileField(validators=[FileExtensionValidator(allowed_extensions=['csv'])],)
@@ -57,6 +57,7 @@ class UploadFilesForm(forms.ModelForm):
         self.fields['license_file'].required = False
         self.fields['home_page'].required = False
         self.fields['author'].required = False
+        # self.helper = FormHelper()
 
 
 class UploadAnnotatedFilesForm(forms.ModelForm):

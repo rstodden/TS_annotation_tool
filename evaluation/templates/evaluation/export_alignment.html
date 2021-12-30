@@ -1,5 +1,5 @@
 {% extends '../base.html' %}
-
+{% load crispy_forms_tags %}
 {% block content %}
     <div class="row subpage_header">
         <div class="col-md-12">
@@ -9,15 +9,31 @@
     <div class="row">
         <div class="col-md-12 subpage_content">
             <form method="POST">{% csrf_token %}
-                <input type="checkbox" name="identical" id="identical"><label for="identical"> Add Identical Sentences (automatically aligned)</label>
-                <br>
-                <input type="checkbox" name="addition" id="addition"><label for="addition"> Add Added Sentences (0-1; automatically aligned)</label>
-                <br>
-                <input type="checkbox" name="deletion" id="deletion"><label for="deletion"> Add Deleted Sentences (1-0; automatically aligned)</label>
+
+                <table class="form-check">
+                {% for field in form %}
+                    <tr>
+                        <td>{{ field.help_text|safe }}</td>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{{ field }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+
                 <p>
-                    <button value="export_alignment_per_corpus_and_user" name="export_alignment_per_corpus_and_user">export alignment per corpus and user</button>
-                    <button value="export_alignment_per_user" name="export_alignment_per_user">export alignment per user</button>
+                    <button type="submit">Export Alignment</button>
                 </p>
+
+
+                {#                <input type="checkbox" name="identical" id="identical"><label for="identical"> Add Identical Sentences (automatically aligned)</label>#}
+{#                <br>#}
+{#                <input type="checkbox" name="addition" id="addition"><label for="addition"> Add Added Sentences (0-1; automatically aligned)</label>#}
+{#                <br>#}
+{#                <input type="checkbox" name="deletion" id="deletion"><label for="deletion"> Add Deleted Sentences (1-0; automatically aligned)</label>#}
+{#                <p>#}
+{#                    <button value="export_alignment_per_corpus_and_user" name="export_alignment_per_corpus_and_user">export alignment per corpus and user</button>#}
+{#                    <button value="export_alignment_per_user" name="export_alignment_per_user">export alignment per user</button>#}
+{#                </p>#}
             </form>
         </div>
     </div>

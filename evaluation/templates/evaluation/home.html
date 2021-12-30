@@ -11,23 +11,23 @@
             <form method="POST">{% csrf_token %}
                 <h3>Export</h3>
                 <p>
-                    <button value="export_rating" name="export_rating">export rating</button><br>
-                    <button value="export_transformation" name="export_transformation">export transformations</button><br>
-                    {#  <button value="export_alignment" name="export_alignment">export alignment</button> #}
-                    <button value="export_alignment_per_corpus_and_user" name="export_alignment_per_corpus_and_user">export alignment per corpus and user</button><br>
-                    <button value="export_alignment_per_user" name="export_alignment_per_user">export alignment per user</button><br>
-                    <button value="export_not_aligned" name="export_not_aligned">export not aligned</button><br>
-
-                    <button value="export_all_in_csv_per_use" name="export_all_in_csv_per_use">export all in csv per user</button><br>
+                    <button><a href="{% url 'evaluation:export_ratings' %}">Export Ratings</a></button><br>
+                    <button><a href="{% url 'evaluation:export_transformations' %}">Export Transformations</a></button><br>
+                    <button><a href="{% url 'evaluation:export_alignments' %}">Export Alignment</a></button><br>
+                    <button><a href="{% url 'evaluation:export_all_in_csv_per_use' %}">export all in csv per user</a></button><br>
+                    <button><a href="{% url 'evaluation:export_meta_data' %}">Export Meta Data</a></button><br>
+                    <button><a href="{% url 'evaluation:export_user_data' %}">Export User Data</a></button><br>
+                    <button><a href="{% url 'evaluation:export_data_sheet' %}">Export Data Sheet</a></button><br>
                 </p>
 
                 {#                <button value="repair_sentence" name="repair_sentence">repair sentence</button>#}
                 <h3>Inter Annotator Agreement</h3>
                 <p>
-                    <button value="get_alignment_for_crf" name="get_alignment_for_crf">get alignments for IAA and automatic Alignment</button><br>
-                    <button value="get_iaa_rating" name="get_iaa_rating">calculate inter annotator agreement for rating</button><br>
-                    <button value="get_iaa_transformation" name="get_iaa_transformation">calculate inter annotator agreement for transformation</button><br>
-                    <button value="get_iaa_alignment" name="get_iaa_alignment">calculate inter annotator agreement for alignment</button>
+                    <button><a href="{% url 'evaluation:export_alignment_for_crf' %}">get alignments for IAA and automatic Alignment</a></button><br>
+                    <button><a href="{% url 'evaluation:export_iaa_rating' %}">calculate inter annotator agreement for rating</a></button><br>
+                    <button><a href="{% url 'evaluation:export_iaa_transformation' %}">calculate inter annotator agreement for transformation</a></button><br>
+                    <button><a href="{% url 'evaluation:export_iaa_alignment' %}">calculate inter annotator agreement for alignment</a></button><br>
+
                 </p>
             </form>
         </div>

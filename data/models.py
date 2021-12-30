@@ -16,9 +16,8 @@ import requests
 
 
 def popover_html(content):
-	return content
-	return """<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title='"""+\
-		   content+"""'>?</button>"""
+	# return content
+	return """<i data-toggle="tooltip" data-placement="top" title='""" + content+"""' class="fas fa-question-circle">  </i>"""
 
 
 # class Language(models.Model):

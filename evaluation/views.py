@@ -16,11 +16,13 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from sklearn.metrics import cohen_kappa_score
 from statsmodels.stats.inter_rater import fleiss_kappa
+from .forms import ExportAlignmentForm
+
 
 def export_rating():  #output_path
 	# using same export format as proposed in Alva-Manchego etal. (2020) https://www.aclweb.org/anthology/2020.acl-main.424.pdf
 	result_frame = pd.DataFrame(
-		columns=["original", "simplification", "original_sentence_id", "aspect", "worker_id", "rating"])
+		columns=["original", "simplification", "original_sentence_id", "simplification_sentence_id", "aspect", "worker_id", "rating"])
 	i = 0
 	non_aspect_fields = ['pair', 'id', 'certainty', 'comment', 'created_at', 'updated_at', 'finished_at', 'duration',
 						 'rater']
@@ -28,12 +30,10 @@ def export_rating():  #output_path
 			   model_field.name not in non_aspect_fields]
 	for pair in alignment.models.Pair.objects.all():
 		for pair_rating in pair.rating.all():
-			original = " ".join(pair.complex_elements.values_list("original_content", flat=True))
-			simplification = " ".join(pair.simple_elements.values_list("original_content", flat=True))
-			original_sentence_id = pair.pair_identifier
+			original, original_sentence_id, simplification, simplification_sentence_id = get_original_data(pair)
 			worker_id = pair_rating.rater.id
 			for field in aspects:
-				result_frame.loc[i] = [original, simplification, original_sentence_id, field.name, worker_id, field.value_from_object(pair_rating)]
+				result_frame.loc[i] = [original, simplification, original_sentence_id, simplification_sentence_id, field.name, worker_id, field.value_from_object(pair_rating)]
 				i += 1
 			i += 1
 		i += 1
@@ -41,17 +41,18 @@ def export_rating():  #output_path
 
 
 def get_automatic_transformations():
-	columns = ["original", "simplification", "original_sentence_id", "transformation_level", "transformation",
+	columns = ["original", "simplification", "original_sentence_id", "simplification_sentence_id", "transformation_level", "transformation",
 			   "subtransformation", "old text", "new_text", "worker_id"]
 	automatic_transformations = list()
 	for doc_pair in data.models.DocumentPair.objects.all():
-		simple_sentences = doc_pair.simple_document.sentences.all()  # values_list("original_content", flat=True)
-		complex_sentences = doc_pair.complex_document.sentences.all()  # values_list("original_content", flat=True)
-		automatic_transformations.extend(get_transformation_no_change(simple_sentences, complex_sentences, doc_pair.id))
-		if doc_pair.sentence_alignment_pair.exists():
-			print("# todo")  # todo: automatic insertion and deletion
-			# automatic_transformations.extend(get_transformation_insertion(simple_sentences))
-			# automatic_transformations.extend(get_transformation_deletion(complex_sentences, doc_pair))
+		if doc_pair.simple_document and doc_pair.complex_document:
+			simple_sentences = doc_pair.simple_document.sentences.all()  # values_list("original_content", flat=True)
+			complex_sentences = doc_pair.complex_document.sentences.all()  # values_list("original_content", flat=True)
+			automatic_transformations.extend(get_transformation_no_change(simple_sentences, complex_sentences, doc_pair.id))
+			if doc_pair.sentence_alignment_pair.exists():
+				print("# todo")  # todo: automatic insertion and deletion
+				# automatic_transformations.extend(get_transformation_insertion(simple_sentences))
+				# automatic_transformations.extend(get_transformation_deletion(complex_sentences, doc_pair))
 	return automatic_transformations
 
 
@@ -68,7 +69,7 @@ def get_transformation_no_change(simple_sentences, complex_sentences, doc_id):
 		if complex_sentence.original_content in simple_sentences_content:
 			original = complex_sentence.original_content
 			simplification = complex_sentence.original_content
-			list_no_changes.append([original, simplification, complex_sentence.id,
+			list_no_changes.append([original, simplification, complex_sentence.id, "",
 								   transformation_level,
 								   transformation,
 								   sub_transformation,
@@ -111,18 +112,16 @@ def get_transformation_no_change(simple_sentences, complex_sentences, doc_id):
 
 def export_transformation():
 	result_frame = pd.DataFrame(
-		columns=["original", "simplification", "original_sentence_id", "transformation_level", "transformation",
+		columns=["original", "simplification", "original_sentence_id", "simplification_sentence_id", "transformation_level", "transformation",
 				 "subtransformation", "old text", "new_text", "worker_id"])
 	i = 0
 	for pair in alignment.models.Pair.objects.all():
 		for pair_transformations in pair.transformation_of_pair.all():
-			original = " ".join(pair.complex_elements.values_list("original_content", flat=True))
-			simplification = " ".join(pair.simple_elements.values_list("original_content", flat=True))
-			original_sentence_id = pair.pair_identifier
+			original, original_sentence_id, simplification, simplification_sentence_id = get_original_data(pair)
 			worker_id = pair_transformations.rater.id
 			old_text = ' '.join(pair_transformations.complex_token.values_list("text", flat=True))
 			new_text = ' '.join(pair_transformations.simple_token.values_list("text", flat=True))
-			result_frame.loc[i] = [original, simplification, original_sentence_id,
+			result_frame.loc[i] = [original, simplification, original_sentence_id, simplification_sentence_id,
 								   pair_transformations.transformation_level,
 								   pair_transformations.transformation,
 								   pair_transformations.sub_transformation,
@@ -134,62 +133,175 @@ def export_transformation():
 		i += 1
 	return result_frame
 
-def export_alignment(user, corpus, identical=False, additions=False, deletions=False):
-	"""create one simple and complex file per annotator. The simple and the complex file contains all alignments no matter their domain or corpus."""
+@user_passes_test(lambda u: u.is_superuser)
+def export_all_in_csv_per_use(request):
+	return export_all(user=True)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_meta_data(request):
 	# todo: add sources and copyright information to texts!
-	corpus_name = "DEplain"
+
+	return render(request, 'todo.html')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_user_data(request):
+	return render(request, 'todo.html')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_iaa_transformation(request):
+	return render(request, 'todo.html')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_data_sheet(request):
+	return render(request, 'todo.html')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_alignment_for_crf(request):
+	print("export_alignment_for_crf")
+	result_frame = get_alignment_for_crf(real_user=True)
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="alignments_for_crf.csv"'
+	result_frame.to_csv(path_or_buf=response)
+	return response
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_iaa_alignment(request):
+	alignment_frame = get_alignment_for_crf(real_user=True, iaa=True)
+	df_2_annotators, df_more_annotators = filter_df_by_annotator_number(alignment_frame)
+	agreement_dict = get_iaa_alignment_dict(alignment_frame, df_2_annotators, df_more_annotators)
+	return render(request, 'evaluation/iaa_alignment.html', {"iaa_dict": agreement_dict,
+															 "title": "Inter Annotator Agreement - Text Simplification Annotation Tool"})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_iaa_rating(request):
+	iaa_dict = dict()
+	for aspect in TS_annotation_tool.utils.rating_aspects:
+		print(aspect)
+		iaa_dict[aspect] = get_inter_annotator_agreement_rating(real_user=False)
+	return render(request, 'evaluation/iaa_rating.html', {"iaa_dict": iaa_dict,
+														  "title": "Evaluation - Text Simplification Annotation Tool"})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_ratings_view(request):
+	output_frame = export_rating()
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="human_ratings_ts.csv"'
+	output_frame.to_csv(path_or_buf=response)
+	return response
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_transformations_view(request):
+	output_frame = export_transformation()
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="human_ratings_ts.csv"'
+	output_frame.to_csv(path_or_buf=response)
+	return response
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_alignment_view(request):
+	if request.POST:
+		form = ExportAlignmentForm(request.POST)
+		if form.is_valid():
+			return export_alignment(user=form.cleaned_data["per_user"],
+									corpus=form.cleaned_data["per_corpus"],
+									identical=form.cleaned_data["identical_pairs"],
+									deletions=form.cleaned_data["deletions"],
+									additions=form.cleaned_data["additions"],
+									format=form.cleaned_data["format"]
+									)
+	else:
+		form = ExportAlignmentForm()
+	return render(request, 'evaluation/export_alignment.html', {"title": "Export Alignment - Text Simplification Annotation Tool",
+																"form": form})
+
+
+def export_alignment(user, corpus, identical=False, deletions=False, additions=False, format="parallel"):
+	"""create one simple and complex file per annotator or per corpus or all in csv. The simple and the complex file contains all alignments no matter their domain or corpus."""
+	corpus_name = "TS_anno_"
+	print(identical, deletions, additions)
 	file_names = list()
-	if user:
-		for rater in set(data.models.DocumentPair.objects.values_list("annotator", flat=True)):
+	output_df = export_csv()
+	for rater in set(data.models.DocumentPair.objects.values_list("annotator", flat=True)):
+		if user:
 			rater_str = ".rater." + str(rater)
-			if not corpus:
-				output_text_simple = ""
-				output_text_complex = ""
+			output_df = export_csv()
+		else:
+			rater_str = ""
+		output_text_simple_list, output_text_complex_list, output_text_meta_data = list(), list(), list()
+		for corpus_obj in data.models.Corpus.objects.all():
+			if corpus:
+				file_name_complex = corpus_obj.name + ".orig" + rater_str + ".txt"
+				file_name_simple = corpus_obj.name + ".simp" + rater_str + ".txt"
+				file_name_meta_data = corpus_obj.name + ".meta" + rater_str + ".txt"
+				file_name = corpus_obj.name + rater_str + ".csv"
+				output_text_simple_list, output_text_complex_list, output_text_meta_data = list(), list(), list()
+				output_df = export_csv()
+			else:
 				file_name_complex = corpus_name + ".orig" + rater_str + ".txt"
 				file_name_simple = corpus_name + ".simp" + rater_str + ".txt"
-				file_names.append(file_name_simple)
-				file_names.append(file_name_complex)
-				for document_pair in data.models.DocumentPair.objects.filter(annotator=rater):
-					for alignment in document_pair.sentence_alignment_pair.filter(annotator=rater):
-						output_text_simple += " ".join(alignment.simple_elements.values_list("original_content", flat=True)) + "\n"
-						output_text_complex += " ".join(alignment.complex_elements.values_list("original_content", flat=True)) + "\n"
-
-				with open(file_name_complex, "w") as f:
-					f.write(output_text_complex)
-				with open(file_name_simple, "w") as f:
-					f.write(output_text_simple)
-			else:
-				for corpus_obj in data.models.Corpus.objects.all():
-					file_name_complex = corpus_obj.name + ".orig" + rater_str + ".txt"
-					file_name_simple = corpus_obj.name + ".simp" + rater_str + ".txt"
-					output_text_simple = ""
-					output_text_complex = ""
-					for document_pair in data.models.DocumentPair.objects.filter(annotator=rater, corpus=corpus_obj):
-						for alignment in document_pair.sentence_alignment_pair.filter(annotator=rater):
-							output_text_simple += " ".join(alignment.simple_elements.values_list("original_content", flat=True)) + "\n"
-							output_text_complex += " ".join(alignment.complex_elements.values_list("original_content", flat=True)) + "\n"
-					if output_text_complex != "":
-						with open(file_name_complex, "w") as f:
-							f.write(output_text_complex)
-						file_names.append(file_name_complex)
-
-					if output_text_simple != "":
-						with open(file_name_simple, "w") as f:
-							f.write(output_text_simple)
-						file_names.append(file_name_simple)
+				file_name_meta_data = corpus_name + ".meta" + rater_str + ".txt"
+				file_name = corpus_name + rater_str + ".csv"
+			for document_pair in data.models.DocumentPair.objects.filter(annotator=rater, corpus=corpus_obj):
+				document_pair_id = document_pair.id
+				if not document_pair.complex_document or not document_pair.simple_document:
+					continue
+				domain, complex_level, simple_level, license, author, url, access_date = corpus_obj.domain, document_pair.complex_document.level, document_pair.simple_document.level, corpus_obj.license, corpus_obj.author, document_pair.simple_document.url, document_pair.simple_document.access_date
+				for alignment in document_pair.sentence_alignment_pair.filter(annotator=rater):
+					original, original_id, simplification, simplification_id = get_original_data(alignment)
+					if format == "parallel":
+						output_text_simple_list.append(simplification)
+						output_text_complex_list.append(original)
+						output_text_meta_data.append("\t".join([original_id, simplification_id, str(document_pair_id), domain, complex_level, simple_level, license, author, url, str(access_date), str(rater)]))
+					elif format == "csv":
+						output_df = export_csv(rater, original, simplification, original_id,
+									   simplification_id, document_pair_id, domain, complex_level, simple_level, license,
+									   author, url, access_date, output_df=output_df)
+			if format == "parallel" and len(output_text_simple_list) > 0 and len(output_text_complex_list) > 0:
+				file_name_complex, file_name_simple, file_name_meta_data = export_txt(output_text_simple_list, output_text_complex_list, output_text_meta_data, file_name_complex, file_name_simple, file_name_meta_data)
+				if file_name_simple not in file_names and file_name_complex not in file_names and file_name_meta_data not in file_names:
+					file_names.extend([file_name_complex, file_name_simple, file_name_meta_data])
+			elif format == "csv" and len(output_df) > 0:
+				output_df.to_csv(file_name)
+				if file_name not in file_names:
+					file_names.append(file_name)
+		if additions or deletions or identical:
+			df_path = export_not_aligned(rater, additions=additions, deletions=deletions, identical=identical)
+			file_names.append(df_path)
 	return generate_zip_file(file_names)
 
-#
-# def export_additions(rater):
-# 	return 1
-#
-#
-# def export_deletions(rater):
-# 	return 1
-#
-#
-# def export_same():
-# 	return 1
+
+def export_txt(output_text_simple_list, output_text_complex_list, output_text_meta_data, file_name_complex, file_name_simple, file_name_meta_data):
+	with open(file_name_complex, "w") as f:
+		for output_text_complex in output_text_complex_list:
+			f.write(output_text_complex+"\n")
+	with open(file_name_simple, "w") as f:
+		for output_text_simple in output_text_simple_list:
+			f.write(output_text_simple+"\n")
+	with open(file_name_meta_data, "w") as f:
+		for meta_data in output_text_meta_data:
+			f.write(meta_data+"\n")
+	return file_name_complex, file_name_simple, file_name_meta_data
+
+
+def export_csv(rater_id=None, output_text_complex=None, output_text_simple=None, sent_id_complex=None, sent_id_simple=None, document_pair_id=None, domain=None, complex_level=None, simple_level=None, license=None, author=None, url=None, access_date=None, output_df=None):
+	if type(output_df) != pd.DataFrame:
+		output_df = pd.DataFrame(columns=["original", "simplification", "original_id", "simplification_id", "pair_id", "domain", "language_level_original",
+			   "language_level_simple", "license", "author", "website", "access_date", "rater"])
+	else:
+		values = [output_text_complex, output_text_simple, sent_id_complex, sent_id_simple, document_pair_id,
+			  domain, complex_level, simple_level, license, author, url, access_date, rater_id]
+		output_df.loc[len(output_df)] = values
+	return output_df
 
 
 def get_table_values(sent_id, alignment_type, doc_id, domain, complex_level, simple_level, license, author, url, access_date):
@@ -213,7 +325,7 @@ def get_table_values(sent_id, alignment_type, doc_id, domain, complex_level, sim
 		return None
 
 
-def export_not_aligned(rater_id):
+def export_not_aligned(rater_id, identical=True, deletions=True, additions=True):
 	output_df = pd.DataFrame(columns=["original", "simplification", "original_id", "simplification_id", "pair_id", "domain", "language_level_original",
 			   "language_level_simple", "license", "author", "website", "access_date", "alignment"])
 	rater = User.objects.get(id=rater_id)
@@ -224,7 +336,7 @@ def export_not_aligned(rater_id):
 		domain, complex_level, simple_level, license, author, url, access_date = doc.corpus.domain, doc.complex_document.level, doc.simple_document.level, doc.corpus.license, doc.corpus.author, doc.simple_document.url, doc.simple_document.access_date
 		identical_complex_sentences = complex_doc.sentences.filter(original_content__in=simple_doc.sentences.values_list("original_content", flat=True)).values_list("id", flat=True)
 		identical_simple_sentences = simple_doc.sentences.filter(original_content__in=complex_doc.sentences.values_list("original_content", flat=True)).values_list("id", flat=True)
-		if identical_complex_sentences:
+		if identical and identical_complex_sentences:
 			for sent_id in identical_complex_sentences:
 				values = get_table_values(sent_id, "identical", doc.id, domain, complex_level, simple_level, license, author, url, access_date)
 				if values:
@@ -232,13 +344,13 @@ def export_not_aligned(rater_id):
 					i += 1
 		not_annotated_complex = complex_doc.sentences.filter(~Q(complex_element__annotator=rater)).filter(~Q(id__in=identical_complex_sentences))  #.values_list("id", flat=True) # Q(complex_element__isnull=True) |
 		not_annotated_simple = simple_doc.sentences.filter(~Q(simple_element__annotator=rater)).filter(~Q(id__in=identical_simple_sentences))  #.values_list("id", flat=True)
-		if len(not_annotated_complex)/(len(complex_doc.sentences.all())-len(identical_complex_sentences)) <= 0.25:
+		if deletions and len(not_annotated_complex)/(len(complex_doc.sentences.all())-len(identical_complex_sentences)) <= 0.25:
 			for sent_id in identical_complex_sentences:
 				values = get_table_values(sent_id, "deletion", doc.id, domain, complex_level, simple_level, license, author, url, access_date)
 				if values:
 					output_df.loc[i] = values
 					i += 1
-		if (len(simple_doc.sentences.all())-len(identical_simple_sentences)) > 0 and len(not_annotated_simple)/(len(simple_doc.sentences.all())-len(identical_simple_sentences)) <= 0.25:
+		if additions and (len(simple_doc.sentences.all())-len(identical_simple_sentences)) > 0 and len(not_annotated_simple)/(len(simple_doc.sentences.all())-len(identical_simple_sentences)) <= 0.25:
 			for sent_id in identical_complex_sentences:
 				values = get_table_values(sent_id, "addition", doc.id, domain, complex_level, simple_level, license, author, url, access_date)
 				if values:
@@ -267,9 +379,9 @@ def get_original_data(pair):
 	for complex_sent in pair.complex_elements.all():
 		original = get_original_sent(complex_sent, original)
 		if original_id:
-			original_id += "|"+str(pair.document_pair.id) + "-0-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
+			original_id += "|"+str(pair.document_pair.id) + "-1-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
 		else:
-			original_id += str(pair.document_pair.id) + "-0-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
+			original_id += str(pair.document_pair.id) + "-1-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
 	for simple_sent in pair.simple_elements.all():
 		simplification = get_original_sent(simple_sent, simplification)
 		if simplification_id:
@@ -290,6 +402,7 @@ def gather_all_data(rater):
 			   *TS_annotation_tool.utils.rating_aspects,
 			   # "duration_transformation",
 			   *TS_annotation_tool.utils.transformation_list]
+	print(len(columns), len(TS_annotation_tool.utils.rating_aspects), len(TS_annotation_tool.utils.transformation_list))
 	result_frame = pd.DataFrame(columns=columns)
 	i = 0
 	for pair in alignment.models.Pair.objects.filter(annotator=rater):
@@ -305,26 +418,12 @@ def gather_all_data(rater):
 				  ]
 		if pair.rating.filter(rater=rater):
 			ratings = pair.rating.filter(rater=rater)
-			values.extend([ratings[0].duration,
-						   		   # ratings[0].grammaticality_original,
-								   # ratings[0].grammaticality_simple,
-								   # ratings[0].simplicity,
-								   # ratings[0].simplicity_original,
-								   # ratings[0].simplicity_simple,
-								   # ratings[0].structural_simplicity,
-								   # ratings[0].lexical_simplicity,
-								   # ratings[0].meaning_preservation,
-								   # ratings[0].information_gain,
-								   # ratings[0].coherence_original,
-								   # ratings[0].coherence_simple,
-								   # ratings[0].ambiguity_original,
-								   # ratings[0].ambiguity_simple
-						   ])
+			values.extend([ratings[0].duration])
 			for aspect in TS_annotation_tool.utils.rating_aspects:
-				values.append(ratings[0][aspect])
+				values.append(ratings[0].__dict__[aspect])
 		else:
-			values.extend([numpy.nan]*14)
-
+			len_x = len(TS_annotation_tool.utils.rating_aspects)+1  # +1 for duration  # 15
+			values.extend([numpy.nan]*len_x)
 		if pair.transformation_of_pair.filter(rater=rater):
 			for trans_level in transformation_level:
 				if pair.transformation_of_pair.filter(transformation_level=trans_level, rater=rater):
@@ -342,7 +441,9 @@ def gather_all_data(rater):
 						else:
 							values.append(0)
 		else:
-			values.extend([numpy.nan]*71)
+			# todo automatically generate this number
+			len_subtrans = len(TS_annotation_tool.utils.transformation_list)  # 71
+			values.extend([numpy.nan]*len_subtrans)
 		result_frame.loc[i] = values
 		i += 1
 	# if rater == 2:
@@ -351,12 +452,11 @@ def gather_all_data(rater):
 
 
 def export_all(user):
-	corpus_name = "DEasy"
+	corpus_name = "TS_anno_"
 	file_names = list()
 	if user:
 		for rater in set(data.models.DocumentPair.objects.values_list("annotator", flat=True)):
 			rater_str = ".rater." + str(rater)
-			# if not corpus:
 			file_name = corpus_name + rater_str + ".csv"
 			file_names.append(file_name)
 			output_frame = gather_all_data(rater)
@@ -682,64 +782,6 @@ def get_iaa_alignment_dict(alignment_frame, df_2_annotators, df_more_annotators)
 @user_passes_test(lambda u: u.is_superuser)
 def export(request):
 	# todo export meta data, e.g. data of annotators
-	if request.method == "POST":
-		deletions, additions, identical = False, False, False
-		if "deletion" in request.POST:
-			deletions = True
-		if "addition" in request.POST:
-			additions = True
-		if "identical" in request.POST:
-			identical = True
-
-		if "export_rating" in request.POST:
-			output_frame = export_rating()
-			response = HttpResponse(content_type='text/csv')
-			response['Content-Disposition'] = 'attachment; filename="human_ratings_ts.csv"'
-			output_frame.to_csv(path_or_buf=response)
-			return response
-		# elif "export_alignment" in request.POST:
-		# 	return render(request, 'evaluation/export_alignment.html', {"title": "Export Alignment - Text Simplification Annotation Tool"})
-		elif "export_not_aligned" in request.POST:
-			file_names = list()
-			for rater_id in User.objects.values_list("id", flat=True):
-				df_path = export_not_aligned(rater_id)
-				file_names.append(df_path)
-			return generate_zip_file(file_names)
-
-		elif "export_alignment_per_user" in request.POST:
-			return export_alignment(user=True, corpus=False)  #, identical=identical, additions=additions, deletions=deletions)
-		elif "export_alignment_per_corpus_and_user" in request.POST:
-			return export_alignment(user=True, corpus=True)  #, identical=identical, additions=additions, deletions=deletions)
-		elif "export_transformation" in request.POST:
-			output_frame = export_transformation()
-			response = HttpResponse(content_type='text/csv')
-			response['Content-Disposition'] = 'attachment; filename="human_ratings_ts.csv"'
-			output_frame.to_csv(path_or_buf=response)
-			return response
-		# elif "repair_sentence" in request.POST:
-		# 	data.models.repair_original_text()
-		elif "export_all_in_csv_per_use" in request.POST:
-			return export_all(user=True)
-		elif "get_alignment_for_crf" in request.POST:
-			result_frame = get_alignment_for_crf(real_user=True)
-			response = HttpResponse(content_type='text/csv')
-			response['Content-Disposition'] = 'attachment; filename="alignments_for_crf.csv"'
-			result_frame.to_csv(path_or_buf=response)
-			return response
-		elif "get_iaa_alignment" in request.POST:
-			alignment_frame = get_alignment_for_crf(real_user=True, iaa=True)
-			df_2_annotators, df_more_annotators = filter_df_by_annotator_number(alignment_frame)
-			agreement_dict = get_iaa_alignment_dict(alignment_frame, df_2_annotators, df_more_annotators)
-			return render(request, 'evaluation/iaa_alignment.html', {"iaa_dict": agreement_dict,
-														   "title": "Inter Annotator Agreement - Text Simplification Annotation Tool"})
-		elif "get_iaa_rating" in request.POST:
-			print("get_iaa_rating")
-			iaa_dict = dict()
-			for aspect in TS_annotation_tool.utils.rating_aspects:
-				print(aspect)
-				iaa_dict[aspect] = get_inter_annotator_agreement_rating(real_user=False)
-			return render(request, 'evaluation/iaa_rating.html', {"iaa_dict": iaa_dict,
-														   "title": "Evaluation - Text Simplification Annotation Tool"})
 	return render(request, 'evaluation/home.html', {"title": "Evaluation - Text Simplification Annotation Tool"})
 
 
