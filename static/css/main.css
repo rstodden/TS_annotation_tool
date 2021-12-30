@@ -175,3 +175,6 @@ table.corpus, th.corpus, td.corpus {
   padding: 5px;
 }
 
+hr.paragraph-break {
+  margin: 10px;
+}

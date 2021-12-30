@@ -1,0 +1,37 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <h2> Change Alignment</h2>
+    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <label for="simple_selected">Simple Document:</label>
+                <select id="simple_selected" name="simple_selected" multiple required>
+                    {%  for element in simple_elements %}
+                        {% if element in simple_sents %}
+                            <option selected value="{{ element.id }}" >{{ element.original_content }}</option>
+                        {% else %}
+                            <option value="{{ element.id }}">{{ element.original_content }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="complex_selected">Complex Document:</label>
+                <select id="complex_selected" name="complex_selected" multiple required>
+                    {%  for complex_element in complex_elements %}
+                        <option value="{{ complex_element.id }}">{{ complex_element.original_content }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <button type="submit" class="save btn btn-default" value="rate" name="submit">Save & Rate</button>
+            <button type="submit" class="save btn btn-default" value="next" name="submit">Save & Next</button>
+        </div>
+    </form>
+
+{% endblock %}

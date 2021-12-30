@@ -3,21 +3,13 @@
 {% block content %}
     <div class="row subpage_header">
         <div class="col-md-12">
-            <h2>Upload Data</h2>
+            <h2>Upload Data Options</h2>
         </div>
     </div>
     <div class="row">
         <div class="col-md-12 subpage_content">
-            <form method="post" enctype="multipart/form-data" >{% csrf_token %}
-                {{ form_upload.errors }}
-                {{ form_upload.as_p }}
-                <p>
-                    <button type="submit">Upload and assign</button>
-                </p>
-            </form>
-            {% if data_inserted %}
-                Documents successfully uploaded.
-            {% endif %}
+            <button><a href="{% url 'data:insert_web_data' %}">Crawl Web Data</a></button>
+            <button><a href="{% url 'data:insert_plain_data' %}">Upload Local Data</a></button>
         </div>
     </div>
 {% endblock %}

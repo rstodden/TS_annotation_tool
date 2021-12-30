@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('settings_admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path("corpora/", views.overview_all_corpora, name="overview_all_corpora"),
     path("corpus/<int:corpus_id>", views.overview_per_corpus, name="overview_per_corpus"),
     # path('overview/<str:domain>', views.overview, name='overview'),

@@ -95,6 +95,12 @@
                                     Login
                                 </a>
                             </li>
+                            <li>
+                                <a href="{% url 'accounts:register'%}?next={{request.path}}">
+                                    <i class="fas fa-user-plus"></i>
+                                    Sign up
+                                </a>
+                            </li>
                         {% endif %}
                     </ul>
                 </div>

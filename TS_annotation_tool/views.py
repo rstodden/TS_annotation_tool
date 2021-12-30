@@ -11,7 +11,8 @@ def home(request):
 @login_required
 def overview_all_corpora(request):
 	corpora = list(set(data.models.Corpus.objects.filter(document_pairs__annotator=request.user)))
-	corpora_to_simplify  = data.models.Corpus.objects.filter(to_simplify=True)
+	corpora_to_simplify  = data.models.Corpus.objects.filter(to_simplify=True , document_pairs__annotator=request.user).distinct()
+	print(corpora_to_simplify)
 	return render(request, 'overview_corpora.html', {"corpora": corpora, "corpora_to_simplify": corpora_to_simplify,
 											 "title": "Corpora Overview - Text Simplification Annotation Tool"})
 

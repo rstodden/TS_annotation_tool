@@ -1,0 +1,36 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <div class="row subpage_header">
+        <div class="col-md-12">
+            <h2>Upload Data</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 subpage_content">
+            <form method="post" enctype="multipart/form-data" >{% csrf_token %}
+                {{ form_upload.errors }}
+                <p>Please upload a json file containing a "corpora"-object with at least one corpus-description including the following attributes:</p>
+                    <ul>
+                        <li>url of overview page to crawl,</li>
+                        <li>homepage,</li>
+                        <li>license,</li>
+                        <li>language,</li>
+                        <li>language_level_simple,</li>
+                        <li>language_level_complex,</li>
+                        <li>...</li>
+                    </ul>
+                <p>
+                    For more options have a look at the example file "web_scraping/example_config.json"
+                </p>
+                {{ form_upload.as_p }}
+                <p>
+                    <button type="submit">Upload and assign</button>
+                </p>
+            </form>
+            {% if data_inserted %}
+                Documents successfully uploaded.
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

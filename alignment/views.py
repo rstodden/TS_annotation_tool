@@ -54,7 +54,7 @@ def change_alignment(request, doc_pair_id):
 				sentence_pair_tmp = alignment.models.Pair()
 				last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(form.cleaned_data["simple_element"],
 																	form.cleaned_data["complex_element"],
-																	request.user, doc_pair_tmp, request.session["start"], duration=duration)
+																	[request.user], doc_pair_tmp, request.session["start"], duration=duration)
 			else:
 				print(form.errors)
 		elif request.POST.get("save"):
@@ -64,7 +64,7 @@ def change_alignment(request, doc_pair_id):
 				sentence_pair_tmp = alignment.models.Pair()
 				last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(form.cleaned_data["simple_element"],
 																	form.cleaned_data["complex_element"],
-																	request.user, doc_pair_tmp, start_time=request.session["start"])
+																	[request.user], doc_pair_tmp, start_time=request.session["start"])
 				simple_annotated_sents = doc_pair_tmp.get_all_simple_annotated_sentences_by_user(request.user, content=False)
 				complex_annotated_sents = doc_pair_tmp.get_all_complex_annotated_sentences_by_user(request.user, content=False)
 
@@ -75,7 +75,7 @@ def change_alignment(request, doc_pair_id):
 		elif request.POST.get("not-possible"):
 			doc_pair_tmp.no_alignment_possible = request.POST.get("not-possible")
 			doc_pair_tmp.save(update_fields=['no_alignment_possible'])
-			return redirect("overview_per_corpus", corpus_id=doc_pair_tmp.corpus)
+			return redirect("overview_per_corpus", corpus_id=doc_pair_tmp.corpus.id)
 		else:
 			last_simple_item, last_complex_item = None, None
 	return render(request, "alignment/change_alignment.html", {"simple_elements": simple_elements,

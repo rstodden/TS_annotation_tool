@@ -24,11 +24,10 @@ class Annotation(models.Model):
 
 
 class Transformation(Annotation):
-	transformation = models.CharField(max_length=100, blank=True, choices=TS_annotation_tool.utils.tuple_list_choices_transformation)  # choices=list_transactions,
+	transformation = models.CharField(max_length=100, blank=True, choices=TS_annotation_tool.utils.tuple_list_choices_transformation)
 	sub_transformation = models.CharField(max_length=100, blank=True, null=True, choices=TS_annotation_tool.utils.tuple_list_choices_subtransformation)
 	# own_subtransformation = models.CharField(max_length=100, blank=True, null=True)
-	transformation_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.tuple_list_transformation_level)
-	# models.CharField(choices=[("paragraph", "paragraph"), ("sentence", "sentence"), ("phrase", "phrase"), ("word", "word")])
+	transformation_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.tuple_list_transformation_level, blank=True, null=True)
 	simple_token = models.ManyToManyField("data.Token", related_name="simple_token")
 	complex_token = models.ManyToManyField("data.Token", related_name="complex_token")
 
@@ -82,26 +81,37 @@ class Transformation(Annotation):
 
 class Rating(Annotation):
 	rater = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-	help_text_grammaticality = "The {} sentence is fluent, there are no grammatical errors."
-	help_text_simplicity = "The {} sentence is easy to understand."
-	help_text_coherence = "The {} sentence is understandable without any preceeding or following sentence, e.g., there are no pronouns or connectives."
-	help_text_ambiguity = "The {} sentence is ambiguous. It can be read in different ways."
-	help_text_simpler = "The simplified sentence is easier to understand than the orginal sentence."
-	help_text_meaning_preservation = "The simplified sentence adequately expresses the meaning of the original sentence, perhaps omitting the least important information."
-	help_text_structural = "The structure of the simplified sentence is easier to understand than the structure of the original sentence."
-	help_text_lexical = "The words of the simplified sentence are easier to understand than the words of the original sentence."
-	help_text_information_gain = "In the simplified sentence, information is added or get more explicit compared to the original sentence."
 
-	grammaticality_simple = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=help_text_grammaticality.format("simplified"))
-	grammaticality_original = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=help_text_grammaticality.format("original"))
-	simplicity = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=help_text_simpler)
-	structural_simplicity = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=help_text_structural)
-	lexical_simplicity = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=help_text_lexical)
-	simplicity_original = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=help_text_simplicity.format("original"))
-	simplicity_simple = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=help_text_simplicity.format("simplified"))
-	meaning_preservation = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=help_text_meaning_preservation)
-	information_gain = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=help_text_information_gain)
-	coherence_original = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=help_text_coherence.format("original"))
-	coherence_simple = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=help_text_coherence.format("simplified"))
-	ambiguity_original = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=help_text_ambiguity.format("original"))
-	ambiguity_simple = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=help_text_ambiguity.format("simplified"))
+	if "grammaticality_simple" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		grammaticality_simple = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=TS_annotation_tool.utils.rating_aspects_dict["grammaticality_simple"], null=True, blank=True)
+	if "grammaticality_original" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		grammaticality_original = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=TS_annotation_tool.utils.rating_aspects_dict["grammaticality_original"], null=True, blank=True)
+	if "simplicity" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		simplicity = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=TS_annotation_tool.utils.rating_aspects_dict["simplicity"], null=True, blank=True)
+	if "structural_simplicity" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		structural_simplicity = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=TS_annotation_tool.utils.rating_aspects_dict["structural_simplicity"], null=True, blank=True)
+	if "lexical_simplicity" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		lexical_simplicity = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=TS_annotation_tool.utils.rating_aspects_dict["lexical_simplicity"], null=True, blank=True)
+	if "simplicity_original" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		simplicity_original = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=TS_annotation_tool.utils.rating_aspects_dict["simplicity_original"], null=True, blank=True)
+	if "simplicity_simple" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		simplicity_simple = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=TS_annotation_tool.utils.rating_aspects_dict["simplicity_simple"], null=True, blank=True)
+	if "meaning_preservation" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		meaning_preservation = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=TS_annotation_tool.utils.rating_aspects_dict["meaning_preservation"], null=True, blank=True)
+	if "information_gain" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		information_gain = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES_NEUTRAL, help_text=TS_annotation_tool.utils.rating_aspects_dict["information_gain"], null=True, blank=True)
+	if "coherence_original" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		coherence_original = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=TS_annotation_tool.utils.rating_aspects_dict["coherence_original"], null=True, blank=True)
+	if "coherence_simple" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		coherence_simple = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=TS_annotation_tool.utils.rating_aspects_dict["coherence_simple"], null=True, blank=True)
+	if "ambiguity_original" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		ambiguity_original = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=TS_annotation_tool.utils.rating_aspects_dict["ambiguity_original"], null=True, blank=True)
+	if "ambiguity_simple" in TS_annotation_tool.utils.rating_aspects_dict.keys():
+		ambiguity_simple = models.IntegerField(choices=TS_annotation_tool.utils.LIKERT_CHOICES, help_text=TS_annotation_tool.utils.rating_aspects_dict["ambiguity_simple"], null=True, blank=True)
+
+	def check_field_names(self):
+		field_names = self._meta.get_fields()
+		for aspect in TS_annotation_tool.utils.rating_aspects_dict.keys():
+			if aspect not in field_names:
+				raise "Please add "+aspect+" to the model fields in rating.models.py"
+

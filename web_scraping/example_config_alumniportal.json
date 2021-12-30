@@ -1,0 +1,25 @@
+{
+  "corpora": {
+    "alumniportal-DE-2021": {
+      "home_page":  "https://www.alumniportal-deutschland.org",
+      "page_overview": "https://www.alumniportal-deutschland.org/services/sitemap",
+      "author":  "Kooperation Alumniportal Deutschland",
+      "license":  "CC-BY-4",
+      "license_file":  "",
+      "parallel":  true,
+      "pre_aligned": false,
+      "manually_aligned": false,
+      "pre_split": false,
+      "to_simplify": false,
+      "domain":  "language learning",
+      "language": "de",
+      "add_par_nr": true,
+      "language_level_simple": "a1",
+      "language_level_complex": "b2",
+      "annotator": ["test", "maya", "regina"],
+      "output_dir": "data_collection/",
+      "save_raw_content": true,
+      "professionally_simplified": false
+    }
+  }
+}

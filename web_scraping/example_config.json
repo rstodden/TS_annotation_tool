@@ -1,0 +1,25 @@
+{
+  "corpora": {
+    "inclusion-europe-etr-en": {
+      "home_page":  "https://www.inclusion-europe.eu",
+      "page_overview": "https://www.inclusion-europe.eu/category/etr/",
+      "author":  "Inclusion Europe",
+      "license":  "not_allowed",
+      "license_file":  "",
+      "parallel":  true,
+      "pre_aligned": false,
+      "manually_aligned": false,
+      "pre_split": false,
+      "to_simplify": false,
+      "professionally_simplified": true,
+      "domain":  "accessibility",
+      "language": "en",
+      "add_par_nr": true,
+      "language_level_simple": "a1",
+      "language_level_complex": "c2",
+      "annotator": ["test"],
+      "output_dir": "data_collection/",
+      "save_raw_content": true
+    }
+  }
+}

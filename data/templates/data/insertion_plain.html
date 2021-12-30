@@ -1,0 +1,36 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <div class="row subpage_header">
+        <div class="col-md-12">
+            <h2>Upload Data</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 subpage_content">
+            <form method="post" enctype="multipart/form-data" >{% csrf_token %}
+                {{ form_upload.errors }}
+                <p>Please add at least one complex and one simple document. The documents will be aligned based on the identifier in the file name. The file should be organized as follows:</p>
+                <ul>
+                    <li>
+                        first line: # &copy; Origin: source_of_data [last accessed: YYYY-MM-DD]\ttitle_of_document
+                    </li>
+                    <li>second_line:
+                        <ul>
+                            <li>If the data is not aligned yet: content of the document. If you want to consider paragraphs, please add "SEPL|||SEPR" between each of the paragraphs.</li>
+                            <li>If the data is not aligned but the text is already split into sentences: One line for each aligned text. Each line of the complex and simple file will be aligned. Please specify that the data is already split. You can also choose this option if you want to realign the data.</li>
+                            <li>If the data is already aligned: One line for each aligned text. Each line of the complex and simple file will be aligned. Please specify that the data is already aligned.</li>
+                        </ul>
+                </ul>
+                <p></p>
+                {{ form_upload.as_p }}
+                <p>
+                    <button type="submit">Upload and assign</button>
+                </p>
+            </form>
+            {% if data_inserted %}
+                Documents successfully uploaded.
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

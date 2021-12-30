@@ -1,4 +1,6 @@
 from django import forms
+
+import TS_annotation_tool.utils
 from .models import Rating, Transformation
 from TS_annotation_tool.utils import LIKERT_CHOICES_NEUTRAL, LIKERT_CHOICES
 from django.utils import timezone
@@ -45,25 +47,9 @@ class TransformationForm(forms.ModelForm):
 class RatingForm(forms.ModelForm):
     class Meta:
         model = Rating
-        fields = ['grammaticality_simple', 'meaning_preservation', 'ambiguity_original', 'ambiguity_simple',
-                  'grammaticality_original', 'structural_simplicity', 'lexical_simplicity', 'coherence_simple',
-                  'simplicity_original', 'simplicity_simple', 'information_gain', 'coherence_original', 'simplicity',
+        fields = [*TS_annotation_tool.utils.rating_aspects,
                   'certainty', "comment"]
-        widgets = {
-            'meaning_preservation': forms.RadioSelect(choices=LIKERT_CHOICES),
-            'grammaticality_simple': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
-            'grammaticality_original': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
-            'simplicity': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
-            'simplicity_original': forms.RadioSelect(choices=LIKERT_CHOICES),
-            'simplicity_simple': forms.RadioSelect(choices=LIKERT_CHOICES),
-            'structural_simplicity': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
-            'lexical_simplicity': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
-            'information_gain': forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL),
-            'coherence_original': forms.RadioSelect(choices=LIKERT_CHOICES),
-            'coherence_simple': forms.RadioSelect(choices=LIKERT_CHOICES),
-            'ambiguity_original': forms.RadioSelect(choices=LIKERT_CHOICES),
-            'ambiguity_simple': forms.RadioSelect(choices=LIKERT_CHOICES),
-        }
+        widgets = {aspect: (forms.RadioSelect(choices=LIKERT_CHOICES) if aspect not in TS_annotation_tool.utils.rating_aspects_neutral else forms.RadioSelect(choices=LIKERT_CHOICES_NEUTRAL)) for aspect in TS_annotation_tool.utils.rating_aspects}
 
     def __init__(self, *args, **kwargs):
         super(RatingForm, self).__init__(*args, **kwargs)

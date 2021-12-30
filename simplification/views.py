@@ -10,9 +10,13 @@ from django.contrib.auth.decorators import login_required
 # simplification of complex texts, such as user generated texts
 # add simplification to data model od data app
 
+# TODO: check if simplification works fine!
+
+
 @login_required
 def home(request):
 	return render(request, "simplification/home.html")
+
 
 @login_required
 def simplify(request, doc_pair_id):
@@ -51,7 +55,7 @@ def simplify(request, doc_pair_id):
 			duration = sentence_pair_tmp.duration
 			sentence_pair_tmp.delete()
 			sentence_pair_tmp = alignment.models.Pair(type="translated")
-			nlp = data.models.get_spacy_model(doc_pair_tmp.corpus.language)
+			nlp = data.models.get_spacy_models(doc_pair_tmp.corpus.language)
 			number_sentences = len([sent for sent in nlp(form.cleaned_data["simple_text"].strip()).sents])
 			new_sentences = simple_doc_tmp.add_sentences(nlp(form.cleaned_data["simple_text"].strip()).sents,
 														 simple_doc_tmp.level, complex_doc_tmp.license,
@@ -70,7 +74,7 @@ def simplify(request, doc_pair_id):
 		type_action = "add"
 		form = simplification.forms.SimplificationForm(request.POST)
 		if form.is_valid():
-			nlp = data.models.get_spacy_model(doc_pair_tmp.corpus.language)
+			nlp = data.models.get_spacy_models(doc_pair_tmp.corpus.language)
 			number_sentences = len([sent for sent in nlp(form.cleaned_data["simple_text"].strip()).sents])
 			new_sentences = simple_doc_tmp.add_sentences(nlp(form.cleaned_data["simple_text"].strip()).sents, simple_doc_tmp.level, complex_doc_tmp.license, number_sentences=number_sentences, author=request.user)
 			simple_doc_tmp.save()

@@ -38,6 +38,10 @@
                     {#                            <option value="{{ sentence.id }}">{{ sentence.original_content }}</option>#}
                                                 <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
                                             {% endif %}
+
+                                            {% ifchanged sentence.paragraph_nr %}
+                                                <hr class="paragraph-break">
+                                            {% endifchanged %}
                                         </div>
                                         <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
                                             {% if not sentence.malformed %}
@@ -81,6 +85,10 @@
                                         {% else %}
                                             <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
                                         {% endif %}
+
+                                        {% ifchanged sentence.paragraph_nr %}
+                                            <hr class="paragraph-break">
+                                        {% endifchanged %}
                                     </div>
                                     <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
                                         {% if not sentence.malformed %}

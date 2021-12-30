@@ -1,0 +1,23 @@
+{% extends '../base.html' %}
+
+{% block content %}
+    <h1>Inter Annotator Agreement</h1>
+    <ul>
+        {% for type, type_dict in iaa_dict.items %}
+            <li>{{ type }}</li>
+            {% for n_annotator, n_annotator_dict in type_dict.items %}
+                <ul>
+                    <li>{{ n_annotator }}:</li>
+                    <ul>
+                        {% for doc, value in n_annotator_dict.items %}
+                            <li>{{ doc }}: {{ value.name }} {{ value.iaa }} (N= {{ value.n }})</li>
+                        {% endfor %}
+                    </ul>
+                </ul>
+                {% endfor %}
+        {% endfor %}
+        {# <li>Meaning Preservation: {{ iaa_meaning }}</li> #}
+        {# <li>Grammaticality: {{ iaa_grammaticality }}</li> #}
+        {# <li>Simplicity: {{ iaa_simplicity }}</li> #}
+    </ul>
+{% endblock %}
