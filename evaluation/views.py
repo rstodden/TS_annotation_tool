@@ -228,7 +228,7 @@ def export_alignment_view(request):
 def export_alignment(user, corpus, identical=False, deletions=False, additions=False, format="parallel"):
 	"""create one simple and complex file per annotator or per corpus or all in csv. The simple and the complex file contains all alignments no matter their domain or corpus."""
 	corpus_name = "TS_anno_"
-	print(identical, deletions, additions)
+	print(identical, deletions, additions, user, corpus)
 	file_names = list()
 	output_df = export_csv()
 	for rater in set(data.models.DocumentPair.objects.values_list("annotator", flat=True)):
@@ -379,15 +379,27 @@ def get_original_data(pair):
 	for complex_sent in pair.complex_elements.all():
 		original = get_original_sent(complex_sent, original)
 		if original_id:
-			original_id += "|"+str(pair.document_pair.id) + "-1-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
+			if not complex_sent.given_id:
+				original_id += "|"+str(pair.document_pair.id) + "-1-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
+			else:
+				original_id += "|"+complex_sent.given_id
 		else:
-			original_id += str(pair.document_pair.id) + "-1-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
+			if not complex_sent.given_id:
+				original_id = str(pair.document_pair.id) + "-1-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
+			else:
+				original_id = complex_sent.given_id
 	for simple_sent in pair.simple_elements.all():
 		simplification = get_original_sent(simple_sent, simplification)
 		if simplification_id:
-			simplification_id += "|" + str(pair.document_pair.id) + "-0-" + str(simple_sent.paragraph_nr) + "-" + str(simple_sent.sentence_nr)
+			if not simple_sent.given_id:
+				simplification_id += "|" + str(pair.document_pair.id) + "-0-" + str(simple_sent.paragraph_nr) + "-" + str(simple_sent.sentence_nr)
+			else:
+				simplification_id += "|" + simple_sent.given_id
 		else:
-			simplification_id = str(pair.document_pair.id) + "-0-" + str(simple_sent.paragraph_nr) + "-" + str(simple_sent.sentence_nr)
+			if not simple_sent.given_id:
+				simplification_id = str(pair.document_pair.id) + "-0-" + str(simple_sent.paragraph_nr) + "-" + str(simple_sent.sentence_nr)
+			else:
+				simplification_id = simple_sent.given_id
 	original = " ".join(original)
 	simplification = " ".join(simplification)
 	return original, original_id, simplification, simplification_id

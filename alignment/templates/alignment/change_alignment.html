@@ -23,19 +23,28 @@
                                 {%  for sentence in complex_elements %}
                                         <div class="col-md-10 sentence-alignment">
                                             {% if sentence in complex_sents and sentence == last_complex_item %}
-                    {#                            <option selected  value="{{ sentence.id }}" >{{ sentence.original_content }}</option>#}
                                                 <label class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            {% elif sentence in complex_sents and sentence == last_complex_item and complex_language_direction == "rtl" %}
+                                                <label class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
                                             {% elif sentence in complex_sents %}
-                    {#                            <option selected  value="{{ sentence.id }}" >{{ sentence.original_content }}</option>#}
                                                 <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            {% elif sentence in complex_sents and complex_language_direction == "rtl" %}
+                                                <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
                                             {% elif sentence.original_content in simple_sents_content %}
                                                 <label class="btn btn-default align-sentence" disabled  title="The sentence is identical to a sentence of the simple document."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                            {% elif sentence.original_content in simple_sents_content and complex_language_direction == "rtl" %}
+                                                <label class="btn btn-default align-sentence" disabled dir="rtl" style="text-align: right" title="The sentence is identical to a sentence of the simple document."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {%  elif sentence == last_complex_item and sentence in complex_annotated_sents %}
                                                 <label class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                            {%  elif sentence == last_complex_item and sentence in complex_annotated_sents and complex_language_direction == "rtl" %}
+                                                <label class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {%  elif sentence in complex_annotated_sents %}
                                                 <label class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                            {%  elif sentence in complex_annotated_sents and complex_language_direction == "rtl" %}
+                                                <label class="btn btn-default align-sentence" disabled dir="rtl" style="text-align: right" title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                            {% elif complex_language_direction == "rtl" %}                                                <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
+                                                <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
                                             {% else %}
-                    {#                            <option value="{{ sentence.id }}">{{ sentence.original_content }}</option>#}
                                                 <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
                                             {% endif %}
 
@@ -56,7 +65,13 @@
                             <div class="scrollable-box">
                                 {%  for sentence in complex_elements %}
                                     <div class="col-md-10 sentence-alignment">
-                                        <label class="btn btn-default align-sentence" disabled><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+
+                                    {% if complex_language_direction == "rtl" %}
+                                        <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled>
+                                    {% else %}
+                                        <label class="btn btn-default align-sentence"  disabled>
+                                    {% endif %}
+                                        <input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                     </div>
 {#                                    <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">#}
 {#                                        <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>#}
@@ -71,17 +86,29 @@
                         {% if type == "add" or type == "edit"%}
                             <div class="scrollable-box">
                                 {%  for sentence in simple_elements %}
-                                    <div class="col-md-10 sentence-alignment">
+                                        <div class="col-md-10 sentence-alignment">
                                         {% if sentence == last_simple_item and sentence in simple_sents %}
                                             <label class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                        {% elif sentence == last_simple_item and sentence in simple_sents and simple_language_direction == "rtl" %}
+                                            <label class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" ><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
                                         {% elif sentence in simple_sents %}
                                             <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                        {% elif sentence in simple_sents and simple_language_direction == "rtl" %}
+                                            <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
                                         {% elif sentence.original_content in complex_sents_content %}
                                             <label class="btn btn-default align-sentence" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                        {% elif sentence.original_content in complex_sents_content and simple_language_direction == "rtl" %}
+                                            <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
                                         {%  elif sentence == last_simple_item and sentence in simple_annotated_sents %}
                                             <label class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                        {%  elif sentence == last_simple_item and sentence in simple_annotated_sents and simple_language_direction == "rtl" %}
+                                            <label class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
                                         {%  elif sentence in simple_annotated_sents %}
                                             <label class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                        {%  elif sentence in simple_annotated_sents and simple_language_direction == "rtl" %}
+                                            <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                        {% elif simple_language_direction == "rtl" %}
+                                            <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
                                         {% else %}
                                             <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
                                         {% endif %}
@@ -103,7 +130,13 @@
                             <div class="scrollable-box">
                                 {%  for sentence in simple_elements %}
                                     <div class="col-md-10 sentence-alignment">
-                                        <label class="btn btn-default align-sentence" disabled><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                    {% if simple_language_direction == "rtl" %}
+                                        <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled>
+                                    {% else %}
+                                        <label class="btn btn-default align-sentence"  disabled>
+                                    {% endif %}
+                                            <input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}
+                                        </label>
                                     </div>
 {#                                    <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">#}
 {#                                        <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>#}

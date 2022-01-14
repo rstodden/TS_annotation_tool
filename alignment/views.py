@@ -9,6 +9,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 # def home(request):
 # 	return render(request, 'overview.html')
 
+def check_reading_direction(language):
+	if language in ["fa", "ar", "dv", "he", "iw", "ku", "ur"]:
+		# specify if language reading direction is right to left
+		return "rtl"
+	else:
+		return "ltr"
 
 @login_required
 def change_alignment(request, doc_pair_id):
@@ -98,5 +104,7 @@ def change_alignment(request, doc_pair_id):
 															   "title": "Alignment - Text Simplification Annotation Tool",
 															   "last_simple_item": last_simple_item,
 															   "last_complex_item": last_complex_item,
-															   "no_alignment_possible": doc_pair_tmp.no_alignment_possible
+															   "no_alignment_possible": doc_pair_tmp.no_alignment_possible,
+															   "simple_language_direction": check_reading_direction(doc_pair_tmp.corpus.language),
+															   "complex_language_direction": check_reading_direction("xx"),
 															   })

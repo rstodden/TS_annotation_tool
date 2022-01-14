@@ -13,7 +13,7 @@ import datetime, json
 from django.core.serializers.json import DjangoJSONEncoder
 import numpy
 import requests
-
+import re
 
 def popover_html(content):
 	# return content
@@ -210,7 +210,7 @@ class Document(models.Model):
 	domain = models.CharField(max_length=50, blank=True, null=True)
 	manually_simplified = models.BooleanField(default=False)
 
-	def add_sentences(self, sentences, par_nr, language_level, selected_license, number_sentences=1, tokenize=True, author=None):
+	def add_sentences(self, sentences, par_nr, language_level, selected_license, number_sentences=1, tokenize=True, author=None, sent_ids=None):
 		treshold = 1
 		sentence_ids = list()
 		if selected_license in TS_annotation_tool.utils.license_limits.keys():
@@ -222,6 +222,8 @@ class Document(models.Model):
 			if (i+1)/number_sentences > treshold:
 				break
 			sent_tmp = Sentence(original_content=sent, level=language_level, document=self, sentence_nr=i, paragraph_nr=par_nr)
+			if sent_ids:
+				sent_tmp.given_id = sent_ids[i]
 			sent_tmp.save()
 			if author:
 				sent_tmp.author.add(author)
@@ -469,6 +471,11 @@ class Document(models.Model):
 					if data.startswith(b"##") and data.endswith(b"##\n"):
 						number_sentences = 1
 						document_tmp.add_sentences([text], -1, language_level, selected_license, number_sentences, tokenize=False)
+					elif re.match(r"^O\w{2}\.\d+\.\d+\.\d+\.\d+", text):
+						sent_id, sent = text.split("\t")
+						number_sentences = 1
+						document_tmp.add_sentences([sent], -1, language_level, selected_license, number_sentences,
+												   tokenize=False, sent_ids=[sent_id])
 					else:
 						number_sentences = len([sent for sent in nlp(text).sents])
 						for i_par, par in enumerate(text.split("SEPL|||SEPR")):
@@ -562,6 +569,7 @@ class Sentence(models.Model):
 	author = models.ManyToManyField(User, blank=True)
 	sentence_nr =  models.IntegerField(blank=True, default=-1)
 	paragraph_nr =  models.IntegerField(blank=True, default=-1)
+	given_id = models.CharField(blank=True, default="", max_length=20)
 
 	def tokenize(self, doc):
 		for token in doc:
