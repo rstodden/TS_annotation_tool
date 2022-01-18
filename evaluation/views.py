@@ -1,7 +1,10 @@
 import pandas as pd
+
+import evaluation.models
 import rating.models
 import data.models
 import alignment.models
+import accounts.models
 from nltk import agreement
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.contrib.auth.decorators import user_passes_test
@@ -16,7 +19,8 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from sklearn.metrics import cohen_kappa_score
 from statsmodels.stats.inter_rater import fleiss_kappa
-from .forms import ExportAlignmentForm
+from .forms import ExportAlignmentForm, MetaDataForm
+from django.template.loader import render_to_string
 
 
 def export_rating():  #output_path
@@ -136,6 +140,59 @@ def export_transformation():
 @user_passes_test(lambda u: u.is_superuser)
 def export_all_in_csv_per_use(request):
 	return export_all(user=True)
+
+@user_passes_test(lambda u: u.is_superuser)
+def meta_data_export(request):
+	context = {"meta_data": evaluation.models.MetaData.objects.all()[0]}
+	# form = MetaDataForm(request.POST, instance=evaluation.models.MetaData.objects.all()[0])
+	content = render_to_string('evaluation/meta_data_report.html', context=context)
+	response =  HttpResponse(content, content_type="application/html")
+	return response
+
+@user_passes_test(lambda u: u.is_superuser)
+def meta_data(request):
+	# current_meta_data = get_object_or_404(evaluation.models.MetaData, id=0)
+	if request.POST:
+		if evaluation.models.MetaData.objects.exists():
+			form = MetaDataForm(request.POST, instance=evaluation.models.MetaData.objects.all()[0])
+		else:
+			form = MetaDataForm(request.POST)
+		if form.is_valid():
+			form.save()
+			meta_data_obj = evaluation.models.MetaData.objects.all()[0]
+			return render(request, 'evaluation/meta_data_report.html',
+						  {"title": "Data Sheet (Meta Data) - Text Simplification Annotation Tool",
+						   "meta_data": meta_data_obj})
+	else:
+		if evaluation.models.MetaData.objects.exists():
+			current_meta_data = evaluation.models.MetaData.objects.all()[0]
+			print(current_meta_data)
+			form = MetaDataForm(instance=current_meta_data)
+		else:
+			form = MetaDataForm()
+		print(form)
+		languages = data.models.Corpus.objects.values_list("language", flat=True).distinct()
+		domains = data.models.Corpus.objects.values_list("domain", flat=True).distinct()
+		corpora = data.models.Corpus.objects.values_list("name", flat=True).distinct()
+		n_corpora = len(data.models.Corpus.objects.all())
+		n_doc_pairs = len(data.models.DocumentPair.objects.all())
+		n_alignment_pairs = len(alignment.models.Pair.objects.filter(manually_checked=True))
+		n_annotators = len(User.objects.filter(annotator__isnull=False))
+		n_ratings = len(alignment.models.Pair.objects.filter(rating__isnull=False))
+		n_transformations = len(alignment.models.Pair.objects.filter(transformation_of_pair__isnull=False))
+		n_simplifications = len(data.models.Sentence.objects.filter(simplification__isnull=False))
+		authors = data.models.Corpus.objects.values_list("author", flat=True).distinct()
+		licenses = data.models.Corpus.objects.values_list("license", flat=True).distinct()
+		return render(request, 'evaluation/meta_data_form.html', {"title": "Data Sheet (Meta Data) - Text Simplification Annotation Tool",
+															"form": form, "languages": languages, "domains": domains, "corpora": corpora,
+															 "n_corpora": n_corpora, "n_doc_pairs": n_doc_pairs, "n_alignment_pairs": n_alignment_pairs,
+															 "n_annotators": n_annotators, "n_ratings": n_ratings, "n_transformations": n_transformations,
+															 "n_simplifications": n_simplifications, "authors": authors,
+															 "rating_aspects": TS_annotation_tool.utils.rating_aspects_dict,
+															 "scale_ratings": TS_annotation_tool.utils.LIKERT_CHOICES,
+															 "transformations": TS_annotation_tool.utils.transformation_dict,
+															 "annotators": accounts.models.Annotator.objects.all(),
+															 "licenses": licenses})
 
 
 @user_passes_test(lambda u: u.is_superuser)

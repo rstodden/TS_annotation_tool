@@ -1,0 +1,786 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="row subpage_header">
+        <div class="col-md-12">
+            <h2>Data Card</h2>
+            <h3>This Data Card Fomular is based on <a
+                    href="https://github.com/huggingface/datasets/blob/master/templates/README_guide.md"
+                    target="_blank">Hugginface</a>.<br>
+                <span class="support-meta-data"> Please fill in all all highlidhted text boxes.
+                    The other highlighted areas provide information for easier completion.
+            </span>
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 subpage_content">
+            <form method="POST">{% csrf_token %}
+        {##}
+            {#                <table class="form-check">#}
+            {#                {% for field in form %}#}
+            {#                    <tr>#}
+            {#                        <td>{{ field.help_text|safe }}</td>#}
+            {#                        <td>{{ field.label_tag }}</td>#}
+            {#                        <td>{{ field }}</td>#}
+            {#                    </tr>#}
+            {#                {% endfor %}#}
+            {#                </table>#}
+            {##}
+            {#                <p>#}
+            {#                    <button type="submit">Save Meta Data</button>#}
+            {#                </p>#}
+            <div id="readme" class="Box-body readme blob js-code-block-container p-5 p-xl-6 gist-border-0">
+                <p class="markdown-body entry-content container-lg" itemprop="text">
+
+                    <h1 dir="auto"><a id="user-content-dataset-card-creation-guide" class="anchor" aria-hidden="true"
+                                      href="#dataset-card-creation-guide">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Dataset Card Creation Guide
+                    </h1>
+{#                    <h2 dir="auto"><a id="user-content-table-of-contents" class="anchor" aria-hidden="true"#}
+{#                                      href="#table-of-contents">#}
+{#                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"#}
+{#                             aria-hidden="true">#}
+{#                            <path fill-rule="evenodd"#}
+{#                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>#}
+{#                        </svg>#}
+{#                    </a>Table of Contents#}
+{#                    </h2>#}
+{#                    <ul dir="auto">#}
+{#                        <li><a href="#dataset-card-creation-guide">Dataset Card Creation Guide</a>#}
+{#                            <ul dir="auto">#}
+{#                                <li><a href="#table-of-contents">Table of Contents</a></li>#}
+{#                                <li><a href="#dataset-description">Dataset Description</a>#}
+{#                                    <ul dir="auto">#}
+{#                                        <li><a href="#dataset-summary">Dataset Summary</a></li>#}
+{#                                        <li><a href="#supported-tasks-and-leaderboards">Supported Tasks and#}
+{#                                            Leaderboards</a></li>#}
+{#                                        <li><a href="#languages">Languages</a></li>#}
+{#                                    </ul>#}
+{#                                </li>#}
+{#                                <li><a href="#dataset-structure">Dataset Structure</a>#}
+{#                                    <ul dir="auto">#}
+{#                                        <li><a href="#data-instances">Data Instances</a></li>#}
+{#                                        <li><a href="#data-fields">Data Fields</a></li>#}
+{#                                        <li><a href="#data-splits">Data Splits</a></li>#}
+{#                                    </ul>#}
+{#                                </li>#}
+{#                                <li><a href="#dataset-creation">Dataset Creation</a>#}
+{#                                    <ul dir="auto">#}
+{#                                        <li><a href="#curation-rationale">Curation Rationale</a></li>#}
+{#                                        <li><a href="#source-data">Source Data</a>#}
+{#                                            <ul dir="auto">#}
+{#                                                <li><a href="#initial-data-collection-and-normalization">Initial Data#}
+{#                                                    Collection and Normalization</a></li>#}
+{#                                                <li><a href="#who-are-the-source-language-producers">Who are the source#}
+{#                                                    language producers?</a></li>#}
+{#                                            </ul>#}
+{#                                        </li>#}
+{#                                        <li><a href="#annotations">Annotations</a>#}
+{#                                            <ul dir="auto">#}
+{#                                                <li><a href="#annotation-process">Annotation process</a></li>#}
+{#                                                <li><a href="#who-are-the-annotators">Who are the annotators?</a></li>#}
+{#                                            </ul>#}
+{#                                        </li>#}
+{#                                        <li><a href="#personal-and-sensitive-information">Personal and Sensitive#}
+{#                                            Information</a></li>#}
+{#                                    </ul>#}
+{#                                </li>#}
+{#                                <li><a href="#considerations-for-using-the-data">Considerations for Using the Data</a>#}
+{#                                    <ul dir="auto">#}
+{#                                        <li><a href="#social-impact-of-dataset">Social Impact of Dataset</a></li>#}
+{#                                        <li><a href="#discussion-of-biases">Discussion of Biases</a></li>#}
+{#                                        <li><a href="#other-known-limitations">Other Known Limitations</a></li>#}
+{#                                    </ul>#}
+{#                                </li>#}
+{#                                <li><a href="#additional-information">Additional Information</a>#}
+{#                                    <ul dir="auto">#}
+{#                                        <li><a href="#dataset-curators">Dataset Curators</a></li>#}
+{#                                        <li><a href="#licensing-information">Licensing Information</a></li>#}
+{#                                        <li><a href="#citation-information">Citation Information</a></li>#}
+{#                                        <li><a href="#contributions">Contributions</a></li>#}
+{#                                    </ul>#}
+{#                                </li>#}
+{#                            </ul>#}
+{#                        </li>#}
+{#                    </ul>#}
+                    <h2 dir="auto"><a id="user-content-dataset-description" class="anchor" aria-hidden="true"
+                                      href="#dataset-description">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Dataset Description
+                    </h2>
+                    <ul dir="auto">
+                        <li><strong>Homepage:</strong> Add
+                            homepage URL here if available (unless it's a GitHub repository)
+                            <div class="support-meta-data meta-data-field">
+                                 {{ form.homepage }}
+                            </div>
+                        </li>
+                        <li><strong>Repository:</strong>If the
+                            dataset is hosted on github or has a github homepage, add URL here
+                            <div class="support-meta-data meta-data-field">
+                                 {{ form.repository }}
+                            </div></li>
+                        <li><strong>Paper:</strong> If the dataset
+                            was introduced by a paper or there was a paper written describing the dataset, add URL here
+                            (landing page for Arxiv paper preferred)
+                        <div class="support-meta-data meta-data-field">
+                                 {{ form.paper }}
+                            </div></li>
+                        <li><strong>Leaderboard:</strong> If the
+                            dataset supports an active leaderboard, add link here
+                            <div class="support-meta-data meta-data-field">
+                                 {{ form.leaderboard }}
+                            </div></li>
+                        <li><strong>Point of Contact:</strong> If
+                            known, name and email of at least one person the reader can contact for questions about the
+                            dataset.
+                            <div class="support-meta-data meta-data-field">
+                                 {{ form.point_of_contact }}
+                            </div>
+                        </li>
+                    </ul>
+                    <h3 dir="auto"><a id="user-content-dataset-summary" class="anchor" aria-hidden="true"
+                                      href="#dataset-summary">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Dataset Summary
+                    </h3>
+                    <p dir="auto">Briefly summarize the dataset, its intended use and the supported tasks. Give an
+                        overview of how and why the dataset was created. The summary should explicitly mention the
+                        languages present in the dataset (possibly in broad terms, e.g. <em>translations between several
+                            pairs of European languages</em>), and describe the domain, topic, or genre covered.</p>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.summary.label_tag }}
+                        {{ form.summary }}
+                    </div>
+
+                    <h3 dir="auto"><a id="user-content-supported-tasks-and-leaderboards" class="anchor"
+                                      aria-hidden="true" href="#supported-tasks-and-leaderboards">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Supported Tasks and Leaderboards
+                    </h3>
+                    <p dir="auto">For each of the tasks tagged for this dataset, give a brief description of the tag,
+                        metrics, and suggested models (with a link to their HuggingFace implementation if available).
+                        Give a similar description of tasks that were not covered by the structured tag set (repace the
+                        <code>task-category-tag</code> with an appropriate <code>other:other-task-name</code>).</p>
+                    <ul dir="auto">
+                        <li><code>task-category-tag</code>: The dataset can be used to train a model for [TASK NAME],
+                            which consists in [TASK DESCRIPTION]. Success on this task is typically measured by
+                            achieving a <em>high/low</em> <a href="https://huggingface.co/metrics/metric_name"
+                                                             rel="nofollow">metric name</a>. The (<a
+                                    href="https://huggingface.co/model_name" rel="nofollow">model name</a> or <a
+                                    href="https://huggingface.co/transformers/model_doc/model_class.html"
+                                    rel="nofollow">model class</a>) model currently achieves the following score. <em>[IF
+                                A LEADERBOARD IS AVAILABLE]:</em> This task has an active leaderboard which can be found
+                            at <a href="/huggingface/datasets/blob/master/templates">leaderboard url</a> and ranks
+                            models based on <a href="https://huggingface.co/metrics/metric_name" rel="nofollow">metric
+                                name</a> while also reporting <a href="https://huggingface.co/metrics/other_metric_name"
+                                                                 rel="nofollow">other metric name</a>.
+                        </li>
+                    </ul>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.task_description.label_tag }}{{ form.task_description }}
+                    </div>
+                    <h3 dir="auto"><a id="user-content-languages" class="anchor" aria-hidden="true" href="#languages">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Languages
+                    </h3>
+                    <p dir="auto">Provide a brief overview of the languages represented in the dataset. Describe
+                        relevant details about specifics of the language such as whether it is social media text,
+                        African American English,...</p>
+                    <p dir="auto">When relevant, please provide <a href="https://tools.ietf.org/html/bcp47"
+                                                                   rel="nofollow">BCP-47 codes</a>, which consist of a
+                        <a href="https://tools.ietf.org/html/bcp47#section-2.2.1" rel="nofollow">primary language
+                            subtag</a>, with a <a href="https://tools.ietf.org/html/bcp47#section-2.2.3" rel="nofollow">script
+                            subtag</a> and/or <a href="https://tools.ietf.org/html/bcp47#section-2.2.4" rel="nofollow">region
+                            subtag</a> if available.</p>
+                    <div class="support-meta-data">Here is a list of all domains of your corpora:
+                        <ul>
+                        {% for domain in domains %}
+                            <li>{{ domain }}</li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    <div  class="support-meta-data">Here is a list of all languages of your corpora:
+                        <ul>
+                        {% for lang in languages %}
+                            <li>{{ lang }}</li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.language_description.label_tag }}
+                        {{ form.language_description }}
+                    </div>
+                    <h2 dir="auto"><a id="user-content-dataset-structure" class="anchor" aria-hidden="true"
+                                      href="#dataset-structure">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Dataset Structure
+                    </h2>
+{#                    <h3 dir="auto"><a id="user-content-data-instances" class="anchor" aria-hidden="true"#}
+{#                                      href="#data-instances">#}
+{#                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"#}
+{#                             aria-hidden="true">#}
+{#                            <path fill-rule="evenodd"#}
+{#                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>#}
+{#                        </svg>#}
+{#                    </a>Data Instances#}
+{#                    </h3>#}
+{#                    <p dir="auto">Provide an JSON-formatted example and brief description of a typical instance in the#}
+{#                        dataset. If available, provide a link to further examples.</p>#}
+{#                    <div class="snippet-clipboard-content position-relative overflow-auto"><pre><code>{#}
+{#              'example_field': ...,#}
+{#              ...#}
+{#            }#}
+{#            </code></pre>#}
+{#                        <div class="zeroclipboard-container position-absolute right-0 top-0">#}
+{#                            <clipboard-copy aria-label="Copy"#}
+{#                                            class="ClipboardButton btn js-clipboard-copy m-2 p-0 tooltipped-no-delay"#}
+{#                                            data-copy-feedback="Copied!" data-tooltip-direction="w" value="{#}
+{#              'example_field': ...,#}
+{#              ...#}
+{#            }" tabindex="0" role="button">#}
+{#                                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16"#}
+{#                                     data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon m-2">#}
+{#                                    <path fill-rule="evenodd"#}
+{#                                          d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>#}
+{#                                    <path fill-rule="evenodd"#}
+{#                                          d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>#}
+{#                                </svg>#}
+{#                                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16"#}
+{#                                     data-view-component="true"#}
+{#                                     class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none m-2">#}
+{#                                    <path fill-rule="evenodd"#}
+{#                                          d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path>#}
+{#                                </svg>#}
+{#                            </clipboard-copy>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <p dir="auto">Provide any additional information that is not covered in the other sections about the#}
+{#                        data here. In particular describe any relationships between data points and if these#}
+{#                        relationships are made explicit.</p>#}
+                    <h3 dir="auto"><a id="user-content-data-fields" class="anchor" aria-hidden="true"
+                                      href="#data-fields">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Data Fields
+                    </h3>
+                    <p dir="auto">List and describe the fields present in the dataset. Mention their data type, and
+                        whether they are used as input or output in any of the tasks the dataset currently supports. If
+                        the data has span indices, describe their attributes, such as whether they are at the character
+                        level or word level, whether they are contiguous or not, etc. If the datasets contains example
+                        IDs, state whether they have an inherent meaning, such as a mapping to other datasets or
+                        pointing to relationships between data points.</p>
+                    <ul dir="auto">
+                        <li><code>example_field</code>: description of <code>example_field</code></li>
+                    </ul>
+                    <p dir="auto">Note that the descriptions can be initialized with the <strong>Show Markdown Data
+                        Fields</strong> output of the <a
+                            href="https://huggingface.co/spaces/huggingface/datasets-tagging" rel="nofollow">Datasets
+                        Tagging app</a>, you will then only need to refine the generated descriptions.</p>
+                    <div class="support-meta-data">
+                        <ul>
+                            <li>original: Original sentence.</li>
+                            <li>simplification: Aligned simplified sentence.</li>
+                            <li>rating: Rating of the simplification pair. </li>
+                            <li>rewriting transformations: Transformation Annotation of the simplification pair.</li>
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.data_fields_description.label_tag }}{{ form.data_fields_description }}
+                    </div>
+{#                    <h3 dir="auto"><a id="user-content-data-splits" class="anchor" aria-hidden="true"#}
+{#                                      href="#data-splits">#}
+{#                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"#}
+{#                             aria-hidden="true">#}
+{#                            <path fill-rule="evenodd"#}
+{#                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>#}
+{#                        </svg>#}
+{#                    </a>Data Splits#}
+{#                    </h3>#}
+{#                    <p dir="auto">Describe and name the splits in the dataset if there are more than one.</p>#}
+{#                    <p dir="auto">Describe any criteria for splitting the data, if used. If their are differences#}
+{#                        between the splits (e.g. if the training annotations are machine-generated and the dev and test#}
+{#                        ones are created by humans, or if different numbers of annotators contributed to each example),#}
+{#                        describe them here.</p>#}
+{#                    <p dir="auto">Provide the sizes of each split. As appropriate, provide any descriptive statistics#}
+{#                        for the features, such as average length. For example:</p>#}
+{#                    <table>#}
+{#                        <thead>#}
+{#                        <tr>#}
+{#                            <th></th>#}
+{#                            <th>Tain</th>#}
+{#                            <th>Valid</th>#}
+{#                            <th>Test</th>#}
+{#                        </tr>#}
+{#                        </thead>#}
+{#                        <tbody>#}
+{#                        <tr>#}
+{#                            <td>Input Sentences</td>#}
+{#                            <td></td>#}
+{#                            <td></td>#}
+{#                            <td></td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <td>Average Sentence Length</td>#}
+{#                            <td></td>#}
+{#                            <td></td>#}
+{#                            <td></td>#}
+{#                        </tr>#}
+{#                        </tbody>#}
+{#                    </table>#}
+                    <h2 dir="auto"><a id="user-content-dataset-creation" class="anchor" aria-hidden="true"
+                                      href="#dataset-creation">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Dataset Creation
+                    </h2>
+                    <h3 dir="auto"><a id="user-content-curation-rationale" class="anchor" aria-hidden="true"
+                                      href="#curation-rationale">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Curation Rationale
+                    </h3>
+                    <p dir="auto">What need motivated the creation of this dataset? What are some of the reasons
+                        underlying the major choices involved in putting it together?</p>
+
+                    <div class="support-meta-data">
+                        Here is an overview of your corpora names:
+                        <ul>
+                            {% for corpus in corpora %}
+                                <li>{{ corpus }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.dataset_creation.label_tag }}{{ form.dataset_creation }}
+                    </div>
+                    <h3 dir="auto"><a id="user-content-source-data" class="anchor" aria-hidden="true"
+                                      href="#source-data">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Source Data
+                    </h3>
+                    <p dir="auto">This section describes the source data (e.g. news text and headlines, social media
+                        posts, translated sentences,...)</p>
+                    <div class="support-meta-data">
+                        Here is a list of all domains of your corpora:
+                        <ul>
+                            {% for domain in domains %}
+                                <li>{{ domain }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.domain_decription.label_tag }}{{ form.domain_decription }}
+                    </div>
+
+                    <h4 dir="auto"><a id="user-content-initial-data-collection-and-normalization" class="anchor"
+                                      aria-hidden="true" href="#initial-data-collection-and-normalization">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Initial Data Collection and Normalization
+                    </h4>
+                    <p dir="auto">Describe the data collection process. Describe any criteria for data selection or
+                        filtering. List any key words or search terms used. If possible, include runtime information for
+                        the collection process.</p>
+                    <p dir="auto">If data was collected from other pre-existing datasets, link to source here and to
+                        their <a href="https://huggingface.co/datasets/dataset_name" rel="nofollow">Hugging Face
+                            version</a>.</p>
+                    <p dir="auto">If the data was modified or normalized after being collected (e.g. if the data is
+                        word-tokenized), describe the process and the tools used.</p>
+                    <div class="support-meta-data">
+                        <ul>
+                            <li>Web-Crawling: Some data may be automatically extracted from websites with the web scraper of TS-Anno.</li>
+                            <li>Pre-processing: SpaCy is used to separate the sentence and the tokens of the text.</li>
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.collection_description.label_tag }}{{ form.collection_description }}
+                    </div>
+                    <h4 dir="auto"><a id="user-content-who-are-the-source-language-producers" class="anchor"
+                                      aria-hidden="true" href="#who-are-the-source-language-producers">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Who are the source language producers?
+                    </h4>
+                    <p dir="auto">State whether the data was produced by humans or machine generated. Describe the
+                        people or systems who originally created the data.</p>
+                    <p dir="auto">If available, include self-reported demographic or identity information for the source
+                        data creators, but avoid inferring this information. Instead state that this information is
+                        unknown. See <a href="https://www.aclweb.org/anthology/W17-1601.pdf" rel="nofollow">Larson
+                            2017</a> for using identity categories as a variables, particularly gender.</p>
+                    <p dir="auto">Describe the conditions under which the data was created (for example, if the
+                        producers were crowdworkers, state what platform was used, or if the data was found, what
+                        website the data was found on). If compensation was provided, include that information here.</p>
+                    <p dir="auto">Describe other people represented or mentioned in the data. Where possible, link to
+                        references for the information.</p>
+                    <div class="support-meta-data">
+                        Your corpora credit the following authors:
+                        <ul>
+                            {% for author in authors %}
+                                <li>{{ author }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.language_producers_description.label_tag }}{{ form.language_producers_description }}
+                    </div>
+                    <h3 dir="auto"><a id="user-content-annotations" class="anchor" aria-hidden="true"
+                                      href="#annotations">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Annotations
+                    </h3>
+                    <p dir="auto">If the dataset contains annotations which are not part of the initial data collection,
+                        describe them in the following paragraphs.</p>
+                    <h4 dir="auto"><a id="user-content-annotation-process" class="anchor" aria-hidden="true"
+                                      href="#annotation-process">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Annotation process
+                    </h4>
+                    <p dir="auto">If applicable, describe the annotation process and any tools used, or state otherwise.
+                        Describe the amount of data annotated, if not all. Describe or reference annotation guidelines
+                        provided to the annotators. If available, provide interannotator statistics. Describe any
+                        annotation validation processes.</p>
+                    <div class="support-meta-data">
+                        <ul>
+                            <li>The alignment, rating, transformation annotation or manual simplification was supported by the TS annotation tool TS-anno.</li>
+                            <li>See inter-annotator statistics on evaluation-site of TS-anno.</li>
+                            <li>Annotation Guideline: ???</li>
+                            <li>Number of Corpora: {{ n_corpora }}</li>
+                            <li>Number of Document Pairs: {{ n_doc_pairs }}</li>
+                            <li>Number of Alignment Pairs: {{ n_alignment_pairs }}</li>
+                            <li>Number of Annotators: {{ n_annotators }}</li>
+                            <li>Number of Ratings: {{ n_ratings }}</li>
+                            <li>Number of Transformations: {{ n_transformations }}</li>
+                            <li>Number of Manual Simplifications: {{ n_simplifications }}</li>
+                        </ul>
+                        The following rating aspects were annotated:
+                        <ul>
+                            {% for aspect, aspect_statement in rating_aspects.items %}
+                                <li>{{ aspect }}: "{{ aspect_statement }}"</li>
+                            {% endfor %}
+                        </ul>
+                        The rating scales are:
+                        <ul>
+                            {% for scale_id, scale_label in scale_ratings %}
+                                <li>{{ scale_id }}: {{ scale_label }}</li>
+                            {% endfor %}
+                        </ul>
+                        The following labels for rewriting transformations are part of the annotation schema:
+                        <ul>
+                            {% for transformation_level, transformation_level_value in transformations.items %}
+                                <li>{{ transformation_level }}</li>
+                                <ul>
+                                {% for transformation, transformation_value in transformation_level_value.items %}
+                                    <li>{{ transformation }}</li>
+{#                                    <ul>#}
+{#                                        {% for sub_trans in transformation_value %}#}
+{#                                            <li>{{ sub_trans }}</li>#}
+{#                                        {% endfor %}#}
+{#                                    </ul>#}
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.annotation_process_description.label_tag }}{{ form.annotation_process_description }}
+                    </div>
+                    <h4 dir="auto"><a id="user-content-who-are-the-annotators" class="anchor" aria-hidden="true"
+                                      href="#who-are-the-annotators">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Who are the annotators?
+                    </h4>
+                    <p dir="auto">If annotations were collected for the source data (such as class labels or syntactic
+                        parses), state whether the annotations were produced by humans or machine generated.</p>
+                    <p dir="auto">Describe the people or systems who originally created the annotations and their
+                        selection criteria if applicable.</p>
+                    <p dir="auto">If available, include self-reported demographic or identity information for the
+                        annotators, but avoid inferring this information. Instead state that this information is
+                        unknown. See <a href="https://www.aclweb.org/anthology/W17-1601.pdf" rel="nofollow">Larson
+                            2017</a> for using identity categories as a variables, particularly gender.</p>
+                    <p dir="auto">Describe the conditions under which the data was annotated (for example, if the
+                        annotators were crowdworkers, state what platform was used, or if the data was found, what
+                        website the data was found on). If compensation was provided, include that information here.</p>
+                    <div class="support-meta-data">
+                        The following annotators are involved in annotation of the data set:
+                        <ul>
+                            {% for annotator in annotators %}
+                                <li>ID: {{ annotator.id }}</li>
+                                <ul>
+                                    <li>Native Language: {{ annotator.native_language }}</li>
+                                    <li>Language Level in DE: {{ annotator.language_level_de }}</li>
+                                    <li>Age: {{ annotator.age }}</li>
+                                    <li>Highest Education: {{ annotator.highest_education_level }}</li>
+                                    <li>Literacy Level: {{ annotator.literacy_level }}</li>
+                                    <li>Training in Linguistics: {{ annotator.training_in_linguistics }}</li>
+                                    <li>Training in Simple Language: {{ annotator.training_in_simple_language }}</li>
+                            </ul>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.annotator_description.label_tag }}{{ form.annotator_description }}
+                    </div>
+                    <h3 dir="auto"><a id="user-content-personal-and-sensitive-information" class="anchor"
+                                      aria-hidden="true" href="#personal-and-sensitive-information">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Personal and Sensitive Information
+                    </h3>
+                    <p dir="auto">State whether the dataset uses identity categories and, if so, how the information is
+                        used. Describe where this information comes from (i.e. self-reporting, collecting from profiles,
+                        inferring, etc.). See <a href="https://www.aclweb.org/anthology/W17-1601.pdf" rel="nofollow">Larson
+                            2017</a> for using identity categories as a variables, particularly gender. State whether
+                        the data is linked to individuals and whether those individuals can be identified in the
+                        dataset, either directly or indirectly (i.e., in combination with other data).</p>
+                    <p dir="auto">State whether the dataset contains other data that might be considered sensitive
+                        (e.g., data that reveals racial or ethnic origins, sexual orientations, religious beliefs,
+                        political opinions or union memberships, or locations; financial or health data; biometric or
+                        genetic data; forms of government identification, such as social security numbers; criminal
+                        history).</p>
+                    <p dir="auto">If efforts were made to anonymize the data, describe the anonymization process.</p>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.sensitive_data_description.label_tag }}{{ form.sensitive_data_description }}
+                    </div>
+                    <h2 dir="auto"><a id="user-content-considerations-for-using-the-data" class="anchor"
+                                      aria-hidden="true" href="#considerations-for-using-the-data">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Considerations for Using the Data
+                    </h2>
+                    <h3 dir="auto"><a id="user-content-social-impact-of-dataset" class="anchor" aria-hidden="true"
+                                      href="#social-impact-of-dataset">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Social Impact of Dataset
+                    </h3>
+                    <p dir="auto">Please discuss some of the ways you believe the use of this dataset will impact
+                        society.</p>
+                    <p dir="auto">The statement should include both positive outlooks, such as outlining how
+                        technologies developed through its use may improve people's lives, and discuss the accompanying
+                        risks. These risks may range from making important decisions more opaque to people who are
+                        affected by the technology, to reinforcing existing harmful biases (whose specifics should be
+                        discussed in the next section), among other considerations.</p>
+                    <p dir="auto">Also describe in this section if the proposed dataset contains a low-resource or
+                        under-represented language. If this is the case or if this task has any impact on underserved
+                        communities, please elaborate here.</p>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.social_impact_description.label_tag }}{{ form.social_impact_description }}
+                    </div>
+                    <h3 dir="auto"><a id="user-content-discussion-of-biases" class="anchor" aria-hidden="true"
+                                      href="#discussion-of-biases">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Discussion of Biases
+                    </h3>
+                    <p dir="auto">Provide descriptions of specific biases that are likely to be reflected in the data,
+                        and state whether any steps were taken to reduce their impact.</p>
+                    <p dir="auto">For Wikipedia text, see for example <a href="https://arxiv.org/abs/2005.00614"
+                                                                         rel="nofollow">Dinan et al 2020 on biases in
+                        Wikipedia (esp. Table 1)</a>, or <a href="https://www.aclweb.org/anthology/2020.acl-main.485/"
+                                                            rel="nofollow">Blodgett et al 2020</a> for a more general
+                        discussion of the topic.</p>
+                    <p dir="auto">If analyses have been run quantifying these biases, please add brief summaries and
+                        links to the studies here.</p>
+                    <div class="support-meta-data">
+                        The rating of simplicity is highly subjective. If only a specific annotator group is asked, the ratings might be biased.
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.bias_description.label_tag }}{{ form.bias_description }}
+                    </div>
+
+                    <h3 dir="auto"><a id="user-content-other-known-limitations" class="anchor" aria-hidden="true"
+                                      href="#other-known-limitations">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Other Known Limitations
+                    </h3>
+                    <p dir="auto">If studies of the datasets have outlined other limitations of the dataset, such as
+                        annotation artifacts, please outline and cite them here.</p>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.limitations_description.label_tag }}{{ form.limitations_description }}
+                    </div>
+                    <h2 dir="auto"><a id="user-content-additional-information" class="anchor" aria-hidden="true"
+                                      href="#additional-information">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Additional Information
+                    </h2>
+                    <h3 dir="auto"><a id="user-content-dataset-curators" class="anchor" aria-hidden="true"
+                                      href="#dataset-curators">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Dataset Curators
+                    </h3>
+                    <p dir="auto">List the people involved in collecting the dataset and their affiliation(s). If
+                        funding information is known, include it here.</p>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.curator_description.label_tag }}{{ form.curator_description }}
+                    </div>
+                    <h3 dir="auto"><a id="user-content-licensing-information" class="anchor" aria-hidden="true"
+                                      href="#licensing-information">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Licensing Information
+                    </h3>
+                    <p dir="auto">Provide the license and link to the license webpage if available.</p>
+                    <div class="support-meta-data">
+                        Your data contains the following licenses:
+                        <ul>
+                            {% for license in licenses %}
+                                <li>{{ license }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.license_description.label_tag }}{{ form.license_description }}
+                    </div>
+                    <h3 dir="auto"><a id="user-content-citation-information" class="anchor" aria-hidden="true"
+                                      href="#citation-information">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Citation Information
+                    </h3>
+                    <p dir="auto">Provide the <a href="http://www.bibtex.org/" rel="nofollow">BibTex</a>-formatted
+                        reference for the dataset. For example:</p>
+                    <div class="snippet-clipboard-content position-relative overflow-auto"><pre><code>@article{article_id,
+                      author    = {Author List},
+                      title     = {Dataset Paper Title},
+                      journal   = {Publication Venue},
+                      year      = {2525}
+                    }
+                        </code></pre>
+                        <div class="zeroclipboard-container position-absolute right-0 top-0">
+                            <clipboard-copy aria-label="Copy"
+                                            class="ClipboardButton btn js-clipboard-copy m-2 p-0 tooltipped-no-delay"
+                                            data-copy-feedback="Copied!" data-tooltip-direction="w" value="@article{article_id,
+              author    = {Author List},
+              title     = {Dataset Paper Title},
+              journal   = {Publication Venue},
+              year      = {2525}
+            }" tabindex="0" role="button">
+                                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16"
+                                     data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon m-2">
+                                    <path fill-rule="evenodd"
+                                          d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                                    <path fill-rule="evenodd"
+                                          d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                                </svg>
+                                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16"
+                                     data-view-component="true"
+                                     class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none m-2">
+                                    <path fill-rule="evenodd"
+                                          d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path>
+                                </svg>
+                            </clipboard-copy>
+                        </div>
+                    </div>
+                    <p dir="auto">If the dataset has a <a href="https://www.doi.org/" rel="nofollow">DOI</a>, please
+                        provide it here.</p>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.citation_description.label_tag }}{{ form.citation_description }}
+                    </div>
+                    <h3 dir="auto"><a id="user-content-contributions" class="anchor" aria-hidden="true"
+                                      href="#contributions">
+                        <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path>
+                        </svg>
+                    </a>Contributions
+                    </h3>
+                    <p dir="auto">Thanks to <a href="https://github.com/%3Cgithub-username%3E">@github-username</a> for
+                        adding this dataset.</p>
+                    <div class="support-meta-data meta-data-field">
+                        {{ form.contribution_description.label_tag }}{{ form.contribution_description }}
+                    </div>
+            </div>
+            <button type="submit" class="save btn btn-default" name="submit">Save</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

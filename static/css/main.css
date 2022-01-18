@@ -178,3 +178,12 @@ table.corpus, th.corpus, td.corpus {
 hr.paragraph-break {
   margin: 10px;
 }
+
+.support-meta-data {
+  background-color: rgba(138, 203, 174, 0.33);
+}
+
+div.meta-data-field {
+    background-color: rgba(138, 203, 174, 0.65);
+}
+
