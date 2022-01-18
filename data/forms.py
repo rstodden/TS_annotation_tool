@@ -19,7 +19,7 @@ class UploadFilesForm(forms.ModelForm):
     class Meta:
         model = data.models.Corpus
         fields = ["name", "home_page", "author", "license", "license_file", "parallel",  "pre_aligned",
-                  "manually_aligned", "pre_split", "to_simplify", "domain", "language"]
+                  "manually_aligned", "pre_split", "to_simplify", "domain", "language", "continuous_text"]
 
         # help_texts = {
         #     'add_par_nr': data.models.popover_html("Do you want to add paragraph and sentence numbers?"),

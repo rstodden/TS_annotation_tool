@@ -20,7 +20,8 @@
       "language_level_complex": "c2",
       "annotator": ["test"],
       "output_dir": "data_collection/",
-      "save_raw_content": true
+      "save_raw_content": true,
+      "continuous_text": true
     },
     "inclusion-europe-etr-de": {
       "home_page":  "https://www.inclusion-europe.eu",
@@ -42,7 +43,8 @@
       "language_level_complex": "c2",
       "annotator": ["test"],
       "output_dir": "data_collection/",
-      "save_raw_content": true
+      "save_raw_content": true,
+      "continuous_text": true
     },
     "inclusion-europe-etr-es": {
       "home_page":  "https://www.inclusion-europe.eu",
@@ -64,7 +66,8 @@
       "language_level_complex": "c2",
       "annotator": ["test"],
       "output_dir": "data_collection/",
-      "save_raw_content": true
+      "save_raw_content": true,
+      "continuous_text": true
     }
   }
 }

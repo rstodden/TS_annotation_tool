@@ -19,7 +19,8 @@
       "language_level_complex": "c2",
       "annotator": ["test"],
       "output_dir": "data_collection/",
-      "save_raw_content": true
+      "save_raw_content": true,
+      "continuous_text": true
     }
   }
 }

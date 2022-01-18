@@ -19,7 +19,8 @@
       "annotator": ["test", "maya", "regina"],
       "output_dir": "data_collection/",
       "save_raw_content": true,
-      "professionally_simplified": false
+      "professionally_simplified": false,
+      "continuous_text": true
     }
   }
 }

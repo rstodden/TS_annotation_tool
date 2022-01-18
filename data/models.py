@@ -45,6 +45,7 @@ class Corpus(models.Model):
 	manually_aligned = 	models.BooleanField(default=False, blank=True, help_text=popover_html("If the texta are already aligned, were they manually or automatically aligned?"))
 	to_simplify = models.BooleanField(default=False, null=True, help_text=popover_html("If no simplified version of a text exists so far you can upload the complex version with this option and simplify the texts yourself."))
 	professionally_simplified = models.BooleanField(default=False, null=True, help_text=popover_html("Were the texts professionally simplified? For example, by an translation agency or a person trained in simple languages?"))
+	continuous_text = models.BooleanField(default=True, null=True, help_text=popover_html("Are the documents continuous or in a random order?"))
 
 	def add_documents_by_upload(self, files, form_upload_data):
 		print(form_upload_data)

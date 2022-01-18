@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-md-12 subpage_content">
             <form method="POST">{% csrf_token %}
-                <h3>Export</h3>
+                <h3>Export Sentence Level</h3>
                 <p>
                     <button><a href="{% url 'evaluation:export_ratings' %}">Export Ratings</a></button><br>
                     <button><a href="{% url 'evaluation:export_transformations' %}">Export Transformations</a></button><br>
@@ -18,6 +18,11 @@
                     <button><a href="{% url 'evaluation:export_meta_data' %}">Export Meta Data</a></button><br>
                     <button><a href="{% url 'evaluation:export_user_data' %}">Export User Data</a></button><br>
                     <button><a href="{% url 'evaluation:export_data_sheet' %}">Export Data Sheet</a></button><br>
+                </p>
+                <h3>Export Document Level</h3>
+                <p>
+                    <button><a href="{% url 'evaluation:full_document_export' %}">Export Full Documents</a></button><br>
+                    <button><a href="{% url 'evaluation:full_aligned_document_export' %}">Export Full Aligned Documents</a></button><br>
                 </p>
 
                 {#                <button value="repair_sentence" name="repair_sentence">repair sentence</button>#}

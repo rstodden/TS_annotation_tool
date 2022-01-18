@@ -9,6 +9,8 @@ urlpatterns = [
     path('export_iaa_alignment', views.export_iaa_alignment, name="export_iaa_alignment"),
     path('export_iaa_transformation', views.export_iaa_transformation, name="export_iaa_transformation"),
     path('export_iaa_rating', views.export_iaa_rating, name="export_iaa_rating"),
+    path('export_full_document', views.full_document_export, name="full_document_export"),
+    path('export_full_aligned_document', views.full_aligned_document_export, name="full_aligned_document_export"),
 
     path('export_data_sheet', views.export_data_sheet, name="export_data_sheet"),
     path('export_user_data', views.export_user_data, name="export_user_data"),
