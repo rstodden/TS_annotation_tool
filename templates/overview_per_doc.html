@@ -12,6 +12,9 @@
     <div class="row subpage-content">
         <div class="col-md-12">
             <h2>Document: {{ doc_title }}</h2>
+            <p>
+                <button><a href="{% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}">Continue Alignment</a></button><br>
+            </p>
             <table class="doc">
                 <thead>
                 <tr>
