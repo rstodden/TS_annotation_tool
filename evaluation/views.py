@@ -166,11 +166,9 @@ def meta_data(request):
 	else:
 		if evaluation.models.MetaData.objects.exists():
 			current_meta_data = evaluation.models.MetaData.objects.all()[0]
-			print(current_meta_data)
 			form = MetaDataForm(instance=current_meta_data)
 		else:
 			form = MetaDataForm()
-		print(form)
 		languages = data.models.Corpus.objects.values_list("language", flat=True).distinct()
 		domains = data.models.Corpus.objects.values_list("domain", flat=True).distinct()
 		corpora = data.models.Corpus.objects.values_list("name", flat=True).distinct()
@@ -230,6 +228,7 @@ def export_alignment_for_crf(request):
 @user_passes_test(lambda u: u.is_superuser)
 def export_iaa_alignment(request):
 	alignment_frame = get_alignment_for_crf(real_user=True, iaa=True)
+	# alignment_frame = pd.read_csv("data_collection/alignments_for_crf(10).csv", header=0, index_col=0)
 	df_2_annotators, df_more_annotators = filter_df_by_annotator_number(alignment_frame)
 	agreement_dict = get_iaa_alignment_dict(alignment_frame, df_2_annotators, df_more_annotators)
 	return render(request, 'evaluation/iaa_alignment.html', {"iaa_dict": agreement_dict,
@@ -441,7 +440,7 @@ def export_not_aligned(rater_id=None, identical=True, deletions=True, additions=
 
 
 def get_original_sent(sent, output):
-	if len(sent.original_content_repaired) >= 1:
+	if sent.original_content_repaired and len(sent.original_content_repaired) >= 1:
 		output.append(sent.original_content_repaired)
 	else:
 		output.append(sent.original_content)
@@ -668,7 +667,7 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 		for user_nr, user in enumerate(docpair.annotator.all()):
 			if len(docpair.sentence_alignment_pair.filter(annotator=user)) == 0:
 				continue
-			if real_user and user.username == "test":
+			if real_user and user.username in ["test" or "tool"]:
 					continue
 			complex_doc = docpair.complex_document
 			simple_doc = docpair.simple_document
@@ -677,14 +676,14 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 			for par_nr_simple in sorted(list(set(simple_doc.sentences.all().values_list("paragraph_nr", flat=True)))):
 				for sent_simple in simple_doc.sentences.filter(paragraph_nr=par_nr_simple).order_by("id"):
 					simple_sent_id = str(docpair.id) + "-0-" + str(sent_simple.paragraph_nr) + "-" + str(sent_simple.sentence_nr)
-					if len(sent_simple.original_content_repaired) >= 1:
+					if sent_simple.original_content_repaired and len(sent_simple.original_content_repaired) >= 1:
 						sent_simple_content = sent_simple.original_content_repaired
 					else:
 						sent_simple_content = sent_simple.original_content
 					for par_nr_complex in sorted(list(set(complex_doc.sentences.all().values_list("paragraph_nr", flat=True)))):
 						for sent_complex in complex_doc.sentences.filter(paragraph_nr=par_nr_complex).order_by("id"):
 							complex_sent_id = str(docpair.id) + "-1-" + str(sent_complex.paragraph_nr) + "-" + str(sent_complex.sentence_nr)
-							if len(sent_complex.original_content_repaired) >= 1:
+							if sent_complex.original_content_repaired and len(sent_complex.original_content_repaired) >= 1:
 								sent_complex_content = sent_complex.original_content_repaired
 							else:
 								sent_complex_content = sent_complex.original_content

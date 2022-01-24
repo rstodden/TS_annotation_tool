@@ -16,7 +16,7 @@
       "add_par_nr": true,
       "language_level_simple": "a1",
       "language_level_complex": "b2",
-      "annotator": ["test", "maya", "regina"],
+      "annotator": ["test"],
       "output_dir": "data_collection/",
       "save_raw_content": true,
       "professionally_simplified": false,
