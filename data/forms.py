@@ -44,7 +44,6 @@ class UploadFilesForm(forms.ModelForm):
     # languages = forms.ChoiceField(choices=TS_annotation_tool.utils.LANGUAGE_CHOICES)
     # license = forms.ChoiceField(choices=data.models.list_licenses)
     # domain = forms.CharField(max_length=50)
-    # add_par_nr = forms.BooleanField(help_text=data.models.popover_html("Do you want to add paragraph and sentence numbers?"), required=False)
     language_level_simple = forms.ChoiceField(required=False, choices=TS_annotation_tool.utils.language_level_list, help_text=data.models.popover_html('On which language level (following CEFR) ist the simple text? E.g., A1 for easy-to-read language, A2 or B1 for plain language.)'))
     language_level_complex = forms.ChoiceField(choices=TS_annotation_tool.utils.language_level_list, help_text=data.models.popover_html('On which language level (following CEFR) ist the complex text? E.g., C" for everyday language.'))
     professionally_simplified = forms.BooleanField(required=False)

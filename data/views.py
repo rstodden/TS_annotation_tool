@@ -32,12 +32,6 @@ def insert_data_by_plain_text(request):
 			# print(files, [dict(file) for file in files], form_upload.cleaned_data["annotator"])
 			if data.models.Corpus.objects.filter(name=form_upload.cleaned_data["name"], home_page=form_upload.cleaned_data["home_page"]):
 				corpus_tmp = data.models.Corpus.objects.get(name=form_upload.cleaned_data["name"], home_page=form_upload.cleaned_data["home_page"])
-				print("corpus found")
-				# if form_upload.cleaned_data["add_par_nr"]:
-				# 	print("add par_nr")
-				# 	corpus_tmp.add_number_paragraphs(files, form_upload.cleaned_data)
-				# 	# todo remove later
-				# else:
 				corpus_tmp.add_documents_by_upload(files, form_upload.cleaned_data)
 			else:
 				corpus_tmp = form_upload.save()
