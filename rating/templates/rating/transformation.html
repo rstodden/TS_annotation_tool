@@ -119,6 +119,36 @@
                                 </div>
                             </div>
                         {% endfor %}
+                        {% if type == "add" or type == "edit" %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>
+                                        If you choose "insert" at word or phrase level, please choose also the token after which the new token(s) is/are added.
+                                    </p>
+                                    <label for="insert_at_beginning">Insert at Sentence Beginning:</label>
+                                    {{ form.insert_at_beginning }}
+{#                                    {% if transformation_start_at_beginning %}#}
+{#                                        <input type="checkbox" name="insert_at_beginning" id="insert_at_beginning"  value="insert_at_beginning" checked>#}
+{#                                    {% else %}#}
+{#                                        <input type="checkbox" name="insert_at_beginning" id="insert_at_beginning" value="insert_at_beginning">#}
+{#                                    {% endif %}#}
+                                    <br>
+                                    <label for="insert_slot_start">Choose a Insert Point:</label>
+                                        <select id="insert_slot_start" name="insert_slot_start">
+                                            <option value="">----</option>
+                                            {% for sentence in complex_elements %}
+                                                {% for token in sentence.tokens.all|sort_by:'id' %}
+                                                    {% if transformation_slot_start == token %}
+                                                        <option value="{{ token.id }}" selected>{{ token.text }}</option>
+                                                    {% else %}
+                                                        <option value="{{ token.id }}">{{ token.text }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </select>
+                                </div>
+                            </div>
+                        {% endif %}
                         <div class="row">
                             <div class="col-md-12">
                                 <hr style="width:100%;text-align:left;margin-left:0">
