@@ -1,5 +1,5 @@
 import pandas as pd
-
+import json
 import evaluation.models
 import rating.models
 import data.models
@@ -21,7 +21,8 @@ from sklearn.metrics import cohen_kappa_score
 from statsmodels.stats.inter_rater import fleiss_kappa
 from .forms import ExportAlignmentForm, MetaDataForm
 from django.template.loader import render_to_string
-
+from django.db.models import Count
+from django.http import JsonResponse
 
 def export_rating():  #output_path
 	# using same export format as proposed in Alva-Manchego etal. (2020) https://www.aclweb.org/anthology/2020.acl-main.424.pdf
@@ -116,25 +117,32 @@ def get_transformation_no_change(simple_sentences, complex_sentences, doc_id):
 
 def export_transformation():
 	result_frame = pd.DataFrame(
-		columns=["original", "simplification", "original_id", "simplification_id", "transformation_level", "transformation",
-				 "subtransformation", "old text", "new_text", "rater"])
+		columns=["original", "simplification", "original_id", "simplification_id", "pair_id", "transformation_level", "transformation",
+				 "subtransformation", "old text", "new_text", "rater", "language_level_original", "language_level_simple",
+				 "domain", "author", "license", "website", "access_date", "alignment_type"])
 	i = 0
-	for pair in alignment.models.Pair.objects.all():
+	for pair in alignment.models.Pair.objects.filter(~Q(document_pair__corpus_id=10)):
+		original, original_sentence_id, simplification, simplification_sentence_id, alignment_type = get_original_data(pair)
 		for pair_transformations in pair.transformation_of_pair.all():
-			original, original_sentence_id, simplification, simplification_sentence_id, alignment_type = get_original_data(pair)
+			if pair_transformations.transformation == "no_operation" and pair_transformations.transformation_level == "sentence":
+				continue
 			worker_id = pair_transformations.rater.id
 			old_text = ' '.join(pair_transformations.complex_token.values_list("text", flat=True))
 			new_text = ' '.join(pair_transformations.simple_token.values_list("text", flat=True))
-			result_frame.loc[i] = [original, simplification, original_sentence_id, simplification_sentence_id,
+			result_frame.loc[i] = [original, simplification, original_sentence_id, simplification_sentence_id, pair.document_pair.id,
 								   pair_transformations.transformation_level,
 								   pair_transformations.transformation,
 								   pair_transformations.sub_transformation,
-								   old_text, new_text, worker_id]
+								   old_text, new_text, worker_id, pair.document_pair.complex_document.level,
+								   pair.document_pair.simple_document.level, pair.document_pair.corpus.domain,
+								   pair.document_pair.corpus.author, pair.document_pair.corpus.license,
+								   pair.document_pair.simple_document.url, pair.document_pair.simple_document.access_date,
+								   alignment_type]
 			i += 1
 		i += 1
-	for no_change_pair in get_automatic_transformations():
-		result_frame.loc[i] = no_change_pair
-		i += 1
+	# for no_change_pair in get_automatic_transformations():
+	# 	result_frame.loc[i] = no_change_pair
+	# 	i += 1
 	return result_frame
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -381,7 +389,7 @@ def get_table_values(sent_id, alignment_type, doc_id, domain, complex_level, sim
 		text = get_original_sent(sent, list())[0]
 		text_id = str(doc_id) + "-1-" + str(sent.paragraph_nr) + "-" + str(sent.sentence_nr)
 		text_id_simple = str(doc_id) + "-0-" + "x" + "-" + "x"
-		value_list = [text, "", text_id, "", "", domain, complex_level, simple_level, license, author, url, access_date, str(rater)+"_auto", "1:0 ("+alignment_type+")"]
+		value_list = [text, "", text_id, text_id_simple, "", domain, complex_level, simple_level, license, author, url, access_date, str(rater)+"_auto", "1:0 ("+alignment_type+")"]
 		return value_list
 	elif alignment_type == "addition" and len(sent.tokens.all()) > 2:
 		text = get_original_sent(sent, list())[0]
@@ -426,7 +434,7 @@ def export_not_aligned(rater_id=None, identical=True, deletions=True, additions=
 						output_df.loc[i] = values
 						i += 1
 			if additions and (len(simple_doc.sentences.all())-len(identical_simple_sentences)) > 0 and len(not_annotated_simple)/(len(simple_doc.sentences.all())-len(identical_simple_sentences)) <= 0.25:
-				for sent_id in identical_complex_sentences:
+				for sent_id in identical_simple_sentences:
 					values = get_table_values(sent_id, "addition", doc.id, domain, complex_level, simple_level, license, author, url, access_date, None, rater.id)
 					if values:
 						output_df.loc[i] = values
@@ -660,8 +668,14 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 	result_frame = pd.DataFrame(columns=columns)
 	i = 0
 	print(data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True).distinct().order_by("id"))
-	for docpair in data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True).distinct().order_by("id"):  # .values_list("id", flat=True):  # .filter(~Q(corpus_id__in=[20, 21, 10])).order_by("id"):  # (~Q(complex_document__url__contains="bibel")).order_by("id"):  # filter(complex_document__url__contains="alumni"):  # filter(~Q(complex_document__url__contains="bibel")):
+	for docpair in data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True, corpus__continuous_text=True,id__gt=584).distinct().order_by("id"):  # .values_list("id", flat=True):  # .filter(~Q(corpus_id__in=[20, 21, 10])).order_by("id"):  # (~Q(complex_document__url__contains="bibel")).order_by("id"):  # filter(complex_document__url__contains="alumni"):  # filter(~Q(complex_document__url__contains="bibel")):
 		annotator_set = set(docpair.sentence_alignment_pair.all().values_list("annotator__id", flat=True))
+		complex_doc = docpair.complex_document
+		simple_doc = docpair.simple_document
+		domain = docpair.corpus.domain
+		title = docpair.simple_document.title
+		par_nrs_complex = sorted(list(set(complex_doc.sentences.all().values_list("paragraph_nr", flat=True))))
+		par_nrs_simple = sorted(list(set(simple_doc.sentences.all().values_list("paragraph_nr", flat=True))))
 		if iaa and len(annotator_set) < 2:
 			continue
 		for user_nr, user in enumerate(docpair.annotator.all()):
@@ -669,19 +683,30 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 				continue
 			if real_user and user.username in ["test" or "tool"]:
 					continue
-			complex_doc = docpair.complex_document
-			simple_doc = docpair.simple_document
-			domain = docpair.corpus.domain
-			title = docpair.simple_document.title
-			for par_nr_simple in sorted(list(set(simple_doc.sentences.all().values_list("paragraph_nr", flat=True)))):
-				for sent_simple in simple_doc.sentences.filter(paragraph_nr=par_nr_simple).order_by("id"):
+			for par_nr_simple in par_nrs_simple:
+				for sent_simple in simple_doc.sentences.filter(paragraph_nr=par_nr_simple).order_by("sentence_nr", "id"):
+					simple_sents_of_user = sent_simple.simple_element.filter(annotator=user)
+					if simple_sents_of_user:
+						aligned_simple_sents = sent_simple.simple_element.get(annotator=user).simple_elements.all()
+						aligned_complex_sents_of_simple = sent_simple.simple_element.get(annotator=user).complex_elements.all()
+					else:
+						aligned_simple_sents = []
+						aligned_complex_sents_of_simple = []
 					simple_sent_id = str(docpair.id) + "-0-" + str(sent_simple.paragraph_nr) + "-" + str(sent_simple.sentence_nr)
 					if sent_simple.original_content_repaired and len(sent_simple.original_content_repaired) >= 1:
 						sent_simple_content = sent_simple.original_content_repaired
 					else:
 						sent_simple_content = sent_simple.original_content
-					for par_nr_complex in sorted(list(set(complex_doc.sentences.all().values_list("paragraph_nr", flat=True)))):
-						for sent_complex in complex_doc.sentences.filter(paragraph_nr=par_nr_complex).order_by("id"):
+					for par_nr_complex in par_nrs_complex:
+						for sent_complex in complex_doc.sentences.filter(paragraph_nr=par_nr_complex).order_by("sentence_nr", "id"):
+							# todo: skip if sentece-nr = -1 or NULL?
+							complex_sents_of_user = sent_complex.complex_element.filter(annotator=user)
+							if complex_sents_of_user:
+								aligned_complex_sents = sent_complex.complex_element.get(annotator=user).complex_elements.all()
+								aligned_simple_sents_of_complex = sent_complex.complex_element.get(annotator=user).simple_elements.all()
+							else:
+								aligned_complex_sents = []
+								aligned_simple_sents_of_complex = []
 							complex_sent_id = str(docpair.id) + "-1-" + str(sent_complex.paragraph_nr) + "-" + str(sent_complex.sentence_nr)
 							if sent_complex.original_content_repaired and len(sent_complex.original_content_repaired) >= 1:
 								sent_complex_content = sent_complex.original_content_repaired
@@ -700,7 +725,7 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 														   sent_simple_content, sent_complex_content, 0,
 														   domain, -1, title]
 									i += 1
-							elif len(sent_complex.complex_element.filter(annotator=user)) == 0 or len(sent_simple.simple_element.filter(annotator=user)) == 0:
+							elif len(complex_sents_of_user) == 0 or len(simple_sents_of_user) == 0:
 								if iaa_rating:
 									result_frame.loc[i] = ["notAligned", docpair.id, simple_sent_id, complex_sent_id,
 													   sent_simple_content, sent_complex_content, 0,
@@ -710,7 +735,7 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 													   sent_simple_content, sent_complex_content, 0,
 													   domain, user.id, title]
 								i += 1
-							elif len(sent_simple.simple_element.get(annotator=user).simple_elements.all()) == 1 and len(sent_complex.complex_element.get(annotator=user).complex_elements.all()) == 1 and sent_complex.complex_element.get(annotator=user).id == sent_simple.simple_element.get(annotator=user).id:
+							elif len(aligned_simple_sents) == 1 and len(aligned_complex_sents) == 1 and sent_complex.complex_element.get(annotator=user).id == sent_simple.simple_element.get(annotator=user).id:
 								if iaa_rating:
 									# todo add rating here, but keep track on the ratings checked in utils
 									result_frame.loc[i] = ["aligned", docpair.id, simple_sent_id, complex_sent_id,
@@ -721,7 +746,7 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 													   sent_simple_content, sent_complex_content, 0,
 													   domain, user.id, title]
 								i += 1
-							elif (len(sent_simple.simple_element.get(annotator=user).simple_elements.all()) > 1  and sent_complex in sent_simple.simple_element.get(annotator=user).complex_elements.all()) or (len(sent_complex.complex_element.get(annotator=user).complex_elements.all()) > 1 and sent_simple in sent_complex.complex_element.get(annotator=user).simple_elements.all()):
+							elif (len(aligned_simple_sents) > 1 and sent_complex in aligned_complex_sents_of_simple) or (len(aligned_complex_sents) > 1 and sent_simple in aligned_simple_sents_of_complex):
 								if iaa_rating:
 									# todo check if only this one annotated and not also fully aligned
 									result_frame.loc[i] = ["partialAligned", docpair.id, simple_sent_id,
@@ -752,7 +777,7 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 													   domain, user.id, title]
 								i += 1
 		print(docpair)
-		# result_frame.to_csv("media/result_frame_maya.csv")
+		result_frame.to_csv("media/result_frame_.csv")
 	return result_frame
 
 
@@ -926,7 +951,7 @@ def full_aligned_document_export(request):
 				complex_elements = doc_pair.sentence_alignment_pair.filter(annotator=rater).values_list("complex_elements", flat=True)
 				simple_elements_added = list()
 				complex_elements_added = list()
-				for complex_sent in complex_doc.sentences.all():
+				for complex_sent in complex_doc.sentences.all().order_by("sentence_nr", "id"):
 					original = complex_sent.original_content
 					complex_sent_id = str(doc_pair.id) + "-1-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
 					if complex_sent.original_content in simple_doc.sentences.values_list("original_content",flat=True):
@@ -946,7 +971,7 @@ def full_aligned_document_export(request):
 						simple_sent_id, simplification = str(doc_pair.id) + "-0-x-x", ""
 					output_df.loc[len(output_df)] = [original, simplification, complex_sent_id, simple_sent_id, pair_id, domain, complex_level,
 													 simple_level, license, author, website, access_date, rater, alignment_type]
-				for simple_sent in simple_doc.sentences.all():
+				for simple_sent in simple_doc.sentences.all().order_by("sentence_nr", "id"):
 					# simple_sent = data.models.Sentence.objects.get(id=simple_sent)
 					if simple_sent not in simple_elements_added:
 						alignment_type = "addition"
@@ -968,3 +993,108 @@ def full_aligned_document_export(request):
 # 	show inter annotator agreement
 # 	"""
 # 	return render(request, 'evaluation/iaa.html')
+
+
+def get_trans(token, iob):
+	tag_dict = {"deletion": "DELETE", "lexical_substitution": "REPLACE", "insert": "ADD", "rephrase": "REPHRASE",
+				"verbal_changes": "REPLACE", "reorder": "MOVE"}
+	if iob == "O":
+		return ""
+	elif token.transformation in tag_dict.keys():
+		return "-"+tag_dict[token.transformation]
+	else:
+		return "-OTHER"
+
+
+def export_transformations_as_iob(request):
+	output_list = list()
+	for rater in alignment.models.Pair.objects.values_list("annotator__id", flat=True).distinct():
+
+		transformation_dict = dict()
+		transformation_dict_list = list()
+		i = 0
+		pairs_with_trans = alignment.models.Pair.objects.filter(document_pair__corpus_id__gt=10, transformation_of_pair__isnull=False, annotator=rater).distinct().order_by("document_pair_id")
+		for pair in pairs_with_trans:
+			if len(pair.complex_elements.all()) > 1 or len(pair.simple_elements.all()) > 1:
+				i += 1
+				# not 1:1
+				continue
+			elif pair.transformation_of_pair.filter(rater=rater, transformation_level__in=["sentence", "paragraph"]):
+				# skip sent level operations
+				i += 1
+				continue
+			# elif pair.transformation_of_pair.filter(rater=rater).values_list("complex_token").annotate(Count("id")).filter(id__count__gt=1):
+			# 	# skip multiple annotations
+			# 	i += 1
+			# 	continue
+			complex_token_list = pair.complex_elements.first().tokens.all().order_by("id")
+			tokens, tags = [], []
+			simple_sent_id = str(pair.document_pair.id) + "-0-" + str(pair.simple_elements.first().paragraph_nr) + "-" + str(pair.simple_elements.first().sentence_nr)
+			complex_sent_id = str(pair.document_pair.id) + "-1-" + str(pair.complex_elements.first().paragraph_nr) + "-" + str(pair.complex_elements.first().sentence_nr)
+			if pair.transformation_of_pair.filter(rater=rater, transformation="insert", insert_at_beginning=True):
+				for index, simple_token in enumerate(pair.transformation_of_pair.filter(rater=rater, transformation="insert", insert_at_beginning=True).values_list("simple_token", flat=True)):
+					tokens.append(data.models.Token.objects.get(id=simple_token).text)
+					if index == 0:
+						tags.append("B-ADD")
+					else:
+						tags.append("I-ADD")
+			for j, token in enumerate(complex_token_list):
+				complex_token_rater = token.complex_token.filter(rater=rater)
+				if len(complex_token_rater) >= 2 or len(token.simple_token.filter(rater=rater)) >= 2:
+					# label = "multi-label"
+					print("multi-label")
+					label = "O"
+					tokens.append(token.text)
+					tags.append(label)
+					continue
+				elif len(complex_token_rater) > 0 and complex_token_rater.first().transformation_level in ["sentence", "paragraph"]:  # and complex_token_rater.first().transformation == "no_operation":
+					# "skip sentence level"
+					label = "O"
+					print("sent level")
+					tokens.append(token.text)
+					tags.append(label)
+					continue
+
+				if j > 0 and len(complex_token_rater) > 0 and len(complex_token_list[j - 1].complex_token.filter(rater=rater)) > 0 and complex_token_list[j - 1].complex_token.filter(rater=rater).first() == complex_token_rater.first():
+					label = "I"
+				elif len(complex_token_rater) > 0:
+					label = "B"
+				else:
+					label = "O"
+					# tokens.append(token.text)
+					# tags.append("B-COPY")
+					# continue
+				tokens.append(token.text)
+				tags.append(label+get_trans(complex_token_rater.first(), label))
+
+				if pair.transformation_of_pair.filter(rater=rater, insert_slot_start=token.id):
+					for transformation in pair.transformation_of_pair.filter(rater=rater, insert_slot_start=token.id):
+						for index, simple_token in enumerate(transformation.simple_token.all().order_by("id")):
+							tokens.append(simple_token.text)
+							if index == 0:
+								tags.append("B-ADD")
+							else:
+								tags.append("I-ADD")
+
+			transformation_dict[complex_sent_id+"x"+simple_sent_id] = {"id": i,
+											 "pair_id": pair.id,
+											 "rater": rater,
+											 "tokens": tokens,
+											 "labels": tags,
+											 }
+			transformation_dict_list.append({"id": i,
+											 "pair_id": pair.id,
+											 "rater": rater,
+											 "tokens": tokens,
+											 "labels": tags,
+											 "complex_simple_pair_id": complex_sent_id+"x"+simple_sent_id
+											 })
+			i += 1
+			print(i, len(pairs_with_trans))
+		with open("media/bio_trans_rater_"+str(rater)+".json", "w", encoding="utf-8") as f:
+			data_dump = json.dump({"train": transformation_dict}, f, indent=4, sort_keys=False, ensure_ascii=False)
+		output_list.append("media/bio_trans_rater_"+str(rater)+".json")
+		with open("media/bio_trans_rater_"+str(rater)+"_list.json", "w", encoding="utf-8") as f:
+			data_dump = json.dump({"train": transformation_dict_list}, f, indent=4, sort_keys=False, ensure_ascii=False)
+		output_list.append("media/bio_trans_rater_"+str(rater)+"_list.json")
+	return generate_zip_file(output_list)

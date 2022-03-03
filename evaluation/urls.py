@@ -13,6 +13,7 @@ urlpatterns = [
     path('export_full_aligned_document', views.full_aligned_document_export, name="full_aligned_document_export"),
     path('meta_data', views.meta_data, name="meta_data"),
     path('meta_data_export', views.meta_data_export, name="meta_data_export"),
+    path('export_transformations_as_iob', views.export_transformations_as_iob, name="export_transformations_as_iob"),
 
     path('export_data_sheet', views.export_data_sheet, name="export_data_sheet"),
     path('export_user_data', views.export_user_data, name="export_user_data"),
