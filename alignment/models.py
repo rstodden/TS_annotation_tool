@@ -88,6 +88,12 @@ class Pair(models.Model):
 		# if transformation_tmp.sub_transformation == "other" and len(own_subtransformation) >= 1:
 		# 	transformation_tmp.own_subtransformation = own_subtransformation[0]
 		transformation_tmp.save()
+		if (form.cleaned_data["insert_at_beginning"] and form.cleaned_data["insert_slot_start"]) or (form.cleaned_data["insert_at_beginning"]):
+			self.insert_at_beginning = form.cleaned_data["insert_at_beginning"]
+			self.insert_slot_start = None
+		else:
+			self.insert_slot_start = form.cleaned_data["insert_slot_start"]
+			self.insert_at_beginning = None
 		for token in form.cleaned_data["complex_token"]:
 			transformation_tmp.complex_token.add(token)
 		for token in form.cleaned_data["simple_token"]:
