@@ -35,7 +35,7 @@ def insert_data_by_plain_text(request):
 				print("corpus found")
 				# if form_upload.cleaned_data["add_par_nr"]:
 				# 	print("add par_nr")
-				# 	corpus_tmp.add_number_paragraphs(files, form_upload)
+				# 	corpus_tmp.add_number_paragraphs(files, form_upload.cleaned_data)
 				# 	# todo remove later
 				# else:
 				corpus_tmp.add_documents_by_upload(files, form_upload.cleaned_data)

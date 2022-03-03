@@ -63,10 +63,10 @@ class Corpus(models.Model):
 																					  form_upload_data["domain"], nlp,
 																					  pre_aligned=form_upload_data["pre_aligned"],
 																					  selected_license=form_upload_data["license"],
-																					  pre_split=form_upload_data["pre_split"],
-																					  add_par_nr=form_upload_data["add_par_nr"])
-				if form_upload_data["add_par_nr"]:
-					print("paragraphs added")
+																					  pre_split=form_upload_data["pre_split"])
+																					  # add_par_nr=form_upload_data["add_par_nr"])
+				# if form_upload_data["add_par_nr"]:
+				# 	print("paragraphs added")
 				document_pair_tmp = DocumentPair(corpus=self)
 				document_pair_tmp.complex_document = complex_document
 				document_pair_tmp.save()
@@ -85,8 +85,8 @@ class Corpus(models.Model):
 																					domain=form_upload_data["domain"], nlp=nlp,
 																					pre_aligned=form_upload_data["pre_aligned"],
 																					selected_license=form_upload_data["license"],
-																					pre_split=form_upload_data["pre_split"],
-																					add_par_nr=form_upload_data["add_par_nr"])
+																					pre_split=form_upload_data["pre_split"])
+																					# add_par_nr=form_upload_data["add_par_nr"])
 				complex_file_obj = [file for file in files if "complex" in file.name and "_" + file_id + "." in file.name]
 				if complex_file_obj:
 					complex_document = Document()
@@ -96,8 +96,8 @@ class Corpus(models.Model):
 																						  nlp,
 																						  pre_aligned=form_upload_data["pre_aligned"],
 																						  selected_license=form_upload_data["license"],
-																						  pre_split=form_upload_data["pre_split"],
-																						  add_par_nr=form_upload_data["add_par_nr"])
+																						  pre_split=form_upload_data["pre_split"])
+																						  # add_par_nr=form_upload_data["add_par_nr"])
 					document_pair_tmp = DocumentPair(corpus=self)
 					document_pair_tmp.complex_document = complex_document
 					document_pair_tmp.simple_document = simple_document
@@ -131,7 +131,6 @@ class Corpus(models.Model):
 	# 		copyright_line = copyright_line.split(" ")
 	# 		url = copyright_line[3]
 	# 		language_level = form_upload_data["language_level_simple"]
-	# 		# todo filter only on documents of corpus
 	# 		if Document.objects.filter(title=title, url=url, level=language_level, simple_document__corpus=self):
 	# 			# simple_document = Document.objects.get(title=title, url=url, level=language_level)
 	# 			simple_document = Document.objects.get(title=title, url=url, level=language_level, simple_document__corpus=self)
@@ -234,80 +233,80 @@ class Document(models.Model):
 				sent_tmp.tokenize(sent)
 		return sentence_ids
 
-	def repair_tokenization(self):
-		for sentence in self.sentences.all():
-			new_sentence = ""
-			for token in sentence.tokens.all():
-				if token.text == "," and len(sentence.tokens.filter(id=token.id - 1)) > 0 and sentence.tokens.get(id=token.id - 1).text == "-" and new_sentence.endswith(" "):
-					new_sentence += token.text + " "
-				elif token.text == "-" and len(sentence.tokens.filter(id=token.id - 1)) > 0 and sentence.tokens.get(id=token.id - 1).text in ["New", "Landungs", "Saville", "Barmherzigkeits", "Conto", "Lincoln's", "Gray's", "Advocaten", "Steamer", "Bab-el", "Saville", "Schnurr", "Käfer", "Bilder", "Pelz", "Fenster"] and sentence.tokens.get(id=token.id + 1).text in ["Point", "Mandeb", "Row", "und", "Colleg", "Inn", "Conto", "Corrents", "Row", "Einschiffungshäfen", "York", "Bauch", "Rahmen", "Blech", "Hut"]:
-					new_sentence += token.text
-				elif token.text in ["!", ".", ",", ";", ":", "?", ")", '"', "'", "«", "?«", "?“"] and new_sentence.endswith(" "):
-					new_sentence = new_sentence[:-1]+token.text+" "
-				elif token.text == '“' and new_sentence.endswith(". "):
-					new_sentence = new_sentence[:-1]+token.text + " "
-				elif token.text in ['“',  "-"] and new_sentence.endswith(" "):
-					new_sentence += token.text+" "
-				elif token.text in ["„", "(", "»", "›"]:
-					new_sentence += token.text
-				elif token.text == "zu" and sentence.tokens.get(id=token.id+1).text == "dem":
-					new_sentence += "zum "
-				elif token.text == "in" and sentence.tokens.get(id=token.id+1).text == "das":
-					new_sentence += "ins "
-				elif token.text == "zu" and sentence.tokens.get(id=token.id+1).text == "der":
-					new_sentence += "zur "
-				elif token.text == "in" and sentence.tokens.get(id=token.id+1).text == "dem":
-					new_sentence += "im "
-				elif token.text == "In" and sentence.tokens.get(id=token.id+1).text == "dem":
-					new_sentence += "Im "
-				elif token.text == "an" and sentence.tokens.get(id=token.id+1).text == "dem":
-					new_sentence += "am "
-				elif token.text == "An" and sentence.tokens.get(id=token.id + 1).text == "dem":
-					new_sentence += "Am "
-				elif token.text == "an" and sentence.tokens.get(id=token.id+1).text == "das":
-					new_sentence += "ans "
-				elif token.text == "bei" and sentence.tokens.get(id=token.id+1).text == "dem":
-					new_sentence += "beim "
-				elif token.text == "von" and sentence.tokens.get(id=token.id+1).text == "dem":
-					new_sentence += "vom "
-				elif token.text == "Von" and sentence.tokens.get(id=token.id+1).text == "dem":
-					new_sentence += "Vom "
-				elif token.text == "über" and sentence.tokens.get(id=token.id+1).text == "das":
-					new_sentence += "übers "
-				elif not sentence.tokens.filter(id=token.id - 1):
-					new_sentence += token.text + " "
-				elif sentence.tokens.get(id=token.id - 1).text == "zu" and token.text == "dem":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "in" and token.text == "das":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "zu" and token.text == "der":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "in" and token.text == "dem":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "In" and token.text == "dem":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "an" and token.text == "dem":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "An" and token.text == "dem":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "an" and token.text == "das":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "bei" and token.text == "dem":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "von" and token.text == "dem":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "Von" and token.text == "dem":
-					new_sentence += ""
-				elif sentence.tokens.get(id=token.id - 1).text == "über" and token.text == "das":
-					new_sentence += ""
-				else:
-					new_sentence += token.text+" "
-			sentence.original_content_repaired = new_sentence.strip()
-			# '( ' = '('
-			# '» ' = '»'
-			# ' «' = '«'
-			sentence.save()
-		return 1
+	# def repair_tokenization(self):
+	# 	for sentence in self.sentences.all():
+	# 		new_sentence = ""
+	# 		for token in sentence.tokens.all():
+	# 			if token.text == "," and len(sentence.tokens.filter(id=token.id - 1)) > 0 and sentence.tokens.get(id=token.id - 1).text == "-" and new_sentence.endswith(" "):
+	# 				new_sentence += token.text + " "
+	# 			elif token.text == "-" and len(sentence.tokens.filter(id=token.id - 1)) > 0 and sentence.tokens.get(id=token.id - 1).text in ["New", "Landungs", "Saville", "Barmherzigkeits", "Conto", "Lincoln's", "Gray's", "Advocaten", "Steamer", "Bab-el", "Saville", "Schnurr", "Käfer", "Bilder", "Pelz", "Fenster"] and sentence.tokens.get(id=token.id + 1).text in ["Point", "Mandeb", "Row", "und", "Colleg", "Inn", "Conto", "Corrents", "Row", "Einschiffungshäfen", "York", "Bauch", "Rahmen", "Blech", "Hut"]:
+	# 				new_sentence += token.text
+	# 			elif token.text in ["!", ".", ",", ";", ":", "?", ")", '"', "'", "«", "?«", "?“"] and new_sentence.endswith(" "):
+	# 				new_sentence = new_sentence[:-1]+token.text+" "
+	# 			elif token.text == '“' and new_sentence.endswith(". "):
+	# 				new_sentence = new_sentence[:-1]+token.text + " "
+	# 			elif token.text in ['“',  "-"] and new_sentence.endswith(" "):
+	# 				new_sentence += token.text+" "
+	# 			elif token.text in ["„", "(", "»", "›"]:
+	# 				new_sentence += token.text
+	# 			elif token.text == "zu" and sentence.tokens.get(id=token.id+1).text == "dem":
+	# 				new_sentence += "zum "
+	# 			elif token.text == "in" and sentence.tokens.get(id=token.id+1).text == "das":
+	# 				new_sentence += "ins "
+	# 			elif token.text == "zu" and sentence.tokens.get(id=token.id+1).text == "der":
+	# 				new_sentence += "zur "
+	# 			elif token.text == "in" and sentence.tokens.get(id=token.id+1).text == "dem":
+	# 				new_sentence += "im "
+	# 			elif token.text == "In" and sentence.tokens.get(id=token.id+1).text == "dem":
+	# 				new_sentence += "Im "
+	# 			elif token.text == "an" and sentence.tokens.get(id=token.id+1).text == "dem":
+	# 				new_sentence += "am "
+	# 			elif token.text == "An" and sentence.tokens.get(id=token.id + 1).text == "dem":
+	# 				new_sentence += "Am "
+	# 			elif token.text == "an" and sentence.tokens.get(id=token.id+1).text == "das":
+	# 				new_sentence += "ans "
+	# 			elif token.text == "bei" and sentence.tokens.get(id=token.id+1).text == "dem":
+	# 				new_sentence += "beim "
+	# 			elif token.text == "von" and sentence.tokens.get(id=token.id+1).text == "dem":
+	# 				new_sentence += "vom "
+	# 			elif token.text == "Von" and sentence.tokens.get(id=token.id+1).text == "dem":
+	# 				new_sentence += "Vom "
+	# 			elif token.text == "über" and sentence.tokens.get(id=token.id+1).text == "das":
+	# 				new_sentence += "übers "
+	# 			elif not sentence.tokens.filter(id=token.id - 1):
+	# 				new_sentence += token.text + " "
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "zu" and token.text == "dem":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "in" and token.text == "das":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "zu" and token.text == "der":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "in" and token.text == "dem":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "In" and token.text == "dem":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "an" and token.text == "dem":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "An" and token.text == "dem":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "an" and token.text == "das":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "bei" and token.text == "dem":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "von" and token.text == "dem":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "Von" and token.text == "dem":
+	# 				new_sentence += ""
+	# 			elif sentence.tokens.get(id=token.id - 1).text == "über" and token.text == "das":
+	# 				new_sentence += ""
+	# 			else:
+	# 				new_sentence += token.text+" "
+	# 		sentence.original_content_repaired = new_sentence.strip()
+	# 		# '( ' = '('
+	# 		# '» ' = '»'
+	# 		# ' «' = '«'
+	# 		sentence.save()
+	# 	return 1
 
 	# def add_par_hack(self, paragraphs):
 	# 	i_par = 0
@@ -323,17 +322,17 @@ class Document(models.Model):
 	# 			# print(new_sent, self.complex_document.values("corpus__complex_level"), self.simple_document.values("corpus__simple_level"), self.level, self.sentences.get(id=all_sentence_ids[sent_id]).level, all_sentence_ids, sent_id-1)  # , self.sentences.get(id=all_sentence_ids[sent_id]).original_content, self.sentences.get(id=all_sentence_ids[sent_id]).original_content_repaired)
 	# 			current_sent = self.sentences.get(id=all_sentence_ids[sent_id])
 	# 			new_sent = new_sent.strip()
-	# 			if new_sent == current_sent.original_content.strip() or new_sent == current_sent.original_content_repaired.strip():
+	# 			if new_sent == current_sent.original_content.strip() or (current_sent.original_content_repaired and new_sent == current_sent.original_content_repaired.strip()):
 	# 				# print("yes, set parnr identical", new_sent)
 	# 				current_sent.paragraph_nr = i_par
 	# 				current_sent.sentence_nr = sent_par_id
 	# 				current_sent.save()
 	# 				sent_par_id += 1
 	# 				sent_id += 1
-	# 			elif new_sent in current_sent.original_content or new_sent in current_sent.original_content_repaired:
+	# 			elif new_sent in current_sent.original_content or (current_sent.original_content_repaired and new_sent in current_sent.original_content_repaired):
 	# 				print(new_sent, current_sent.original_content , "yes, set parnr within old")
 	# 				nr_update -= 1
-	# 			elif current_sent.original_content in new_sent or current_sent.original_content_repaired in new_sent:
+	# 			elif current_sent.original_content in new_sent or (current_sent.original_content_repaired and current_sent.original_content_repaired in new_sent):
 	# 				current_sent.paragraph_nr = i_par
 	# 				current_sent.sentence_nr = sent_par_id
 	# 				current_sent.save()
@@ -402,37 +401,37 @@ class Document(models.Model):
 	# 		i_par += 1
 	# 	return round((nr_update/len(all_sentence_ids)*100),2)
 
-	def add_paragraphs(self, paragraphs, selected_license):
-		nr_update = 0
-		nr_update_pre = 0
-		sent_id = 0
-		all_sentences = len(self.sentences.filter(paragraph_nr=-1,sentence_nr=-1))
-		for original_sent in self.sentences.filter(paragraph_nr=-1,sentence_nr=-1).order_by("id"):
-			for i_par, par in enumerate(paragraphs):
-				if len(original_sent.original_content_repaired) >= 0 and original_sent.original_content_repaired in par:
-					original_sent.paragraph_nr = i_par
-					# original_sent.sentence_nr = i_sent
-					nr_update += 1
+	# def add_paragraphs(self, paragraphs, selected_license):
+	# 	nr_update = 0
+	# 	nr_update_pre = 0
+	# 	sent_id = 0
+	# 	all_sentences = len(self.sentences.filter(paragraph_nr=-1,sentence_nr=-1))
+	# 	for original_sent in self.sentences.filter(paragraph_nr=-1,sentence_nr=-1).order_by("id"):
+	# 		for i_par, par in enumerate(paragraphs):
+	# 			if len(original_sent.original_content_repaired) >= 0 and original_sent.original_content_repaired in par:
+	# 				original_sent.paragraph_nr = i_par
+	# 				# original_sent.sentence_nr = i_sent
+	# 				nr_update += 1
+	#
+	# 				original_sent.save()
+	# 				break
+	# 			elif original_sent.original_content in par:
+	# 				original_sent.paragraph_nr = i_par
+	# 				# original_sent.sentence_nr = i_sent
+	# 				nr_update += 1
+	# 				original_sent.save()
+	# 				break
+	# 		if original_sent.paragraph_nr == -1 and self.sentences.filter(id=original_sent.id-1) and self.sentences.get(id=original_sent.id-1).paragraph_nr != -1:
+	# 			nr_update_pre += 1
+	# 			original_sent.paragraph_nr = self.sentences.get(id=original_sent.id-1).paragraph_nr
+	# 			original_sent.save()
+	#
+	# 	if all_sentences > 0:
+	# 		return round(((nr_update+nr_update_pre)/ all_sentences) * 100, 2)
+	# 	else:
+	# 		return 0
 
-					original_sent.save()
-					break
-				elif original_sent.original_content in par:
-					original_sent.paragraph_nr = i_par
-					# original_sent.sentence_nr = i_sent
-					nr_update += 1
-					original_sent.save()
-					break
-			if original_sent.paragraph_nr == -1 and self.sentences.filter(id=original_sent.id-1) and self.sentences.get(id=original_sent.id-1).paragraph_nr != -1:
-				nr_update_pre += 1
-				original_sent.paragraph_nr = self.sentences.get(id=original_sent.id-1).paragraph_nr
-				original_sent.save()
-
-		if all_sentences > 0:
-			return round(((nr_update+nr_update_pre)/ all_sentences) * 100, 2)
-		else:
-			return 0
-
-	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, selected_license, pre_aligned=False, pre_split=False, add_par_nr=False):
+	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, selected_license, pre_aligned=False, pre_split=False): # , add_par_nr=False):
 		document_content = document.readlines()
 		try:
 			copyright_line, title = document_content[0].decode("utf-8").strip().split("\t")
