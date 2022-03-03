@@ -30,6 +30,11 @@ class Transformation(Annotation):
 	transformation_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.tuple_list_transformation_level, blank=True, null=True)
 	simple_token = models.ManyToManyField("data.Token", related_name="simple_token")
 	complex_token = models.ManyToManyField("data.Token", related_name="complex_token")
+	insert_at_beginning = models.BooleanField(default=None, null=True)
+	insert_slot_start = models.ForeignKey("data.Token", related_name="insertion_slot_start",
+											   on_delete=models.SET_NULL, default=None, blank=True, null=True)
+	# insert_slot_end = models.ForeignKey("data.Token", related_name="insertion_slot_end", on_delete=models.SET_NULL,
+	# 										 default=None, blank=True)
 
 	def edit(self, form, rater, start_time):  # , own_subtransformation):
 		print(form.cleaned_data)
@@ -44,6 +49,14 @@ class Transformation(Annotation):
 		self.transformation_level = form.cleaned_data["transformation_level"]
 		self.comment = form.cleaned_data["comment"]
 		self.certainty = form.cleaned_data["certainty"]
+		if (form.cleaned_data["insert_at_beginning"] and form.cleaned_data["insert_slot_start"]) or (form.cleaned_data["insert_at_beginning"]):
+			self.insert_at_beginning = form.cleaned_data["insert_at_beginning"]
+			self.insert_slot_start = None
+		else:
+			self.insert_slot_start = form.cleaned_data["insert_slot_start"]
+			self.insert_at_beginning = None
+
+		# self.insert_slot_end = form.cleaned_data["insert_slot_end"]
 		self.save()
 		for token in form.cleaned_data["complex_token"]:
 			if token not in self.complex_token.all():

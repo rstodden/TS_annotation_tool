@@ -69,6 +69,8 @@ def select_transformation(request, doc_pair_id, pair_id):
 	transformation_selected = None
 	transformation_level_selected = None
 	transformation_subtransformation_selected = None
+	transformation_slot_start = None
+	transformation_start_at_beginning = False
 	transformation_own_subtransformation_selected = None
 	type_form = "show"
 	if request.method == "POST":
@@ -88,6 +90,8 @@ def select_transformation(request, doc_pair_id, pair_id):
 			transformation_selected = transformation_tmp.transformation
 			transformation_level_selected = transformation_tmp.transformation_level
 			transformation_subtransformation_selected = transformation_tmp.sub_transformation
+			transformation_start_at_beginning = transformation_tmp.insert_at_beginning
+			transformation_slot_start = transformation_tmp.insert_slot_start
 			# transformation_own_subtransformation_selected = transformation_tmp.own_subtransformation
 			transformation_tmp_id = transformation_tmp.id
 		elif request.POST.get("delete"):
@@ -153,6 +157,8 @@ def select_transformation(request, doc_pair_id, pair_id):
 														  "transformation_subtransformation_selected": transformation_subtransformation_selected,
 														  # "transformation_own_subtransformation_selected": transformation_own_subtransformation_selected,
 														  "transformation_id": transformation_tmp_id,
+														  "transformation_slot_start": transformation_slot_start,
+														  "transformation_start_at_beginning": transformation_start_at_beginning,
 														  "title": "Transformation Annotation - Text Simplification Annotation Tool"})
 
 

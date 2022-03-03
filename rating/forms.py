@@ -25,7 +25,8 @@ class TransformationForm(forms.ModelForm):
         fields = ['certainty', "comment",
                   "transformation", "transformation_level", "sub_transformation",
                   # "own_subtransformation",
-                  "simple_token", "complex_token"]
+                  "simple_token", "complex_token", "insert_slot_start", "insert_at_beginning"]
+        # , "insert_slot_end"]
         # , 'complex_tokens', 'simple_tokens', 'transaction', 'transaction_level',
     #     widgets = {
     #     'transaction': forms.CheckboxSelectMultiple(choices=list_transactions),
@@ -38,9 +39,13 @@ class TransformationForm(forms.ModelForm):
         # self.fields['certainty'].required = False
         self.fields['complex_token'].required = False
         self.fields['simple_token'].required = False
-        # self.fields['transformation'].required = False
-        # self.fields['transformation_level'].required = False
+        # self.fields['transformation'].required = True
+        self.fields['transformation_level'].required = True
         self.fields['sub_transformation'].required = False
+        self.fields["insert_slot_start"].required = False
+        # self.fields["insert_slot_end"].required = False
+        self.fields["insert_at_beginning"].required = False
+
         # self.fields['own_subtransformation'].required = False
 
 
