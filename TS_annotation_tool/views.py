@@ -21,9 +21,6 @@ def overview_all_corpora(request):
 def overview_per_corpus(request, corpus_id):
 	#corpora = data.models.Corpus.objects.all()
 	corpus = get_object_or_404(data.models.Corpus, id=corpus_id)
-	corpus_dict = dict()
-	title = ""
-	#for corpus in corpora:
 	documents_dict = dict()
 	for doc_pair in data.models.DocumentPair.objects.all().filter(corpus=corpus, annotator=request.user):
 		alignments_tmp = alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair.id, origin_annotator=request.user)
@@ -41,24 +38,21 @@ def overview_per_corpus(request, corpus_id):
 			rating = round((rating/num_alignments)*100, 2)
 		else:
 			aligned = False
+		documents_dict[doc_pair.id] = {"aligned": aligned, "rating": rating,
+									   "transformations": transformations}
+	# corpus_dict[corpus.name] = documents_dict
+	document_pairs = data.models.DocumentPair.objects.all().filter(corpus=corpus, annotator=request.user)
 
-		if doc_pair.complex_document:
-			complex_level = doc_pair.complex_document.level
-			title = doc_pair.complex_document.title
-		else:
-			complex_level = None
-		if doc_pair.simple_document:
-			simple_level = doc_pair.simple_document.level
-			title = doc_pair.simple_document.title
-		else:
-			simple_level = None
-		documents_dict[doc_pair.id] = {"domain": corpus.domain, "simple_level": simple_level,
-									   "complex_level": complex_level, "aligned": aligned, "rating": rating,
-									   "transformations": transformations, "title": title,
-									   "last_change": doc_pair.last_changes, "no_alignment_possible": doc_pair.no_alignment_possible}
-	corpus_dict[corpus.name] = documents_dict
-	return render(request, 'overview_per_corpus.html', {"corpora": corpus_dict, "corpus_id": corpus_id,
-											 "title": "Corpus Overview - Text Simplification Annotation Tool"})
+	if document_pairs.exists():
+		paginator = Paginator(document_pairs, 10)
+		page_number = request.GET.get('page')
+		page_obj = paginator.get_page(page_number)
+	else:
+		page_obj = None
+	return render(request, 'overview_per_corpus.html', {"corpus_name": corpus.name, "corpus_id": corpus_id,
+														"corpus_domain": corpus.domain, "document_pairs": page_obj,
+														"documents_dict": documents_dict,
+														"title": "Corpus Overview - Text Simplification Annotation Tool"})
 
 
 @login_required

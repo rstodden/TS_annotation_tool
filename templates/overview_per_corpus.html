@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load TS_extras %}
 
 {% block content %}
 {% load crispy_forms_tags %}
@@ -28,33 +29,69 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for corpus_name, corpus in corpora.items %}
-                        {% for doc_pair_id, doc_pair in corpus.items %}
-                            <tr>
-                                <td class="corpus">{{ doc_pair_id }}</td>
-                                <td class="corpus">{{ corpus_name }}</td>
-                                <td class="corpus">
-                                    <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair_id %}">{{ doc_pair.title }}</a>
-                                </td>
-                                <td class="corpus">{{ doc_pair.domain }}</td>
-                                <td class="corpus">{{ doc_pair.simple_level|default_if_none:"" }}</td>
-                                <td class="corpus">{{ doc_pair.complex_level }}</td>
-                                <td class="corpus">{{ doc_pair.last_change }}</td>
-                                {% if doc_pair.no_alignment_possible %}
-                                    <td class="corpus" style="text-align: center"><i class="fas fa-ban"></i></td>
-                                {% elif doc_pair.aligned %}
-                                    <td class="corpus" style="text-align: center"><i class="fas fa-check-circle" style="color: #8ACBAE"></i></td>
-                                {% else %}
-                                    <td class="corpus" style="text-align: center"><i class="fas fa-times-circle" style="color: indianred;"></i></td>
-                                {% endif %}
-                                <td class="corpus">{{ doc_pair.rating }} %</td>
-                                <td class="corpus">{{ doc_pair.transformations }} %</td>
-                            </tr>
-                        {% endfor %}
-
+                    {% for doc_pair in document_pairs %}
+                        <tr>
+                            <td class="corpus">{{ doc_pair.id }}</td>
+                            <td class="corpus">{{ corpus_name }}</td>
+                            <td class="corpus">
+                                <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair.id %}">{{ doc_pair.simple_document.title }}</a>
+                            </td>
+                            <td class="corpus">{{ doc_pair.simple_document.domain }}</td>
+                            <td class="corpus">{{ doc_pair.simple_document.level|default_if_none:"" }}</td>
+                            <td class="corpus">{{ doc_pair.complex_document.level }}</td>
+                            <td class="corpus">{{ doc_pair.last_changes }}</td>
+                            {% if doc_pair.no_alignment_possible %}
+                                <td class="corpus" style="text-align: center"><i class="fas fa-ban"></i></td>
+                            {% elif documents_dict|get_dict_value:doc_pair.id|get_dict_value:'aligned'  %}
+                                <td class="corpus" style="text-align: center"><i class="fas fa-check-circle" style="color: #8ACBAE"></i></td>
+                            {% else %}
+                                <td class="corpus" style="text-align: center"><i class="fas fa-times-circle" style="color: indianred;"></i></td>
+                            {% endif %}
+                            <td class="corpus">{{ documents_dict|get_dict_value:doc_pair.id|get_dict_value:'rating'  }} %</td>
+                            <td class="corpus">{{ documents_dict|get_dict_value:doc_pair.id|get_dict_value:'transformations' }} %</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            {% if document_pairs.has_other_pages %}
+                    <ul class="pagination">
+                        {% if document_pairs.has_previous and document_pairs.previous_page_number != 0 %}
+                            <li><a href="?page=1" title="first page"><i class="fas fa-fast-backward"></i></a></li>
+                        {% else %}
+                            <li class="disabled"><span><i class="fas fa-fast-backward"></i></span></li>
+                        {% endif %}
+                        {% if document_pairs.has_previous %}
+                            <li><a href="?page={{ document_pairs.previous_page_number }}" title="previous page">
+                                <i class="fas fa-backward"></i>
+                            </a></li>
+                        {% else %}
+                            <li class="disabled"><span><i class="fas fa-backward"></i></span></li>
+                        {% endif %}
+                        {% for i in document_pairs.paginator.page_range %}
+                            <!--{% if forloop.counter < i|add:3 and forloop.counter < i|add:"-3" %}-->
+                                {% if document_pairs.number == i %}
+                                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                {% else %}
+                                    <li><a href="?page={{ i }}" title="page {{ i }}">{{ i }}</a></li>
+                                {% endif %}
+                                <!--{% endif %}-->
+                        {% endfor %}
+                        {% if document_pairs.has_next %}
+                            <li><a href="?page={{ document_pairs.next_page_number }}" title="next page">
+                                <i class="fas fa-forward"></i>
+                            </a></li>
+                        {% else %}
+                            <li class="disabled"><span><i class="fas fa-forward"></i></span></li>
+                        {% endif %}
+                        {% if document_pairs.has_next and document_pairs.paginator.num_pages != document_pairs.next_page_number %}
+                            <li><a href="?page={{ document_pairs.paginator.num_pages }}" title="last page">
+                                <i class="fas fa-fast-forward"></i>
+                            </a></li>
+                            {% else %}
+                            <li class="disabled"><span><i class="fas fa-fast-forward"></i></span></li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
         </div>
     </div>
 {% endblock %}
