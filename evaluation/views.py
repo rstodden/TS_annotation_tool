@@ -674,8 +674,10 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 		simple_doc = docpair.simple_document
 		domain = docpair.corpus.domain
 		title = docpair.simple_document.title
-		par_nrs_complex = sorted(list(set(complex_doc.sentences.all().values_list("paragraph_nr", flat=True))))
-		par_nrs_simple = sorted(list(set(simple_doc.sentences.all().values_list("paragraph_nr", flat=True))))
+		max_par_complex = max(complex_doc.sentences.filter(complex_element__isnull=False).values_list("paragraph_nr", flat=True))
+		max_par_simple = max(simple_doc.sentences.filter(simple_element__isnull=False).values_list("paragraph_nr", flat=True))
+		par_nrs_complex = sorted(list(set(complex_doc.sentences.filter(paragraph_nr__lte=max_par_complex+1).values_list("paragraph_nr", flat=True))))
+		par_nrs_simple = sorted(list(set(simple_doc.sentences.filter(paragraph_nr__lte=max_par_simple+1).values_list("paragraph_nr", flat=True))))
 		if iaa and len(annotator_set) < 2:
 			continue
 		for user_nr, user in enumerate(docpair.annotator.all()):
