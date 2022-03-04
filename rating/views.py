@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from TS_annotation_tool.utils import transformation_dict
 import datetime, json
 from django.core.serializers.json import DjangoJSONEncoder
+import difflib
 
 
 @login_required
@@ -56,6 +57,36 @@ def rate_pair(request, doc_pair_id, pair_id):
 												  })
 
 
+def get_edit_label(alignmentpair):
+	transformation_information = {"simple": dict(), "complex": dict()}
+	complex_text_and_ids = alignmentpair.complex_elements.all().order_by("id").values_list("tokens__text", "tokens__id")
+	simple_text_and_ids = alignmentpair.simple_elements.all().order_by("id").values_list("tokens__text", "tokens__id")
+	complex_text = [item[0] for item in complex_text_and_ids]
+	complex_ids = [item[1] for item in complex_text_and_ids]
+	simple_text = [item[0] for item in simple_text_and_ids]
+	simple_ids = [item[1] for item in simple_text_and_ids]
+	for edit_type, o_start, o_end, s_start, s_end in difflib.SequenceMatcher(None, complex_text, simple_text).get_opcodes():
+		if edit_type == "equal":
+			for token_id in complex_ids[o_start:o_end]:
+				transformation_information["complex"][token_id] = "copy-label"
+			for token_id in simple_ids[s_start:s_end]:
+				transformation_information["simple"][token_id] = "copy-label"
+		elif edit_type == "replace":
+			for token_id in complex_ids[o_start:o_end]:
+				transformation_information["complex"][token_id] = "replace-label"
+			for token_id in simple_ids[s_start:s_end]:
+				transformation_information["simple"][token_id] = "replace-label"
+		elif edit_type == "delete":
+			for token_id in complex_ids[o_start:o_end]:
+				transformation_information["complex"][token_id] = "delete-label"
+		elif edit_type == "insert":
+			for token_id in simple_ids[s_start:s_end]:
+				print(token_id, "add")
+				transformation_information["simple"][token_id] = "add-label"
+		else:
+			print(edit_type)
+	return transformation_information
+
 @login_required
 def select_transformation(request, doc_pair_id, pair_id):
 	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
@@ -72,15 +103,18 @@ def select_transformation(request, doc_pair_id, pair_id):
 	transformation_slot_start = None
 	transformation_start_at_beginning = False
 	transformation_own_subtransformation_selected = None
+	transformation_information = None
 	type_form = "show"
 	if request.method == "POST":
 		form = TransformationForm(request.POST)
 		if request.POST.get("add"):
 			transformation_dict_obj = transformation_dict
 			type_form = "add"
+			transformation_information = get_edit_label(alignmentpair_tmp)
 			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
 		elif request.POST.get("edit"):
 			type_form = "edit"
+			transformation_information = get_edit_label(alignmentpair_tmp)
 			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
 			transformation_tmp = alignmentpair_tmp.transformation_of_pair.get(id=request.POST.get("edit"), rater=request.user)
 			form = TransformationForm(instance=transformation_tmp)
@@ -159,6 +193,7 @@ def select_transformation(request, doc_pair_id, pair_id):
 														  "transformation_id": transformation_tmp_id,
 														  "transformation_slot_start": transformation_slot_start,
 														  "transformation_start_at_beginning": transformation_start_at_beginning,
+														  "transformation_information": transformation_information,
 														  "title": "Transformation Annotation - Text Simplification Annotation Tool"})
 
 

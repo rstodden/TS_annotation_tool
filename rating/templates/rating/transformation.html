@@ -16,6 +16,22 @@
             {{ form.errors }}
         </p>
     </div>
+    <div class="row">
+        <p>Color Coding of Changes:
+{#        {% if type == 'add' or type == 'show' %}#}
+{#            <label class="switch" id="color-switch">#}
+{#                <input type="checkbox" id="color-switch-input">#}
+{#                <span class="slider round"></span>#}
+{#            </label>#}
+{#        {% endif %}#}
+{#        </p>#}
+        <ul>
+            <li><span class="copy-label">Green (Normal)</span>: Token occurs in both sentences or is already annotated.</li>
+            <li><span class="delete-label">Red</span>: Token does not occur in the simple but in the complex sentence(s).</li>
+            <li><span class="add-label">Blue</span>: Token does not occur in the complex but in the simple sentence(s).</li>
+            <li><span class="replace-label">Orange</span>: Token might be replaced.</li>
+        </ul>
+    </div>
     <div class="row subpage content">
         <div class="col-md-12">
                 <form method="POST" class="transformation-form" action={% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=alignmentpair_id %}>{% csrf_token %}
@@ -35,7 +51,11 @@
                                                 {% if token in complex_token_selected %}
                                                    <label for="complex_token_{{ token.id }}" class="btn btn-default active"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" checked>{{ token.text }}</label>
                                                 {% else %}
-                                                    <label for="complex_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                    {%  if token.id in transformation_information.complex %}
+                                                        <label for="complex_token_{{ token.id }}" class="btn btn-default {% nested_get transformation_information 'complex' token.id %}"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                    {% else %}
+                                                        <label for="complex_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                    {% endif %}
                                                 {% endif %}
                                             {% endfor %}
                                         </div>
@@ -53,7 +73,11 @@
                                                 {% if token in simple_token_selected %}
                                                     <label for="simple_token_{{ token.id }}" class="btn btn-default active"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" checked>{{ token.text }}</label>
                                                 {% else %}
-                                                    <label for="simple_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                    {%  if token.id in transformation_information.simple %}
+                                                        <label for="simple_token_{{ token.id }}" class="btn btn-default {% nested_get transformation_information 'simple' token.id %}"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                    {% else %}
+                                                        <label for="simple_token_{{ token.id }}" class="btn btn-default"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                    {% endif %}
                                                 {% endif %}
                                             {% endfor %}
                                         </div>

@@ -69,6 +69,7 @@ a:visited:active{
 .btn-default, .btn {
   background-color: #D8EEE4;
   color: #428969;
+  /*color: #205c8f;*/
 }
 p.text-source {
   font-size: 9pt;
@@ -187,3 +188,19 @@ div.meta-data-field {
     background-color: rgba(138, 203, 174, 0.65);
 }
 
+.copy-label {
+  color: #428969;
+}
+
+.replace-label {
+  color: #d79420;
+}
+
+.add-label {
+  /*color: #099355;*/
+  color: #205c8f;
+}
+
+.delete-label {
+  color: #c56464;
+}
