@@ -14,6 +14,18 @@
     </div>
     <div class="row subpage content">
         <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <p>
+                        The following buttons support the alignment:
+                    </p>
+                    <ul>
+                        <li><i class="fas fa-edit"></i>: Edit alignment of current sentence.</li>
+                        <li><i class="fas fa-bug"></i>: Report a problem with the current sentence.</li>
+                        <li><i class="fas fa-wand-magic-sparkles"></i>: Find most similar sentences of the current sentence. If the first item does not fit, try to click again for the next most similar sentence.</li>
+                    </ul>
+                </div>
+            </div>
             <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}
                 <div class="row">
                     <div class="col-md-6">
@@ -55,19 +67,19 @@
                                         <div class="col-md-2 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
                                             {% if not sentence.malformed %}
                                                 <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem"><i class="fas fa-bug"></i></button>
-{#                                                {% if sentence.original_content in complex_sents_content %}#}
-{#                                                    <button type="button" title="find most similar sent" name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>#}
-                                                {% if sentence.most_similar_sent.exists %}
+                                                {% if sentence.original_content in simple_sents_content %}
+                                                    <button type="button" title="The sentence is identical to a sentence of the simple document." name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                {% elif sentence.most_similar_sent.exists %}
                                                     <button id="similar_button_{{ sentence.id }}" type="button" title="find most similar sent" name="find_similar_sent" onclick="show_most_similar('{{ sentence.id }}', {{ sentence.most_similar_sent.all|get_value_in_qs:'id'|safeseq }})" value=0><i class="fas fa-wand-magic-sparkles"></i></button>
                                                 {% else %}
-                                                    <button type="button" title="find most similar sent" name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                    <button type="button" title="No similar sentence found." name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
                                                 {% endif %}
                                             {% else %}
                                                 <button title="sentence already reported" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>
                                             {% endif %}
-                                            {% if sentence in simple_annotated_sents %}
+                                            {% if sentence in complex_annotated_sents %}
                                                 <button title="edit alignment of pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
-                                            {% elif sentence.original_content in complex_sents_content %}
+                                            {% elif sentence.original_content in simple_sents_content %}
                                                 <button title="The sentence is identical to a sentence of the simple document." type="submit" name="edit"  disabled><i class="fas fa-edit"></i></button>
                                             {% endif %}
                                         </div>
@@ -132,12 +144,12 @@
                                     <div class="col-md-2 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
                                         {% if not sentence.malformed %}
                                             <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem"><i class="fas fa-bug"></i></button>
-{#                                            {% if sentence.original_content in complex_sents_content %}#}
-{#                                                <button type="button" title="find most similar sent" name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>#}
-                                            {% if sentence.most_similar_sent.exists %}
+                                            {% if sentence.original_content in complex_sents_content %}
+                                                <button type="button" title="The sentence is identical to a sentence of the simple document." name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                            {% elif sentence.most_similar_sent.exists %}
                                                 <button id="similar_button_{{ sentence.id }}" type="button" title="find most similar sent" name="find_similar_sent" onclick="show_most_similar('{{ sentence.id }}', {{ sentence.most_similar_sent.all|get_value_in_qs:'id'|safeseq }})" value=0><i class="fas fa-wand-magic-sparkles"></i></button>
                                             {% else %}
-                                                <button type="button" title="find most similar sent" name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                <button type="button" title="No similar sentence found." name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
                                             {% endif %}
                                         {% else %}
                                             <button title="sentence already reported" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>
