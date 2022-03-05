@@ -44,9 +44,10 @@ class UploadFilesForm(forms.ModelForm):
     # languages = forms.ChoiceField(choices=TS_annotation_tool.utils.LANGUAGE_CHOICES)
     # license = forms.ChoiceField(choices=data.models.list_licenses)
     # domain = forms.CharField(max_length=50)
+    find_most_similiar = forms.BooleanField(required=False, help_text=data.models.popover_html('Would you like to calculate similarity between the sentences to get alignment hints?'))
     language_level_simple = forms.ChoiceField(required=False, choices=TS_annotation_tool.utils.language_level_list, help_text=data.models.popover_html('On which language level (following CEFR) ist the simple text? E.g., A1 for easy-to-read language, A2 or B1 for plain language.)'))
     language_level_complex = forms.ChoiceField(choices=TS_annotation_tool.utils.language_level_list, help_text=data.models.popover_html('On which language level (following CEFR) ist the complex text? E.g., C" for everyday language.'))
-    professionally_simplified = forms.BooleanField(required=False)
+    professionally_simplified = forms.BooleanField(required=False, help_text=data.models.popover_html("Were the simplified texts professionally simplified?"))
     annotator = forms.ModelMultipleChoiceField(User.objects.all(), help_text=data.models.popover_html('Which annotator(s) should align, rate or annotate the texts?'))
     attachments = MultiFileField(min_num=2)
 

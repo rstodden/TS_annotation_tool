@@ -14,6 +14,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 import numpy
 import requests
 import re
+from operator import itemgetter
+
 
 def popover_html(content):
 	# return content
@@ -49,6 +51,7 @@ class Corpus(models.Model):
 
 	def add_documents_by_upload(self, files, form_upload_data):
 		print(form_upload_data)
+		find_most_similiar = form_upload_data["find_most_similiar"]
 		if files and type(files[0]) == str:
 			simple_files = [file for file in files if "simple" in file]
 		else:
@@ -58,12 +61,14 @@ class Corpus(models.Model):
 			complex_file_obj = [file for file in files if "complex" in file.name]
 			for complex_file in complex_file_obj:
 				complex_document = Document()
-				complex_document = complex_document.create_or_load_document_by_upload(complex_file,
+				complex_document, complex_sents_nlp = complex_document.create_or_load_document_by_upload(complex_file,
 																					  form_upload_data["language_level_complex"],
 																					  form_upload_data["domain"], nlp,
 																					  pre_aligned=form_upload_data["pre_aligned"],
 																					  selected_license=form_upload_data["license"],
-																					  pre_split=form_upload_data["pre_split"])
+																					  pre_split=form_upload_data["pre_split"],
+																					  find_most_similiar=False,
+																					  sents_nlp=None)
 				document_pair_tmp = DocumentPair(corpus=self)
 				document_pair_tmp.complex_document = complex_document
 				document_pair_tmp.save()
@@ -82,17 +87,22 @@ class Corpus(models.Model):
 																					domain=form_upload_data["domain"], nlp=nlp,
 																					pre_aligned=form_upload_data["pre_aligned"],
 																					selected_license=form_upload_data["license"],
-																					pre_split=form_upload_data["pre_split"])
+																					pre_split=form_upload_data["pre_split"],
+																					find_most_similiar=False,
+																					sents_nlp=None)
 				complex_file_obj = [file for file in files if "complex" in file.name and "_" + file_id + "." in file.name]
 				if complex_file_obj:
 					complex_document = Document()
-					complex_document = complex_document.create_or_load_document_by_upload(complex_file_obj[0],
+					simple_sents = simple_document.sentences.all()
+					complex_document, complex_sents_nlp = complex_document.create_or_load_document_by_upload(complex_file_obj[0],
 																						  form_upload_data["language_level_complex"],
 																						  form_upload_data["domain"],
 																						  nlp,
 																						  pre_aligned=form_upload_data["pre_aligned"],
 																						  selected_license=form_upload_data["license"],
-																						  pre_split=form_upload_data["pre_split"])
+																						  pre_split=form_upload_data["pre_split"],
+																						  find_most_similiar=find_most_similiar,
+																						  sents_nlp=simple_sents)
 					document_pair_tmp = DocumentPair(corpus=self)
 					document_pair_tmp.complex_document = complex_document
 					document_pair_tmp.simple_document = simple_document
@@ -130,7 +140,7 @@ class Document(models.Model):
 	domain = models.CharField(max_length=50, blank=True, null=True)
 	manually_simplified = models.BooleanField(default=False)
 
-	def add_sentences(self, sentences, par_nr, language_level, selected_license, number_sentences=1, tokenize=True, author=None, sent_ids=None):
+	def add_sentences(self, sentences, par_nr, language_level, selected_license, number_sentences=1, tokenize=True, author=None, sent_ids=None, find_most_similiar=False, sents_nlp=None):
 		treshold = 1
 		sentence_ids = list()
 		if selected_license in TS_annotation_tool.utils.license_limits.keys():
@@ -151,10 +161,14 @@ class Document(models.Model):
 			sentence_ids.append(sent_tmp.id)
 			if tokenize:
 				sent_tmp.tokenize(sent)
+			if find_most_similiar and sents_nlp:
+				similarities = sorted([(sent.similarity(other_sent), other_sent) for other_sent in sents_nlp], key=itemgetter(0), reverse=True)
+				top_5 = [sent for score, sent in similarities if score >= 0.8][:5]
+				sent_tmp.most_similar_sent.add(*top_5)
+				sent_tmp.save()
 		return sentence_ids
 
-
-	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, selected_license, pre_aligned=False, pre_split=False): # , add_par_nr=False):
+	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, selected_license, pre_aligned=False, pre_split=False, find_most_similiar=False, sents_nlp=None): # , add_par_nr=False):
 		document_content = document.readlines()
 		try:
 			copyright_line, title = document_content[0].decode("utf-8").strip().split("\t")
@@ -200,9 +214,11 @@ class Document(models.Model):
 						document_tmp.add_sentences([sent], -1, language_level, selected_license, number_sentences,
 												   tokenize=False, sent_ids=[sent_id])
 					else:
+
 						number_sentences = len([sent for sent in nlp(text).sents])
 						for i_par, par in enumerate(text.split("SEPL|||SEPR")):
-							document_tmp.add_sentences(nlp(par).sents, i_par, language_level, selected_license, number_sentences)
+							sentences_of_par = nlp(par).sents
+							document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar, sents_nlp)
 					document_tmp.save()
 			elif not pre_aligned:
 				try:
@@ -211,7 +227,8 @@ class Document(models.Model):
 					text = document_content[1].strip()
 				number_sentences = len([sent for sent in nlp(text).sents])
 				for i_par, par in enumerate(text.split("SEPL|||SEPR")):
-					document_tmp.add_sentences(nlp(par).sents, i_par, language_level, selected_license, number_sentences)
+					sentences_of_par = nlp(par).sents
+					document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar, sents_nlp)
 			document_tmp.save()
 		return document_tmp
 
@@ -229,6 +246,7 @@ class DocumentPair(models.Model):
 	last_changes = models.DateTimeField(auto_now=True)
 	no_alignment_possible = models.BooleanField(default=False)
 	corpus = models.ForeignKey(Corpus, on_delete=models.CASCADE, blank=True, null=True, related_name="document_pairs")
+	
 
 	def get_all_complex_annotated_sentences_by_user(self, user, content=False):
 		complex_annotated_sents_content = list()
@@ -276,6 +294,21 @@ class DocumentPair(models.Model):
 			# 	print(simple_sent, "!!!", complex_sent)
 		return self
 
+	def add_similarity(self, nlp):
+		if nlp.meta["vectors"]["keys"] < 0:
+			assert Exception("Your SpaCy model ({}) does not support similarity measurement, please load another model.".format(nlp.meta["name"]))
+			return 0
+		simple_sents = self.simple_document.sentences.all()
+		for complex_sent in self.complex_document.sentences.all():
+			complex_sent_nlp = nlp(complex_sent.original_content)
+			similarities = sorted([(complex_sent_nlp.similarity(nlp(other_sent.original_content)), other_sent) for other_sent in simple_sents], key=itemgetter(0), reverse=True)
+			top_5 = [sent for score, sent in similarities if score >= 0.8][:5]
+			complex_sent.most_similar_sent.add(*top_5)
+			complex_sent.save()
+		return 1
+
+
+
 
 class Sentence(models.Model):
 	original_content = models.TextField()
@@ -293,6 +326,7 @@ class Sentence(models.Model):
 	sentence_nr =  models.IntegerField(blank=True, default=-1)
 	paragraph_nr =  models.IntegerField(blank=True, default=-1)
 	given_id = models.CharField(blank=True, default="", max_length=20)
+	most_similar_sent = models.ManyToManyField("self", default=None, blank=True)
 
 	def tokenize(self, doc):
 		for token in doc:
@@ -341,7 +375,7 @@ def get_spacy_model(language):
 	comp_table = r.json()
 	comp = comp_table["spacy"]
 	nlp = None
-	for model_ending in ["dep_news_trf", "core_news_trf",  "core_news_lg", "core_news_sm", "xx_sent_ud_sm"]:
+	for model_ending in ["core_news_lg", "dep_news_trf", "core_news_trf",   "core_news_sm", "xx_sent_ud_sm"]:
 		if model_ending.startswith("xx"):
 			model_name = model_ending
 		else:

@@ -15,13 +15,13 @@
       "domain":  "accessibility",
       "language": "fr",
       "languages": ["fr"],
-      "add_par_nr": true,
       "language_level_simple": "a1",
       "language_level_complex": "c2",
       "annotator": ["test"],
       "output_dir": "data_collection/",
       "save_raw_content": true,
-      "continuous_text": true
+      "continuous_text": true,
+      "find_most_similar": true
     },
     "inclusion-europe-etr-de": {
       "home_page":  "https://www.inclusion-europe.eu",
@@ -38,13 +38,13 @@
       "domain":  "accessibility",
       "language": "de",
       "languages": ["de"],
-      "add_par_nr": true,
       "language_level_simple": "a1",
       "language_level_complex": "c2",
       "annotator": ["test"],
       "output_dir": "data_collection/",
       "save_raw_content": true,
-      "continuous_text": true
+      "continuous_text": true,
+      "find_most_similar": true
     },
     "inclusion-europe-etr-es": {
       "home_page":  "https://www.inclusion-europe.eu",
@@ -61,13 +61,13 @@
       "domain":  "accessibility",
       "language": "es",
       "languages": ["es"],
-      "add_par_nr": true,
       "language_level_simple": "a1",
       "language_level_complex": "c2",
       "annotator": ["test"],
       "output_dir": "data_collection/",
       "save_raw_content": true,
-      "continuous_text": true
+      "continuous_text": true,
+      "find_most_similar": true
     }
   }
 }

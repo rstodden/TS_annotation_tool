@@ -1,5 +1,5 @@
 {% extends '../base.html' %}
-
+{% load TS_extras %}
 {% block content %}
 
     <div class="row subclass-header">
@@ -21,42 +21,54 @@
                         {% if type == "add" or type == "edit"%}
                             <div class="scrollable-box">
                                 {%  for sentence in complex_elements %}
-                                        <div class="col-md-10 sentence-alignment">
+                                        <div class="col-md-9 sentence-alignment">
                                             {% if sentence in complex_sents and sentence == last_complex_item %}
-                                                <label class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
                                             {% elif sentence in complex_sents and sentence == last_complex_item and complex_language_direction == "rtl" %}
-                                                <label class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
                                             {% elif sentence in complex_sents %}
-                                                <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
                                             {% elif sentence in complex_sents and complex_language_direction == "rtl" %}
-                                                <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
                                             {% elif sentence.original_content in simple_sents_content %}
-                                                <label class="btn btn-default align-sentence" disabled  title="The sentence is identical to a sentence of the simple document."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled  title="The sentence is identical to a sentence of the simple document."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {% elif sentence.original_content in simple_sents_content and complex_language_direction == "rtl" %}
-                                                <label class="btn btn-default align-sentence" disabled dir="rtl" style="text-align: right" title="The sentence is identical to a sentence of the simple document."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled dir="rtl" style="text-align: right" title="The sentence is identical to a sentence of the simple document."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {%  elif sentence == last_complex_item and sentence in complex_annotated_sents %}
-                                                <label class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {%  elif sentence == last_complex_item and sentence in complex_annotated_sents and complex_language_direction == "rtl" %}
-                                                <label class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {%  elif sentence in complex_annotated_sents %}
-                                                <label class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {%  elif sentence in complex_annotated_sents and complex_language_direction == "rtl" %}
-                                                <label class="btn btn-default align-sentence" disabled dir="rtl" style="text-align: right" title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled dir="rtl" style="text-align: right" title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {% elif complex_language_direction == "rtl" %}                                                <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
-                                                <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
                                             {% else %}
-                                                <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
                                             {% endif %}
 
                                             {% ifchanged sentence.paragraph_nr %}
                                                 <hr class="paragraph-break">
                                             {% endifchanged %}
                                         </div>
-                                        <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
+                                        <div class="col-md-2 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
                                             {% if not sentence.malformed %}
                                                 <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem"><i class="fas fa-bug"></i></button>
+{#                                                {% if sentence.original_content in complex_sents_content %}#}
+{#                                                    <button type="button" title="find most similar sent" name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>#}
+                                                {% if sentence.most_similar_sent.exists %}
+                                                    <button id="similar_button_{{ sentence.id }}" type="button" title="find most similar sent" name="find_similar_sent" onclick="show_most_similar('{{ sentence.id }}', {{ sentence.most_similar_sent.all|get_value_in_qs:'id'|safeseq }})" value=0><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                {% else %}
+                                                    <button type="button" title="find most similar sent" name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                {% endif %}
                                             {% else %}
                                                 <button title="sentence already reported" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>
+                                            {% endif %}
+                                            {% if sentence in simple_annotated_sents %}
+                                                <button title="edit alignment of pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
+                                            {% elif sentence.original_content in complex_sents_content %}
+                                                <button title="The sentence is identical to a sentence of the simple document." type="submit" name="edit"  disabled><i class="fas fa-edit"></i></button>
                                             {% endif %}
                                         </div>
                                 {% endfor %}
@@ -86,42 +98,54 @@
                         {% if type == "add" or type == "edit"%}
                             <div class="scrollable-box">
                                 {%  for sentence in simple_elements %}
-                                        <div class="col-md-10 sentence-alignment">
+                                        <div class="col-md-9 sentence-alignment">
                                         {% if sentence == last_simple_item and sentence in simple_sents %}
-                                            <label class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            <label class="btn btn-default align-sentence last_added" id="label_sent_{{ sentence.id }}"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
                                         {% elif sentence == last_simple_item and sentence in simple_sents and simple_language_direction == "rtl" %}
-                                            <label class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" ><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" ><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
                                         {% elif sentence in simple_sents %}
-                                            <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
                                         {% elif sentence in simple_sents and simple_language_direction == "rtl" %}
-                                            <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
                                         {% elif sentence.original_content in complex_sents_content %}
-                                            <label class="btn btn-default align-sentence" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
                                         {% elif sentence.original_content in complex_sents_content and simple_language_direction == "rtl" %}
-                                            <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
                                         {%  elif sentence == last_simple_item and sentence in simple_annotated_sents %}
-                                            <label class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
                                         {%  elif sentence == last_simple_item and sentence in simple_annotated_sents and simple_language_direction == "rtl" %}
-                                            <label class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
                                         {%  elif sentence in simple_annotated_sents %}
-                                            <label class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
                                         {%  elif sentence in simple_annotated_sents and simple_language_direction == "rtl" %}
-                                            <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
                                         {% elif simple_language_direction == "rtl" %}
-                                            <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
                                         {% else %}
-                                            <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
+                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
                                         {% endif %}
 
                                         {% ifchanged sentence.paragraph_nr %}
                                             <hr class="paragraph-break">
                                         {% endifchanged %}
                                     </div>
-                                    <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
+                                    <div class="col-md-2 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
                                         {% if not sentence.malformed %}
                                             <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem"><i class="fas fa-bug"></i></button>
+{#                                            {% if sentence.original_content in complex_sents_content %}#}
+{#                                                <button type="button" title="find most similar sent" name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>#}
+                                            {% if sentence.most_similar_sent.exists %}
+                                                <button id="similar_button_{{ sentence.id }}" type="button" title="find most similar sent" name="find_similar_sent" onclick="show_most_similar('{{ sentence.id }}', {{ sentence.most_similar_sent.all|get_value_in_qs:'id'|safeseq }})" value=0><i class="fas fa-wand-magic-sparkles"></i></button>
+                                            {% else %}
+                                                <button type="button" title="find most similar sent" name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                            {% endif %}
                                         {% else %}
                                             <button title="sentence already reported" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>
+                                        {% endif %}
+                                        {% if sentence in simple_annotated_sents %}
+                                            <button title="edit alignment of pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
+                                        {% elif sentence.original_content in complex_sents_content %}
+                                            <button title="The sentence is identical to a sentence of the complex document." type="submit" name="edit"  disabled><i class="fas fa-edit"></i></button>
                                         {% endif %}
                                     </div>
                                 {% endfor %}
@@ -205,6 +229,17 @@
         var last_added_elements = document.getElementsByClassName("last_added");
         for (i = 0; i < last_added_elements.length; i++) {
           last_added_elements[i].scrollIntoView();
+        }
+
+        function show_most_similar(complex_sent_id, simple_sent_ids) {
+            var i = parseInt(document.getElementById("similar_button_"+complex_sent_id).value);
+            {#alert("c "+ complex_sent_id+ " s "+ simple_sent_ids+ " type "+ typeof simple_sent_ids+ " i " +  i + " labelsent "+ "label_sent_"+simple_sent_ids[i]+" len"+simple_sent_ids.length);#}
+            document.getElementById("label_sent_"+simple_sent_ids[i]).scrollIntoView();
+            if (i+1 < simple_sent_ids.length) {
+                document.getElementById("similar_button_"+complex_sent_id).value = parseInt(document.getElementById("similar_button_"+complex_sent_id).value)+1;
+            } else {
+                 document.getElementById("similar_button_"+complex_sent_id).value = 0;
+             }
         }
     </script>
 {% endblock %}

@@ -14,13 +14,13 @@
       "professionally_simplified": true,
       "domain":  "accessibility",
       "language": "en",
-      "add_par_nr": true,
       "language_level_simple": "a1",
       "language_level_complex": "c2",
       "annotator": ["test"],
       "output_dir": "data_collection/",
       "save_raw_content": true,
-      "continuous_text": true
+      "continuous_text": true,
+      "find_most_similar": true
     }
   }
 }
