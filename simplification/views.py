@@ -5,17 +5,25 @@ import simplification.forms
 import json, datetime
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
+from muss.muss.simplify import simplify_sentences
 
 # Create your views here.
 # simplification of complex texts, such as user generated texts
 # add simplification to data model od data app
 
-# TODO: check if simplification works fine!
-
 
 @login_required
 def home(request):
 	return render(request, "simplification/home.html")
+
+
+def auto_simplify(source_sentences, language):
+	if language in["en", "es", "fr"]:
+		model_name = 'muss_'+language+'_mined'
+		return simplify_sentences(source_sentences, model_name)
+	else:
+		assert Exception("No simplification model in your language is available.")
+		return None
 
 
 @login_required
@@ -34,8 +42,8 @@ def simplify(request, doc_pair_id):
 	type_action = "show"
 	complex_selected = []
 	simple_text = []
+	suggestion = ""
 	form = simplification.forms.SimplificationForm()
-	print(request.POST)
 	if request.POST.get("add"):
 		type_action = "add"
 		request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
@@ -82,6 +90,17 @@ def simplify(request, doc_pair_id):
 			# last_simple_item, last_complex_item
 			simple_element = data.models.Sentence.objects.filter(id__in=new_sentences)
 			last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(simple_element, form.cleaned_data["complex_element"], [request.user], doc_pair_tmp, start_time=request.session["start"])
+	elif request.POST.get("suggestion"):
+		type_action = "add"
+		if request.POST.get("complex_element"):
+			id_list = request.POST.getlist("complex_element")
+			selected_for_suggestion = data.models.Sentence.objects.filter(id__in=id_list).values_list("original_content", flat=True)
+			suggestion = auto_simplify(selected_for_suggestion, doc_pair_tmp.corpus.language)
+		else:
+			suggestion = "Error: No complex sentence was selected. Please try again."
+	aligned_pairs = alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_id,
+															   origin_annotator=request.user).order_by("id")
+	complex_simplified = aligned_pairs.all().values_list("complex_elements", flat=True)
 	return render(request, "simplification/simplification.html", {"title": "Simplification - Text Simplification Annotation Tool",
 																  "doc_pair_id": doc_pair_id,
 																  # "doc_simple_url": doc_pair_tmp.simple_document.url,
@@ -92,23 +111,11 @@ def simplify(request, doc_pair_id):
 																  # "simple_elements": simple_elements,
 																  "type": type_action,
 																  "form": form,
-																  "pairs": alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_id, origin_annotator=request.user).order_by("id"),
+																  "pairs": aligned_pairs,
+																  "complex_simplified": complex_simplified,
 																  "pair_tmp_id": sentence_pair_tmp_id,
 																  "complex_sents": complex_selected,
 																  "simple_text": simple_text,
-
-																#   "complex_sents_content": [sent.original_content for
-																# 							sent in
-																# 							complex_elements.all()],
-																#   "simple_sents_content": [sent.original_content for
-																# 						   sent in
-																# 						   simple_elements.all()],
-																#   "simple_annotated_sents": simple_annotated_sents,
-																#   "complex_annotated_sents": complex_annotated_sents,
-																# "corpus_id": doc_pair_tmp.corpus.id,
-																#   "doc_simple_url": doc_pair_tmp.simple_document.url,
-																#   "doc_simple_access_date": doc_pair_tmp.simple_document.access_date,
-																#   "last_simple_item": last_simple_item,
-																#   "last_complex_item": last_complex_item,
-																#   "no_alignment_possible": doc_pair_tmp.no_alignment_possible
+																  #"simplification_model_name": simplification_model_name,
+																  "suggestion_simplification": suggestion,
 																  })

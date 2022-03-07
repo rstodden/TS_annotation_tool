@@ -1,4 +1,5 @@
 {% extends '../base.html' %}
+{% load TS_extras %}
 
 {% block content %}
 
@@ -25,29 +26,30 @@
                         {% if type == "add" or type == "edit"%}
                             <div class="scrollable-box">
                                 {%  for sentence in complex_elements %}
-                                        <div class="col-md-10 sentence-alignment">
+                                        <div class="col-md-9 sentence-alignment">
                                             {% if sentence in complex_sents and sentence == last_complex_item %}
                     {#                            <option selected  value="{{ sentence.id }}" >{{ sentence.original_content }}</option>#}
                                                 <label class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
                                             {% elif sentence in complex_sents %}
                     {#                            <option selected  value="{{ sentence.id }}" >{{ sentence.original_content }}</option>#}
                                                 <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
-                                            {% elif sentence.original_content in simple_sents_content %}
-                                                <label class="btn btn-default align-sentence" disabled  title="The sentence is identical to a sentence of the simple document."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
-                                            {%  elif sentence == last_complex_item and sentence in complex_annotated_sents %}
+                                            {%  elif sentence == last_complex_item and sentence.id in complex_simplified %}
                                                 <label class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
-                                            {%  elif sentence in complex_annotated_sents %}
+                                            {%  elif sentence.id in complex_simplified %}
                                                 <label class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                             {% else %}
                     {#                            <option value="{{ sentence.id }}">{{ sentence.original_content }}</option>#}
                                                 <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
+                                        <div class="col-md-2 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
                                             {% if not sentence.malformed %}
                                                 <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem"><i class="fas fa-bug"></i></button>
                                             {% else %}
                                                 <button title="sentence already reported" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>
+                                            {% endif %}
+                                            {% if sentence.id in complex_simplified %}
+                                                <button title="edit pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
                                             {% endif %}
                                         </div>
                                 {% endfor %}
@@ -67,17 +69,42 @@
                     </div>
 
                     <div class="col-md-6">
+                        <div class="row">
                         {% if type == "add" or type == "edit"%}
                             <label for="simple_text"><b>Simplified Text:</b></label><br>
                             <div class="col-md-10 sentence-alignment">
-                                <textarea id="simple_text" style="min-height: 200px; font-size: 12pt; min-width: 100%" name="simple_text">{% for sent in simple_text %}{{ sent.original_content }} {% endfor %}</textarea>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea id="simple_text" style="min-height: 200px; font-size: 12pt; min-width: 100%" name="simple_text">{% for sent in simple_text %}{{ sent.original_content }} {% endfor %}</textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <button class="btn btn-default" title="get suggestion" type="submit" name="suggestion" id="suggestion_button" value="suggestion">Show Suggestion</button>
+                                        </div>
+                                        <div class="row">
+                                            <p class="simplification">
+                                                <b>Suggestion: </b> {{ suggestion_simplification }}
+                                            </p>
+                                        </div>
+                                        <div class="row">
+                                            <span>The suggestion was automatically generated by {{ simplification_model_name }}.</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         {% else %}
                             <label for="simple_text" disabled><b>Simplified Text:</b></label><br>
                             <div class="col-md-10 sentence-alignment">
-                                <textarea id="simple_text" style="min-height: 200px; font-size: 12pt; min-width: 100%" name="simple_text" disabled></textarea>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea id="simple_text" style="min-height: 200px; font-size: 12pt; min-width: 100%" name="simple_text" disabled></textarea>
+                                    </div>
+                                </div>
                             </div>
                         {% endif %}
+                        </div>
                     </div>
                 </div>
                 <div class="row">
