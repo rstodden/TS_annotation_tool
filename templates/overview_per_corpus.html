@@ -33,10 +33,16 @@
                         <tr>
                             <td class="corpus">{{ doc_pair.id }}</td>
                             <td class="corpus">{{ corpus_name }}</td>
-                            <td class="corpus">
-                                <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair.id %}">{{ doc_pair.simple_document.title }}</a>
-                            </td>
-                            <td class="corpus">{{ doc_pair.simple_document.domain }}</td>
+                            {% if doc_pair.simple_document %}
+                                <td class="corpus">
+                                    <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair.id %}">{{ doc_pair.simple_document.title }}</a>
+                                </td>
+                            {% else %}
+                                <td class="corpus">
+                                    <a href="{% url 'overview_per_doc' doc_pair_id=doc_pair.id %}">{{ doc_pair.complex_document.title }}</a>
+                                </td>
+                            {% endif %}
+                            <td class="corpus">{{ doc_pair.complex_document.domain }}</td>
                             <td class="corpus">{{ doc_pair.simple_document.level|default_if_none:"" }}</td>
                             <td class="corpus">{{ doc_pair.complex_document.level }}</td>
                             <td class="corpus">{{ doc_pair.last_changes }}</td>

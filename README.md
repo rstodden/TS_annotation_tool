@@ -11,7 +11,8 @@ You can test annotation tool in our [live demo](https://ts-anno.phil.hhu.de/) (u
 
 ## Installation
 
-- install python
+- install python3
+  - if you want to use the support of the automatic simplification system MUSS, we recommend to use Python < 3.8, as MUSS is dependent on fairseq, which is yet not compatible with Python 3.9
 - install packages, if you use conda install uwsgi with  `conda install -c conda-forge uwsgi` 
 - install postgres
 - set up postgres db with `sudo -u postgres psql`
@@ -35,7 +36,6 @@ Examples:
   - to_simply: yes
   - domain: "everyday documents"
   - language: English
-  - add_par_nr: False
   - language level complex: C2
   - annotator: test
   - attachments: all docs of demo_corpus
@@ -49,7 +49,6 @@ Examples:
   - license_file: https://raw.githubusercontent.com/facebookresearch/asset/main/LICENSE
   - domain: "wiki"
   - language: English
-  - add_par_nr: False
   - language level simple: B2
   - language level complex: C2
   - annotator: test
