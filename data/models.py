@@ -375,7 +375,7 @@ def get_spacy_model(language):
 	comp_table = r.json()
 	comp = comp_table["spacy"]
 	nlp = None
-	for model_ending in ["core_news_lg", "dep_news_trf", "core_news_trf",   "core_news_sm", "xx_sent_ud_sm"]:
+	for model_ending in ["core_news_lg", "core_web_lg", "dep_news_trf", "core_news_trf",   "core_news_sm", "xx_ent_wiki_sm", "xx_sent_ud_sm"]:
 		if model_ending.startswith("xx"):
 			model_name = model_ending
 		else:
