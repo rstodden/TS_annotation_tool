@@ -59,8 +59,9 @@ def rate_pair(request, doc_pair_id, pair_id):
 
 def get_edit_label(alignmentpair):
 	transformation_information = {"simple": dict(), "complex": dict()}
-	complex_text_and_ids = alignmentpair.complex_elements.all().order_by("id").values_list("tokens__text", "tokens__id")
-	simple_text_and_ids = alignmentpair.simple_elements.all().order_by("id").values_list("tokens__text", "tokens__id")
+	complex_text_and_ids = alignmentpair.complex_elements.all().order_by("id").values_list("tokens__text", "tokens__id").order_by("tokens__id")
+	simple_text_and_ids = alignmentpair.simple_elements.all().order_by("id").values_list("tokens__text", "tokens__id").order_by("tokens__id")
+
 	complex_text = [item[0] for item in complex_text_and_ids]
 	complex_ids = [item[1] for item in complex_text_and_ids]
 	simple_text = [item[0] for item in simple_text_and_ids]
@@ -81,7 +82,6 @@ def get_edit_label(alignmentpair):
 				transformation_information["complex"][token_id] = "delete-label"
 		elif edit_type == "insert":
 			for token_id in simple_ids[s_start:s_end]:
-				print(token_id, "add")
 				transformation_information["simple"][token_id] = "add-label"
 		else:
 			print(edit_type)
