@@ -43,6 +43,7 @@ def simplify(request, doc_pair_id):
 	complex_selected = []
 	simple_text = []
 	suggestion = ""
+	last_complex_item = None
 	form = simplification.forms.SimplificationForm()
 	if request.POST.get("add"):
 		type_action = "add"
@@ -94,8 +95,8 @@ def simplify(request, doc_pair_id):
 		type_action = "add"
 		if request.POST.get("complex_element"):
 			id_list = request.POST.getlist("complex_element")
-			selected_for_suggestion = data.models.Sentence.objects.filter(id__in=id_list).values_list("original_content", flat=True)
-			suggestion = auto_simplify(selected_for_suggestion, doc_pair_tmp.corpus.language)
+			complex_selected = data.models.Sentence.objects.filter(id__in=id_list).values_list("original_content", flat=True)
+			suggestion = " ".join(auto_simplify(complex_selected, doc_pair_tmp.corpus.language))
 		else:
 			suggestion = "Error: No complex sentence was selected. Please try again."
 	aligned_pairs = alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_id,
@@ -118,4 +119,5 @@ def simplify(request, doc_pair_id):
 																  "simple_text": simple_text,
 																  #"simplification_model_name": simplification_model_name,
 																  "suggestion_simplification": suggestion,
+																  "last_complex_item": last_complex_item,
 																  })
