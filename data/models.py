@@ -370,7 +370,7 @@ def get_spacy_model(language):
 	# snlp = stanza.Pipeline(lang=language)
 	# nlp = StanzaLanguage(snlp)
 	from spacy.cli import download
-	version = spacy.util.get_minor_version(spacy.about.__version__)
+	version = spacy.about.__version__
 	r = requests.get(spacy.about.__compatibility__)
 	comp_table = r.json()
 	comp = comp_table["spacy"]

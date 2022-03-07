@@ -8,7 +8,7 @@ django-sortable
 sortable
 requests
 bs4
-spacy
+spacy==2.3.7
 lxml
 django-multiupload
 uwsgi
