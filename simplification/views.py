@@ -6,6 +6,7 @@ import json, datetime
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
 from muss.muss.simplify import simplify_sentences
+from settings_annotation.config_simplification import simplification_model, load_simplification_model
 
 # Create your views here.
 # simplification of complex texts, such as user generated texts
@@ -41,8 +42,9 @@ def simplify(request, doc_pair_id):
 	complex_elements = data.models.Sentence.objects.filter(document=complex_doc_tmp).order_by("id")
 	type_action = "show"
 	complex_selected = []
-	simple_text = []
+	simple_text = ""
 	suggestion = ""
+	simplification_model_name = simplification_model
 	last_complex_item = None
 	form = simplification.forms.SimplificationForm()
 	if request.POST.get("add"):
@@ -55,7 +57,7 @@ def simplify(request, doc_pair_id):
 		sentence_pair_tmp_id = sentence_pair_tmp.id
 
 		complex_selected = data.models.Sentence.objects.filter(complex_element=sentence_pair_tmp).order_by("-id")
-		simple_text = data.models.Sentence.objects.filter(simple_element=sentence_pair_tmp).order_by("id")
+		simple_text = " ".join(data.models.Sentence.objects.filter(simple_element=sentence_pair_tmp).order_by("id").values_list("original_content", flat=True))
 	elif request.POST.get("save-edit"):
 		type_action = "add"
 		form = simplification.forms.SimplificationForm(request.POST)
@@ -71,7 +73,7 @@ def simplify(request, doc_pair_id):
 														 number_sentences=number_sentences, author=request.user)
 			simple_doc_tmp.save()
 			simple_element = data.models.Sentence.objects.filter(id__in=new_sentences)
-			last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(simple_element, form.cleaned_data["complex_element"], request.user, doc_pair_tmp, request.session["start"], duration=duration)
+			last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(simple_element, form.cleaned_data["complex_element"], [request.user], doc_pair_tmp, request.session["start"], duration=duration)
 	elif request.POST.get("delete"):
 		sentence_pair_tmp = alignment.models.Pair.objects.get(id=request.POST.get("delete"), annotator=request.user)
 		sentence_pair_tmp.delete()
@@ -91,12 +93,15 @@ def simplify(request, doc_pair_id):
 			# last_simple_item, last_complex_item
 			simple_element = data.models.Sentence.objects.filter(id__in=new_sentences)
 			last_simple_item, last_complex_item = sentence_pair_tmp.save_sentence_alignment_from_form(simple_element, form.cleaned_data["complex_element"], [request.user], doc_pair_tmp, start_time=request.session["start"])
-	elif request.POST.get("suggestion"):
-		type_action = "add"
+	elif request.POST.get("suggestion") and load_simplification_model:
+		type_action = "edit"
+		print(request.POST)
 		if request.POST.get("complex_element"):
 			id_list = request.POST.getlist("complex_element")
-			complex_selected = data.models.Sentence.objects.filter(id__in=id_list).values_list("original_content", flat=True)
-			suggestion = " ".join(auto_simplify(complex_selected, doc_pair_tmp.corpus.language))
+			simple_text = request.POST.get("simple_text")
+			complex_selected = data.models.Sentence.objects.filter(id__in=id_list).order_by("-id")
+			complex_selected_text = data.models.Sentence.objects.filter(id__in=id_list).values_list("original_content", flat=True)
+			suggestion = " ".join(auto_simplify(complex_selected_text, doc_pair_tmp.corpus.language))
 		else:
 			suggestion = "Error: No complex sentence was selected. Please try again."
 	aligned_pairs = alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_id,
@@ -117,7 +122,8 @@ def simplify(request, doc_pair_id):
 																  "pair_tmp_id": sentence_pair_tmp_id,
 																  "complex_sents": complex_selected,
 																  "simple_text": simple_text,
-																  #"simplification_model_name": simplification_model_name,
+																  "simplification_model_name": simplification_model_name,
 																  "suggestion_simplification": suggestion,
 																  "last_complex_item": last_complex_item,
+																  "load_simplification_model": load_simplification_model,
 																  })

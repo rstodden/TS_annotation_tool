@@ -21,7 +21,6 @@ def get_value_in_qs(queryset, key):
 
 @register.simple_tag()
 def check_aligned(sentence, user):
-	print(sentence, user)
 	sentence_tmp = get_object_or_404(data.models.Sentence, id=sentence.id)
 	if sentence_tmp.simple_element.filter(annotator=user).exists():
 		return sentence_tmp.simple_element.get(annotator=user).id
