@@ -20,3 +20,5 @@ class ChangeLog(models.Model):
 	priority = TS_annotation_tool.utils.IntegerRangeField(min_value=1, max_value=5, blank=True, null=True,
 														  help_text="Select 1 for highest priority and 5 for lowest priority.")
 
+	def __str__(self):
+		return "("+str(self.id)+") "+self.headline
