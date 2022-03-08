@@ -13,9 +13,9 @@ from settings_annotation.config_simplification import simplification_model, load
 # add simplification to data model od data app
 
 
-@login_required
-def home(request):
-	return render(request, "simplification/home.html")
+# @login_required
+# def home(request):
+# 	return render(request, "simplification/home.html")
 
 
 def auto_simplify(source_sentences, language):

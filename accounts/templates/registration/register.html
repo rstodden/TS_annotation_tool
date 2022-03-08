@@ -6,7 +6,30 @@
 {% block content %}
     <form method="POST" class="form-group">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<button type="submit" class="btn btn-success">Register</button>
+    <table class="form-check">
+    {% for field in form %}
+        {% if field.name != "username" and field.name != "password1" and field.name != "password2" %}
+        <tr>
+            <td>{{ field.help_text|safe }}</td>
+            <td>{{ field.label_tag }}</td>
+            <td>{{ field }}</td>
+        </tr>
+        {% else %}
+            <tr>
+                <td></td>
+                <td>{{ field.label_tag }}</td>
+                <td>{{ field }}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td class="help-block">{{ field.help_text|safe }}</td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
+    <p>
+	    <button type="submit" class="btn btn-default">Register</button>
+    </p>
     </form>
 {% endblock %}

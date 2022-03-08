@@ -901,26 +901,26 @@ def export(request):
 	return render(request, 'evaluation/home.html', {"title": "Evaluation - Text Simplification Annotation Tool"})
 
 
-@user_passes_test(lambda u: u.is_superuser)
-def full_document_export(request):
-	file_names = list()
-	simple_text, complex_text, meta_data = "", "", "\t".join(["language", "domain", "complex_level", "simple_level", "license", "author", "url", "access_date"])
-	for document_pair in data.models.DocumentPair.objects.filter(corpus__continuous_text=True):
-		if not document_pair.simple_document or not document_pair.complex_document:
-			continue
-		simple_text_tmp = document_pair.simple_document.plain_data
-		simple_text += simple_text_tmp.replace("SEPL|||SEPR", " ")+"\n"
-		complex_text_tmp = document_pair.complex_document.plain_data
-		complex_text += complex_text_tmp.replace("SEPL|||SEPR", " ")+"\n"
-		language, domain, complex_level, simple_level, license, author, url, access_date = document_pair.corpus.language, document_pair.corpus.domain, document_pair.complex_document.level, document_pair.simple_document.level, document_pair.corpus.license, document_pair.corpus.author, document_pair.simple_document.url, document_pair.simple_document.access_date
-		meta_data += "\t".join([language, domain, complex_level, simple_level, license, author, url, str(access_date)])+"\n"
-	with open("document_level_simple.txt", "w") as f:
-		f.write(simple_text)
-	with open("document_level_original.txt", "w") as f:
-		f.write(complex_text)
-	with open("document_level_meta.tsv", "w") as f:
-		f.write(meta_data)
-	return generate_zip_file(["document_level_simple.txt", "document_level_original.txt", "document_level_meta.tsv"])
+# @user_passes_test(lambda u: u.is_superuser)
+# def full_document_export(request):
+# 	file_names = list()
+# 	simple_text, complex_text, meta_data = "", "", "\t".join(["language", "domain", "complex_level", "simple_level", "license", "author", "url", "access_date"])
+# 	for document_pair in data.models.DocumentPair.objects.filter(corpus__continuous_text=True):
+# 		if not document_pair.simple_document or not document_pair.complex_document:
+# 			continue
+# 		simple_text_tmp = document_pair.simple_document.plain_data
+# 		simple_text += simple_text_tmp.replace("SEPL|||SEPR", " ")+"\n"
+# 		complex_text_tmp = document_pair.complex_document.plain_data
+# 		complex_text += complex_text_tmp.replace("SEPL|||SEPR", " ")+"\n"
+# 		language, domain, complex_level, simple_level, license, author, url, access_date = document_pair.corpus.language, document_pair.corpus.domain, document_pair.complex_document.level, document_pair.simple_document.level, document_pair.corpus.license, document_pair.corpus.author, document_pair.simple_document.url, document_pair.simple_document.access_date
+# 		meta_data += "\t".join([language, domain, complex_level, simple_level, license, author, url, str(access_date)])+"\n"
+# 	with open("document_level_simple.txt", "w") as f:
+# 		f.write(simple_text)
+# 	with open("document_level_original.txt", "w") as f:
+# 		f.write(complex_text)
+# 	with open("document_level_meta.tsv", "w") as f:
+# 		f.write(meta_data)
+# 	return generate_zip_file(["document_level_simple.txt", "document_level_original.txt", "document_level_meta.tsv"])
 
 def get_ids(doc_pair, sent, level):
 	if len(sent) == 1:
