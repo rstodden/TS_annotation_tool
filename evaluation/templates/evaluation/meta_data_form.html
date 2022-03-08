@@ -31,7 +31,7 @@
             {#                    <button type="submit">Save Meta Data</button>#}
             {#                </p>#}
             <div id="readme" class="Box-body readme blob js-code-block-container p-5 p-xl-6 gist-border-0">
-                <p class="markdown-body entry-content container-lg" itemprop="text">
+                <p class="markdown-body entry-content container-lg">
 
                     <h1 dir="auto"><a id="user-content-dataset-card-creation-guide" class="anchor" aria-hidden="true"
                                       href="#dataset-card-creation-guide">
@@ -521,17 +521,18 @@
                         The following labels for rewriting transformations are part of the annotation schema:
                         <ul>
                             {% for transformation_level, transformation_level_value in transformations.items %}
-                                <li>{{ transformation_level }}</li>
+                                <li>{{ transformation_level }}
                                 <ul>
-                                {% for transformation, transformation_value in transformation_level_value.items %}
-                                    <li>{{ transformation }}</li>
-{#                                    <ul>#}
-{#                                        {% for sub_trans in transformation_value %}#}
-{#                                            <li>{{ sub_trans }}</li>#}
-{#                                        {% endfor %}#}
-{#                                    </ul>#}
-                                    {% endfor %}
-                                </ul>
+                                    {% for transformation, transformation_value in transformation_level_value.items %}
+                                        <li>{{ transformation }}</li>
+    {#                                    <ul>#}
+    {#                                        {% for sub_trans in transformation_value %}#}
+    {#                                            <li>{{ sub_trans }}</li>#}
+    {#                                        {% endfor %}#}
+    {#                                    </ul>#}
+                                        {% endfor %}
+                                    </ul>
+                                </li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -562,16 +563,17 @@
                         The following annotators are involved in annotation of the data set:
                         <ul>
                             {% for annotator in annotators %}
-                                <li>ID: {{ annotator.id }}</li>
-                                <ul>
-                                    <li>Native Language: {{ annotator.native_language }}</li>
-                                    <li>Language Level in DE: {{ annotator.language_level_de }}</li>
-                                    <li>Age: {{ annotator.age }}</li>
-                                    <li>Highest Education: {{ annotator.highest_education_level }}</li>
-                                    <li>Literacy Level: {{ annotator.literacy_level }}</li>
-                                    <li>Training in Linguistics: {{ annotator.training_in_linguistics }}</li>
-                                    <li>Training in Simple Language: {{ annotator.training_in_simple_language }}</li>
-                            </ul>
+                                <li>ID: {{ annotator.id }}
+                                    <ul>
+                                        <li>Native Language: {{ annotator.native_language }}</li>
+                                        <li>Language Level in DE: {{ annotator.language_level_de }}</li>
+                                        <li>Age: {{ annotator.age }}</li>
+                                        <li>Highest Education: {{ annotator.highest_education_level }}</li>
+                                        <li>Literacy Level: {{ annotator.literacy_level }}</li>
+                                        <li>Training in Linguistics: {{ annotator.training_in_linguistics }}</li>
+                                        <li>Training in Simple Language: {{ annotator.training_in_simple_language }}</li>
+                                    </ul>
+                                </li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -779,7 +781,9 @@
                         {{ form.contribution_description.label_tag }}{{ form.contribution_description }}
                     </div>
             </div>
-            <button type="submit" class="save btn btn-default" name="submit">Save</button>
+            <div class="row">
+                <button type="submit" class="save btn btn-default" name="submit">Save</button>
+            </div>
             </form>
         </div>
     </div>

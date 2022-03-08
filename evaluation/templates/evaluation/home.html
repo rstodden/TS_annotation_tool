@@ -13,46 +13,46 @@
                 <ul >
                     <li class="eval-li">
                         Export ratings per alignment pair, one rating aspect per line.<br>
-                        <button><a href="{% url 'evaluation:export_ratings' %}">Export Ratings</a></button>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_ratings' %}">Export Ratings</a>
                     </li>
                     <li class="eval-li">
                         Export transformations per alignment pair.  Caution: This might take a while.<br>
-                        <button><a href="{% url 'evaluation:export_transformations' %}">Export Transformations</a></button>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_transformations' %}">Export Transformations</a>
                     </li>
                     <li  class="eval-li">
                         Export transformations per alignment pair, label each token with a transformation.  Caution: This might take a while.'<br>
-                        <button><a href="{% url 'evaluation:export_transformations_as_iob' %}">Export Transformations in IOB Format</a></button>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_transformations_as_iob' %}">Export Transformations in IOB Format</a>
                     </li>
                     <li  class="eval-li">
                         Export alignment pairs. Specify the download option on the next page.  Caution: This might take a while.<br>
-                        <button><a href="{% url 'evaluation:export_alignments' %}">Export Alignment</a></button>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_alignments' %}">Export Alignment</a>
                     </li>
                     <li  class="eval-li">
                         Combine all annotations (alignments, rating and transformations) and export it in a csv file. Caution: This might take a while.<br>
-                        <button><a href="{% url 'evaluation:export_all_in_csv_per_use' %}">export all in csv per user</a></button>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_all_in_csv_per_use' %}">export all in csv per user</a>
                     </li>
                     <li  class="eval-li">
                         Export meta data (coming soon).<br>
-                        <button><a href="{% url 'evaluation:export_meta_data' %}">Export Meta Data</a></button>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_meta_data' %}">Export Meta Data</a>
                     </li>
                     <li  class="eval-li">
                         Export user data (coming soon).<br>
-                        <button><a href="{% url 'evaluation:export_user_data' %}">Export User Data</a></button>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_user_data' %}">Export User Data</a>
                     </li>
 {#                    <li  class="eval-li">#}
 {#                        <i data-toggle="tooltip" data-placement="top" title='' class="fas fa-question-circle">  </i>#}
-{#                        <button><a href="{% url 'evaluation:export_data_sheet' %}">Export Data Sheet</a></button>#}
+{#                        <a class="btn btn-default" href="{% url 'evaluation:export_data_sheet' %}">Export Data Sheet</a>#}
 {#                    </li>#}
                 </ul>
                 <h3>Export Document Level</h3>
                 <ul>
-{#                    <button><a href="{% url 'evaluation:full_document_export' %}">Export Full Documents</a></button><br>#}
-                    <li  class="eval-li">Export the document pairs of continuous documents sentence-wise. The export contains additions, deletions, no-change pairs and aligned sentence pairs.<br><button><a  href="{% url 'evaluation:full_aligned_document_export' %}">Export Full Aligned Documents</a></button></li>
+{#                    <a class="btn btn-default" href="{% url 'evaluation:full_document_export' %}">Export Full Documents</a><br>#}
+                    <li  class="eval-li">Export the document pairs of continuous documents sentence-wise. The export contains additions, deletions, no-change pairs and aligned sentence pairs.<br><a class="btn btn-default"  href="{% url 'evaluation:full_aligned_document_export' %}">Export Full Aligned Documents</a></li>
                 </ul>
                 <h3>Data Sheet (Meta Data)</h3>
                 <ul>
                     <li class="eval-li">Create a data sheet<br>
-                        <button><a href="{% url 'evaluation:meta_data' %}">Add, Edit or Download Data Sheet</a></button><br>
+                        <a class="btn btn-default" href="{% url 'evaluation:meta_data' %}">Add, Edit or Download Data Sheet</a><br>
                     </li>
                 </ul>
 
@@ -61,19 +61,19 @@
                 <ul>
                     <li class="eval-li">
                         Calculate inter annotator agreement for ratings. (coming soon).<br>
-                        <button><a href="{% url 'evaluation:export_iaa_rating' %}">Calculate IAA for rating</a></button><br>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_iaa_rating' %}">Calculate IAA for rating</a><br>
                     </li>
                     <li class="eval-li">
                         Calculate inter annotator agreement for transformations (coming soon).<br>
-                        <button><a href="{% url 'evaluation:export_iaa_transformation' %}">Calculate IAA for transformation</a></button><br>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_iaa_transformation' %}">Calculate IAA for transformation</a><br>
                     </li>
                     <li class="eval-li">
                         Calculate inter annotator agreement of alignment<br>
-                        <button><a href="{% url 'evaluation:export_iaa_alignment' %}">Calculate IAA for alignment</a></button><br>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_iaa_alignment' %}">Calculate IAA for alignment</a><br>
                     </li>
                     <li class="eval-li">
                         Export alignments in special format to calculate IAA or to train a automatic aligner.<br>
-                        <button><a href="{% url 'evaluation:export_alignment_for_crf' %}">get alignments for IAA and automatic Alignment</a></button><br>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_alignment_for_crf' %}">get alignments for IAA and automatic Alignment</a><br>
                     </li>
                 </ul>
             </form>

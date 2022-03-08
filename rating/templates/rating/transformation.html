@@ -12,9 +12,9 @@
         </div>
     </div>
     <div class="row error_log">
-        <p class="error_form">
+        <div class="error_form">
             {{ form.errors }}
-        </p>
+        </div>
     </div>
     <div class="row">
         <p>Color Coding of Changes:
@@ -49,12 +49,21 @@
                                         <div class="form-check list-inline list-group-horizontal btn-group" role="group" data-toggle="buttons">
                                             {% for token in sentence.tokens.all|sort_by:'id' %}
                                                 {% if token in complex_token_selected %}
-                                                   <label for="complex_token_{{ token.id }}" class="btn btn-default active"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" checked>{{ token.text }}</label>
+                                                   <span class="btn btn-default active">
+                                                    <input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" checked>
+                                                    <label for="complex_token_{{ token.id }}" >{{ token.text }}</label>
+                                                   </span>
                                                 {% else %}
                                                     {%  if token.id in transformation_information.complex %}
-                                                        <label for="complex_token_{{ token.id }}" class="btn btn-default " data-value="{% nested_get transformation_information 'complex' token.id %}" name="label-token"><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                        <span class="btn btn-default label-token" data-value="{% nested_get transformation_information 'complex' token.id %}">
+                                                            <input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >
+                                                            <label for="complex_token_{{ token.id }}">{{ token.text }}</label>
+                                                        </span>
                                                     {% else %}
-                                                        <label for="complex_token_{{ token.id }}" class="btn btn-default" data-value=""><input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                        <span class="btn btn-default" data-value="">
+                                                            <input type="checkbox" name="complex_token"  value="{{ token.id }}" id="complex_token_{{ token.id }}" class="form-check list-group-item" >
+                                                            <label for="complex_token_{{ token.id }}">{{ token.text }}</label>
+                                                        </span>
                                                     {% endif %}
                                                 {% endif %}
                                             {% endfor %}
@@ -71,12 +80,21 @@
                                         <div class="form-check list-inline list-group-horizontal btn-group" role="group" data-toggle="buttons">
                                             {% for token in sentence.tokens.all|sort_by:'id' %}
                                                 {% if token in simple_token_selected %}
-                                                    <label for="simple_token_{{ token.id }}" class="btn btn-default active"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" checked>{{ token.text }}</label>
+                                                    <span class="btn btn-default active" >
+                                                        <input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" checked>
+                                                        <label for="simple_token_{{ token.id }}" >{{ token.text }}</label>
+                                                    </span>
                                                 {% else %}
                                                     {%  if token.id in transformation_information.simple %}
-                                                        <label for="simple_token_{{ token.id }}" class="btn btn-default " data-value="{% nested_get transformation_information 'simple' token.id %}" name="label-token"><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                        <span class="btn btn-default label-token" data-value="{% nested_get transformation_information 'simple' token.id %}">
+                                                            <input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >
+                                                            <label for="simple_token_{{ token.id }}">{{ token.text }}</label>
+                                                        </span>
                                                     {% else %}
-                                                        <label for="simple_token_{{ token.id }}" class="btn btn-default" data-value=""><input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >{{ token.text }}</label>
+                                                        <span class="btn btn-default" >
+                                                            <input type="checkbox" name="simple_token"  value="{{ token.id }}" id="simple_token_{{ token.id }}" class="form-check list-group-item" >
+                                                            <label for="simple_token_{{ token.id }}" data-value="">{{ token.text }}</label>
+                                                        </span>
                                                     {% endif %}
                                                 {% endif %}
                                             {% endfor %}
@@ -101,10 +119,16 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     {% if trans_level == transformation_level_selected %}
-                                        <label for="transformation_{{ trans_level }}" class="btn btn-default collapsible active"><input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="transformation_level" checked> {{ trans_level|capfirst }}</label>
+                                        <span class="btn btn-default collapsible active">
+                                            <input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="transformation_level" checked>
+                                            <label for="transformation_{{ trans_level }}" > {{ trans_level|capfirst }}</label>
+                                        </span>
                                         <div class="collapsible_content" style="display: block">
                                     {% else %}
-                                        <label for="transformation_{{ trans_level }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="transformation_level"> {{ trans_level|capfirst }}</label>
+                                        <span class="btn btn-default collapsible">
+                                            <input type="radio" value="{{ trans_level }}" id="transformation_{{ trans_level }}" name="transformation_level">
+                                            <label for="transformation_{{ trans_level }}" > {{ trans_level|capfirst }}</label>
+                                        </span>
                                         <div class="collapsible_content" style="display: none">
                                     {% endif %}
             {#                        <button type="button" class="collapsible" value="{{ trans_level }}"><input type="radio" name="transformation_level" id="transformation_{{ trans_level }}"> <label for="transformation_{{ trans_level }}"> {{ trans_level|capfirst }}</label></button>#}
@@ -112,29 +136,44 @@
                                         {% for trans, subtransformation_list in transformation_list.items %}
             {#                            <label title="{{ form.transaction.help_text }}" for="{{ form.transaction.id }}">&#9432;</label>#}
                                             {% if trans == transformation_selected and trans_level == transformation_level_selected %}
-                                                <label for="transformation_{{ trans_level }}_{{ trans }}" class="btn btn-default collapsible active"><input type="radio" value="{{ trans }}" id="transformation_{{ trans_level }}_{{ trans }}" name="transformation" checked> {{ trans }}</label>
+                                                <span class="btn btn-default collapsible active">
+                                                    <input type="radio" value="{{ trans }}" id="transformation_{{ trans_level }}_{{ trans }}" name="transformation" checked>
+                                                    <label for="transformation_{{ trans_level }}_{{ trans }}" > {{ trans }}</label>
+                                                </span>
                                                 <div class="collapsible_subcontent" style="display: block">
                                             {% else %}
-                                                <label for="transformation_{{ trans_level }}_{{ trans }}" class="btn btn-default collapsible"><input type="radio" value="{{ trans }}" id="transformation_{{ trans_level }}_{{ trans }}" name="transformation"> {{ trans }}</label>
+                                                <span class="btn btn-default collapsible">
+                                                    <input type="radio" value="{{ trans }}" id="transformation_{{ trans_level }}_{{ trans }}" name="transformation">
+                                                    <label for="transformation_{{ trans_level }}_{{ trans }}"> {{ trans }}</label>
+                                                </span>
                                                 <div class="collapsible_subcontent" style="display: none">
                                             {% endif %}
 {#                                            <div class="collapsible_subcontent" style="display: none">#}
                                             {% for subtrans in subtransformation_list %}
                                                 {% if subtrans == "other" and transformation_subtransformation_selected == subtrans and trans == transformation_selected and trans_level == transformation_level_selected %}
-                                                    <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation" checked> {{ subtrans }}
+                                                    <span class="btn btn-default">
+                                                        <input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation" checked>
+                                                        <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}">
+                                                             {{ subtrans }}
+                                                        </label>
                                                         <input type="text" maxlength="100" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}_freetext" name="own_subtransformation" value="{{ transformation_own_subtransformation_selected }}">
-{#                                                        {{ form.own_subtransformation }}{{ form.own_subtransformation.data.value }}#}
-                                                    </label>
+                                                    </span>
 
                                                 {% elif subtrans == transformation_subtransformation_selected and trans == transformation_selected and trans_level == transformation_level_selected %}
                                                     <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation" checked> {{ subtrans }}</label>
                                                 {% elif subtrans == "other" %}
-                                                    <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation"> {{ subtrans }}
+                                                    <span class="btn btn-default">
+                                                        <input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation">
+                                                        <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}">
+                                                            {{ subtrans }}
+                                                        </label>
                                                         <input type="text" maxlength="100" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}_freetext" name="own_subtransformation">
-{#                                                        {{ form.own_subtransformation }}{{ form.own_subtransformation.data.value|default_if_none:"" }}#}
-                                                    </label>
+                                                    </span>
                                                 {% else %}
-                                                    <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" class="btn btn-default"><input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation"> {{ subtrans }}</label>
+                                                    <span  class="btn btn-default">
+                                                        <input type="radio" value="{{ subtrans }}" id="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}" name="sub_transformation">
+                                                        <label for="transformation_{{ trans_level }}_{{ trans }}_{{ subtrans }}"> {{ subtrans }}</label>
+                                                    </span>
                                                 {% endif %}
                                             {% endfor %}
                                             </div>
@@ -149,7 +188,7 @@
                                     <p>
                                         If you choose "insert" at word or phrase level, please choose also the token after which the new token(s) is/are added.
                                     </p>
-                                    <label for="insert_at_beginning">Insert at Sentence Beginning:</label>
+                                    <label for="{{ form.insert_at_beginning.id_for_label }}">Insert at Sentence Beginning:</label>
                                     {{ form.insert_at_beginning }}
 {#                                    {% if transformation_start_at_beginning %}#}
 {#                                        <input type="checkbox" name="insert_at_beginning" id="insert_at_beginning"  value="insert_at_beginning" checked>#}
@@ -157,7 +196,7 @@
 {#                                        <input type="checkbox" name="insert_at_beginning" id="insert_at_beginning" value="insert_at_beginning">#}
 {#                                    {% endif %}#}
                                     <br>
-                                    <label for="insert_slot_start">Choose a Insert Point:</label>
+                                    <label for="insert_slot_start">Choose an Insert Point:</label>
                                         <select id="insert_slot_start" name="insert_slot_start">
                                             <option value="">----</option>
                                             {% for sentence in complex_elements %}
@@ -176,12 +215,12 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <hr style="width:100%;text-align:left;margin-left:0">
-                                <label title="{{ form.certainty.help_text|safe }}" for="{{ form.certainty.id }}">&#9432;</label>
+                                <i data-toggle="tooltip" data-placement="top" title='{{ form.certainty.help_text|safe }}' class="fas fa-question-circle">  </i>
                                 {{ form.certainty.label_tag }}
                                 {{ form.certainty }}{{ form.certainty.data.value|default_if_none:0 }}
                                 <br><br>
 
-                                <label title="{{ form.comment.help_text|safe }}" for="{{ form.comment.id }}">&#9432;</label>
+                                <i data-toggle="tooltip" data-placement="top" title='{{ form.comment.help_text|safe }}' class="fas fa-question-circle">  </i>
                                 {{ form.comment.label_tag }}
                                 {{ form.comment }}{{ form.comment.data.value|default_if_none:"" }}
                             </div>
@@ -243,7 +282,7 @@
         }
 
         function show_hide_color_coding() {
-            var token_labels = document.getElementsByName("label-token");
+            var token_labels = document.getElementsByClassName("label-token");
             if (document.getElementById("color-switch-input").checked ) {
                 for (let i = 0;i < token_labels.length; i++) {
                     token_labels[i].classList.add(token_labels[i].getAttribute('data-value'));

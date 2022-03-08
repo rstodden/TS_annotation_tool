@@ -1,5 +1,6 @@
 {% load static %}
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         {% if title %}
             <title>{{ title }}</title>
@@ -43,7 +44,9 @@
                                     </a>
                                 </li>
                             {% else %}
-                                <i class="fas fa-book"></i> Corpus Overview
+                                <li>
+                                    <i class="fas fa-book"></i> Corpus Overview
+                                </li>
                             {% endif %}
                             {% if doc_pair_id %}
                                 <li>
@@ -109,12 +112,18 @@
                     {% endblock %}
                 </div>
             </div>
+            <hr>
             <div class="row footer">
                 <div class="col-md-12" style="text-align: center">
-                    &copy; 2021
-                    <a target="_blank" title="Link to the website of Regina Stodden" href="https://user.phil.hhu.de/~stodden/">Regina Stodden</a>
-                    <br>
-                    <a href="https://www.hhu.de/datenschutzerklaerung" title="Link to Privacy Statement" target="_blank">Privacy Statement</a>
+                    <div class="row">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-6">
+                            &copy; 2022 Regina Stodden and Laura Kallmeyer <br>
+                            <a href="https://www.hhu.de/datenschutzerklaerung" title="Link to Privacy Statement" target="_blank">Privacy Statement</a>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+
                 </div>
             </div>
         </div>

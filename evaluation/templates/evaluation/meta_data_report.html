@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-md-12 subpage_content">
             <div id="readme" class="Box-body readme blob js-code-block-container p-5 p-xl-6 gist-border-0">
-                <p class="markdown-body entry-content container-lg" itemprop="text">
+                <p class="markdown-body entry-content container-lg">
 
                     <h1 dir="auto"><a id="user-content-dataset-card-creation-guide" class="anchor" aria-hidden="true"
                                       href="#dataset-card-creation-guide">
@@ -752,9 +752,9 @@
                         {{ meta_data.contribution_description }}
                     </div>
             </div>
-            <button><a href="{% url 'evaluation:meta_data_export' %}">Export Meta Data as HTML</a></button><br>
-            <button>Export as MarkDown</button>
-            <button><a href="{% url 'evaluation:meta_data' %}">Change Meta Data</a></button><br>
+            <a class="btn btn-default" href="{% url 'evaluation:meta_data_export' %}">Export Meta Data as HTML</a><br>
+            <a class="btn btn-default" disabled="">Export as MarkDown</a>
+            <a class="btn btn-default" href="{% url 'evaluation:meta_data' %}">Change Meta Data</a><br>
         </div>
     </div>
 {% endblock %}

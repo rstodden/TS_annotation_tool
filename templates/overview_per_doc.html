@@ -13,28 +13,28 @@
         <div class="col-md-12">
             <h2>Document: {{ doc_title }}</h2>
             <p>
-                <button><a href="{% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}">Continue Alignment</a></button><br>
+                <a class="btn btn-default" href="{% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}">Continue Alignment</a><br>
             </p>
-            <table class="doc">
-                <thead>
-                <tr>
-{#                    <td class="doc">ID</td>#}
-{#                    <td>grammaticality</td>#}
-{#                    <td>meaning preservation</td>#}
-{#                    <td>simplicity</td>#}
-{#                    <td>certainty</td>#}
-{#                    <td>transformation</td>#}
-{#                    <td>domain</td>#}
-                    <td class="doc">complex sentence</td>
-                    <td class="doc">simple sentence</td>
-                    <td class="doc">Rating</td>
-                    <td class="doc">Transformation</td>
-                    <td class="doc">Alignment</td>
+            <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}
+                <table class="doc">
+                    <thead>
+                    <tr>
+    {#                    <td class="doc">ID</td>#}
+    {#                    <td>grammaticality</td>#}
+    {#                    <td>meaning preservation</td>#}
+    {#                    <td>simplicity</td>#}
+    {#                    <td>certainty</td>#}
+    {#                    <td>transformation</td>#}
+    {#                    <td>domain</td>#}
+                        <td class="doc">complex sentence</td>
+                        <td class="doc">simple sentence</td>
+                        <td class="doc">Rating</td>
+                        <td class="doc">Transformation</td>
+                        <td class="doc">Alignment</td>
 
-                </tr>
-                </thead>
-                <tbody>
-                <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}
+                    </tr>
+                    </thead>
+                    <tbody>
                     {% for pair in alignments %}
                         <tr>
     {#                        <td class="doc">#}
@@ -123,9 +123,9 @@
                             </td>
                         </tr>
                     {% endfor %}
-                </form>
                 </tbody>
             </table>
+            </form>
             {% if alignments.has_other_pages %}
                 <ul class="pagination">
                     {% if alignments.has_previous and alignments.previous_page_number != 0 %}

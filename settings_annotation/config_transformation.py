@@ -21,7 +21,7 @@ transformation_dict = {"word": {
 									 "relative_clause", "other"],
 						   "verbal_changes": ["voice_of_verb", "verb_tense", "verb_mood", "other"],
 						   "lexical_substitution": ["verbalization", "other"],
-						   "reorder": ["subject-verb-reorder", "genitive to dative", "negative to positive", "other"],
+						   "reorder": ["subject-verb-reorder", "genitive_to_dative", "negative_to_positive", "other"],
 						   "rephrase": [],
 						    "no_operation": [],
 					   		},
