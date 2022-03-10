@@ -33,7 +33,8 @@
                             <li>
                                 <a href="{% url 'overview_all_corpora' %}">
 {#                                <i class="fas fa-book"></i>#}
-                                    <img class="fas" style="height: 1.1em; color: #8ACBAE" src="https://toppng.com/uploads/preview/book-shelf-icon-book-on-shelf-icon-11553457588j7kv5lb8si.png" alt="books on a shelf. based on icons of fontawesome.">
+                                    <img class="fas" style="height: 1.3em;" src="{%  static 'img/book-shelf-icon.png'  %}">
+                                    <i class="fa-solid fa-books"></i>
                                     Corpora Overview
                                 </a>
                             </li>
@@ -54,11 +55,36 @@
                                         <i class="fas fa-file-alt"></i>
                                         Document Overview
                                     </a>
+                                    <ul class="sidebar-nav">
+                                        <li>
+                                            <a href="{% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}">
+                                                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                                Alignment
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'rating:transformations' doc_pair_id=doc_pair_id %}">
+                                                <i class="fas fa-route"></i>
+                                                Transformation Annotation
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'rating:rating' doc_pair_id=doc_pair_id %}">
+                                                <i class="fas fa-balance-scale-left"></i>
+                                                Rating
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 {% else %}
                                 <li>
                                     <i class="fas fa-file-alt"></i>
                                     Document Overview
+                                    <ul class="sidebar-nav">
+                                        <li><i class="fa-solid fa-arrow-right-arrow-left"></i> Alignment</li>
+                                        <li><i class="fas fa-route"></i> Transformation Annotation</li>
+                                        <li><i class="fas fa-balance-scale-left"></i> Rating</li>
+                                    </ul>
                                 </li>
                             {% endif %}
                             <li>

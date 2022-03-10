@@ -7,7 +7,7 @@
         <div class="col-md-12">
             <h1>
                 <i class="fas fa-book"></i>
-                Overview per Corpus {{ corpus_name }}
+                Corpus Overview: {{ corpus_name }}
             </h1>
         </div>
     </div>
@@ -62,13 +62,13 @@
             {% if document_pairs.has_other_pages %}
                     <ul class="pagination">
                         {% if document_pairs.has_previous and document_pairs.previous_page_number != 0 %}
-                            <li><a href="?page=1" title="first page"><i class="fas fa-fast-backward"></i></a></li>
+                            <li><a href="?page=1" title="first page"><i class="fas fa-fast-backward"></i> First Documents</a></li>
                         {% else %}
                             <li class="disabled"><span><i class="fas fa-fast-backward"></i></span></li>
                         {% endif %}
                         {% if document_pairs.has_previous %}
                             <li><a href="?page={{ document_pairs.previous_page_number }}" title="previous page">
-                                <i class="fas fa-backward"></i>
+                                <i class="fas fa-backward"></i> Previous Documents
                             </a></li>
                         {% else %}
                             <li class="disabled"><span><i class="fas fa-backward"></i></span></li>
@@ -84,14 +84,14 @@
                         {% endfor %}
                         {% if document_pairs.has_next %}
                             <li><a href="?page={{ document_pairs.next_page_number }}" title="next page">
-                                <i class="fas fa-forward"></i>
+                                Next Documents <i class="fas fa-forward"></i>
                             </a></li>
                         {% else %}
                             <li class="disabled"><span><i class="fas fa-forward"></i></span></li>
                         {% endif %}
                         {% if document_pairs.has_next and document_pairs.paginator.num_pages != document_pairs.next_page_number %}
                             <li><a href="?page={{ document_pairs.paginator.num_pages }}" title="last page">
-                                <i class="fas fa-fast-forward"></i>
+                                Last Documents <i class="fas fa-fast-forward"></i>
                             </a></li>
                             {% else %}
                             <li class="disabled"><span><i class="fas fa-fast-forward"></i></span></li>

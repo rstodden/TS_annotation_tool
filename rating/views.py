@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 import alignment.models
+import data.models
 from .forms import RatingForm, TransformationForm
 from django.contrib.auth.decorators import login_required
 from TS_annotation_tool.utils import transformation_dict
@@ -88,7 +89,7 @@ def get_edit_label(alignmentpair):
 	return transformation_information
 
 @login_required
-def select_transformation(request, doc_pair_id, pair_id):
+def select_transformations(request, doc_pair_id, pair_id):
 	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
 	doc_pair_tmp = alignmentpair_tmp.document_pair
 	complex_elements = alignmentpair_tmp.complex_elements.all().order_by("id")
@@ -199,3 +200,28 @@ def select_transformation(request, doc_pair_id, pair_id):
 
 # def home(request):
 # 	return redirect('overview')
+
+
+
+@login_required
+def transformations(request, doc_pair_id):
+	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user)
+	first_alignment_pair = doc_pair_tmp.sentence_alignment_pair.filter(annotator=request.user).first()
+	if first_alignment_pair:
+		return redirect("rating:select_transformation", doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
+	else:
+		return render(request, 'rating/home.html', {"doc_pair_id": doc_pair_tmp.id,
+													"title": "Annotation - Text Simplification Annotation Tool"
+													})
+
+
+@login_required
+def rating(request, doc_pair_id):
+	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user)
+	first_alignment_pair = doc_pair_tmp.sentence_alignment_pair.filter(annotator=request.user).first()
+	if first_alignment_pair:
+		return redirect("rating:rate_pair", doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
+	else:
+		return render(request, 'rating/home.html', {"doc_pair_id": doc_pair_tmp.id,
+													"title": "Annotation - Text Simplification Annotation Tool"
+													})
