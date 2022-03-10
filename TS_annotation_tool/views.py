@@ -58,6 +58,18 @@ def overview_per_corpus(request, corpus_id):
 @login_required
 def overview_per_doc(request, doc_pair_id):
 	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user)
+	next_doc_pair = data.models.DocumentPair.objects.filter(id__gt=doc_pair_id, corpus=doc_pair_tmp.corpus).order_by('id').first()
+	prev_doc_pair = data.models.DocumentPair.objects.filter(id__lt=doc_pair_id, corpus=doc_pair_tmp.corpus).order_by('id').first()
+	first_sent_pair = doc_pair_tmp.sentence_alignment_pair.first()
+	if next_doc_pair:
+		next_doc_pair_id = next_doc_pair.id
+	else:
+		next_doc_pair_id = None
+	if prev_doc_pair:
+		prev_doc_pair_id = prev_doc_pair.id
+	else:
+		prev_doc_pair_id = None
+
 	alignments_tmp = alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user).order_by("id")
 	if doc_pair_tmp.corpus.to_simplify:
 		return redirect("simplification:simplify", doc_pair_id=doc_pair_tmp.id)
@@ -73,6 +85,8 @@ def overview_per_doc(request, doc_pair_id):
 			"doc_pair_id": doc_pair_tmp.id,
 			"doc_title": doc_pair_tmp.simple_document.title,
 			"corpus_id": doc_pair_tmp.corpus.id,
+			"prev_doc_pair_id": prev_doc_pair_id,
+			"next_doc_pair_id": next_doc_pair_id,
 			"title": "Document Overview - Text Simplification Annotation Tool"})
 	else:
 		return redirect("alignment:change_alignment", doc_pair_id=doc_pair_tmp.id)
