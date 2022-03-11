@@ -14,12 +14,12 @@
 {#            <h2>Document: {{ doc_title }}</h2>#}
             <div class="row">
                 <div class="col-md-12">
-                    <a class="btn btn-default" href="{% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}"><i class="fa-solid fa-arrow-right-arrow-left"></i> Continue Alignment</a><br>
+                    <a class="btn btn-default" href="{% url 'alignment:change_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fa-solid fa-arrow-right-arrow-left"></i> Continue Alignment</a><br>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}
+                    <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}>{% csrf_token %}
                         <table class="doc">
                             <thead>
                             <tr>
@@ -54,28 +54,28 @@
 
                                     <td class="doc">
                                         {% if pair.rating.all %}
-                                            <a href="{% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                            <a href="{% url 'rating:rate_pair' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
                                                 <i class="fas fa-edit"></i> edit
                                             </a>
                                         {% else %}
-                                            <a href="{% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                            <a href="{% url 'rating:rate_pair' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
                                                 <i class="fas fa-plus-circle"></i> add
                                             </a>
                                         {% endif %}
                                     </td>
                                     <td class="doc">
                                         {% if pair.transformation_of_pair.all %}
-                                            <a href="{% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                            <a href="{% url 'rating:select_transformation' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
                                                 <i class="fas fa-edit"></i> edit
                                             </a>
                                         {% else %}
-                                            <a href="{% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                            <a href="{% url 'rating:select_transformation' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
                                                 <i class="fas fa-plus-circle"></i> add
                                             </a>
                                         {% endif %}
                                     </td>
                                     <td class="doc">
-                                        <button class="btn btn-default" title="edit alignment of pair" type="submit" name="edit" value="{{ pair.id }}"><i class="fas fa-edit"></i> edit </button>
+                                        <a class="btn btn-default" title="edit alignment of pair" href="{% url 'alignment:edit_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}"><i class="fas fa-edit"></i> edit </a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -130,12 +130,12 @@
             <div class="row">
                 <div class="col-md-12">
                     {% if prev_doc_pair_id %}
-                        <a class="btn btn-default" href="{% url 'overview_per_doc' doc_pair_id=prev_doc_pair_id %}"><i class="fas fa-arrow-circle-left"></i> Previous Document</a>
+                        <a class="btn btn-default" href="{% url 'overview_per_doc' corpus_id=corpus_id doc_pair_id=prev_doc_pair_id %}"><i class="fas fa-arrow-circle-left"></i> Previous Document</a>
                     {% else %}
                         <a class="btn btn-default" disabled><i class="fas fa-arrow-circle-left"></i> Previous Document</a>
                     {% endif %}
                     {% if next_doc_pair_id %}
-                        <a class="btn btn-default" href="{% url 'overview_per_doc' doc_pair_id=next_doc_pair_id %}"><i class="fas fa-arrow-circle-right"></i> Next Document</a>
+                        <a class="btn btn-default" href="{% url 'overview_per_doc' corpus_id=corpus_id doc_pair_id=next_doc_pair_id %}"><i class="fas fa-arrow-circle-right"></i> Next Document</a>
                     {% else %}
                         <a class="btn btn-default" disabled><i class="fas fa-arrow-circle-right"></i> Next Document</a>
                     {% endif %}

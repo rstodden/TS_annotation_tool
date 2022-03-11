@@ -1,5 +1,5 @@
 {% extends '../base.html' %}
-{% block title %}Transformation of #{{ alignmentpair_id }}{% endblock %}
+{% block title %}Transformation of #{{ pair_id }}{% endblock %}
 {% block content %}
 {% load rating_extras %}
 {% load crispy_forms_tags %}
@@ -7,7 +7,7 @@
         <div class="col-md-12">
             <h2>
                 <i class="fas fa-route"></i>
-                Choose all Transformations of the Alignment Pair #{{ alignmentpair_id }}
+                Choose all Transformations of the Alignment Pair #{{ pair_id }}
             </h2>
         </div>
     </div>
@@ -34,7 +34,7 @@
     </div>
     <div class="row subpage content">
         <div class="col-md-12">
-                <form method="POST" class="transformation-form" action={% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=alignmentpair_id %}>{% csrf_token %}
+                <form method="POST" class="transformation-form" action={% url 'rating:select_transformation' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair_id %}>{% csrf_token %}
         {#            <p class="error_form">#}
         {#                {{ form.errors }}#}
         {#            </p>#}

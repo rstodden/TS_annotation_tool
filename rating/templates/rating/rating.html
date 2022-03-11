@@ -7,7 +7,7 @@
         <div class="col-md-12">
             <h2>
                 <i class="fas fa-balance-scale-left"></i>
-                Rate Alignment Pair #{{ alignmentpair_id }}
+                Rate Alignment Pair #{{ pair_id }}
             </h2>
         </div>
     </div>
@@ -18,7 +18,7 @@
     </div>
     <div class="row subpage content">
         <div class="col-md-12">
-            <form method="POST" class="rating-form" action={% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=alignmentpair_id %}>{% csrf_token %}
+            <form method="POST" class="rating-form" action={% url 'rating:rate_pair' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair_id %}>{% csrf_token %}
     {#            {{ form.errors }}#}
                 <div class="row">
                     <div class="col-md-12">

@@ -73,7 +73,7 @@ def insert_annotation(request):
 
 
 @login_required
-def sentence_problem(request, sentence_id):
+def sentence_problem(request, corpus_id, doc_pair_id, sentence_id):
 	sentence_tmp = get_object_or_404(data.models.Sentence, id=sentence_id)
 	sentence_content = sentence_tmp.original_content
 	if request.method == "POST":
@@ -87,7 +87,7 @@ def sentence_problem(request, sentence_id):
 			else:
 				return render(request, "data/sentence_problem.html",
 						  {"form": form, "sentence_content": sentence_content})
-			return redirect("alignment:change_alignment", doc_pair_id=doc_pair_id)
+			return redirect("alignment:change_alignment", corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 	else:
 		form = SentenceProblemForm()
 	return render(request, "data/sentence_problem.html", {"form": form, "sentence_content": sentence_content})

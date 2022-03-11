@@ -4,5 +4,10 @@ from . import views
 urlpatterns = [
     # path('', views.home, name='home'),
     # path('home', views.home, name="home"),
-    path('simplify/<int:doc_pair_id>', views.simplify, name="simplify"),
+    path('', views.show_simplification, name="simplify"),
+    path('add', views.add_simplification, name="add"),
+    path('get', views.get_simplification, name="get"),
+    path('edit/<int:pair_id>', views.edit_simplification, name="edit"),
+    path('save', views.save_simplification, name="save"),
+    path('delete/<int:pair_id>', views.delete_simplification, name="delete"),
 ]

@@ -56,7 +56,8 @@ def overview_per_corpus(request, corpus_id):
 
 
 @login_required
-def overview_per_doc(request, doc_pair_id):
+def overview_per_doc(request, corpus_id, doc_pair_id):
+	corpus_tmp = get_object_or_404(data.models.Corpus, id=corpus_id)
 	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user)
 	next_doc_pair = data.models.DocumentPair.objects.filter(id__gt=doc_pair_id, corpus=doc_pair_tmp.corpus).order_by('id').first()
 	prev_doc_pair = data.models.DocumentPair.objects.filter(id__lt=doc_pair_id, corpus=doc_pair_tmp.corpus).order_by('id').first()
@@ -72,7 +73,7 @@ def overview_per_doc(request, doc_pair_id):
 
 	alignments_tmp = alignment.models.Pair.objects.all().filter(document_pair__id=doc_pair_tmp.id, origin_annotator=request.user).order_by("id")
 	if doc_pair_tmp.corpus.to_simplify:
-		return redirect("simplification:simplify", doc_pair_id=doc_pair_tmp.id)
+		return redirect("simplification:simplify", corpus_id=corpus_id, doc_pair_id=doc_pair_tmp.id)
 	if alignments_tmp.exists():
 		paginator = Paginator(alignments_tmp, 10)
 		page_number = request.GET.get('page')
@@ -89,4 +90,4 @@ def overview_per_doc(request, doc_pair_id):
 			"next_doc_pair_id": next_doc_pair_id,
 			"title": "Document Overview - Text Simplification Annotation Tool"})
 	else:
-		return redirect("alignment:change_alignment", doc_pair_id=doc_pair_tmp.id)
+		return redirect("alignment:change_alignment", corpus_id=corpus_id, doc_pair_id=doc_pair_tmp.id)

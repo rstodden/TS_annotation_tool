@@ -32,7 +32,7 @@ input[type=checkbox][disabled]+label{
 
 .scrollable-box {
   overflow-y: auto;
-  height: 200px;
+  height: 250px;
 }
 
 .disabled-div {
@@ -45,7 +45,14 @@ input[type=checkbox][disabled]+label{
   background-color: #8ACBAE;
   padding: 1px 0;
   width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
 }
+
+.footer {
+  margin-bottom: 0;
+}
+
 
 a:link.headline, a:visited.headline, a:link:active.headline, a:visited:active.headline{
   color: #F5FFFA;
@@ -71,6 +78,22 @@ a:visited:active{
   color: #428969;
   /*color: #205c8f;*/
 }
+
+.sent_button {
+  background-color: transparent;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #428969;
+}
+.sent_button_disabled {
+    color: rgba(66, 137, 105, 0.48);
+}
+.sent_button_disabled:hover {
+    color: rgba(66, 137, 105, 0.78);
+}
+
 p.text-source {
   font-size: 9pt;
 }
@@ -177,7 +200,7 @@ table.corpus, th.corpus, td.corpus {
 }
 
 hr.paragraph-break {
-  margin: 10px;
+  margin: 0.5em;
 }
 
 .support-meta-data {
@@ -271,4 +294,23 @@ input:checked + .slider:before {
 
 .eval-li {
   margin:0.5em;
+}
+
+table.list_pairs tr:nth-child(odd) td{
+    background-color: rgba(138, 203, 174, 0.13);
+    padding: 0.25em;
+}
+table.list_pairs tr:nth-child(even) td{
+    background-color: #ffffff;
+    padding: 0.25em;
+}
+
+.sentence-alignment-row {
+  margin: 0.01em; padding: 0.05em;
+}
+.sentence-alignment-col {
+  margin-right: 0; padding-right: 0;
+}
+.sentence-alignment-buttons-col {
+  margin-right:0; padding-right: 0; margin-left: 0.25em; padding-left: 0.25em;
 }

@@ -10,7 +10,8 @@ import difflib
 
 
 @login_required
-def rate_pair(request, doc_pair_id, pair_id):
+def rate_pair(request, corpus_id, doc_pair_id, pair_id):
+	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
 	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
 	if request.method == "POST":
 		# redirected from rating.html. save rating of pair here.
@@ -18,22 +19,22 @@ def rate_pair(request, doc_pair_id, pair_id):
 		if form.is_valid():
 			alignmentpair_tmp.update_or_save_rating(form, request.user, request.session["start"])
 			if request.POST.get("transformation"):
-				return redirect('rating:select_transformation', doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
+				return redirect('rating:select_transformation', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
 
 			elif request.POST.get("next"):
 				next_pair = alignmentpair_tmp.next(request.user)
 				if next_pair:
-					return redirect('rating:rate_pair', doc_pair_id=doc_pair_id, pair_id=next_pair.id)
+					return redirect('rating:rate_pair', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=next_pair.id)
 				else:
-					return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
+					return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 			elif request.POST.get("prev"):
 				prev_pair = alignmentpair_tmp.prev(request.user)
 				if prev_pair:
-					return redirect('rating:rate_pair', doc_pair_id=doc_pair_id, pair_id=prev_pair.id)
+					return redirect('rating:rate_pair', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=prev_pair.id)
 				else:
-					return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
+					return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 			else:
-				return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
+				return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 		else:
 			print("not valid", form.errors)
 	if alignmentpair_tmp.rating.filter(rater=request.user).exists():
@@ -45,7 +46,7 @@ def rate_pair(request, doc_pair_id, pair_id):
 	complex_elements = " ".join(alignmentpair_tmp.complex_elements.values_list("original_content", flat=True).order_by("id"))
 	simple_elements = " ".join(alignmentpair_tmp.simple_elements.values_list("original_content", flat=True).order_by("id"))
 	request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
-	return render(request, 'rating/rating.html', {'form': form, 'alignmentpair_id': alignmentpair_tmp.id,
+	return render(request, 'rating/rating.html', {'form': form, 'pair_id': alignmentpair_tmp.id,
 												  "doc_pair_id": doc_pair_tmp.id,
 												  "doc_simple_url": doc_pair_tmp.simple_document.url,
 												  "doc_complex_url": doc_pair_tmp.complex_document.url,
@@ -53,7 +54,7 @@ def rate_pair(request, doc_pair_id, pair_id):
 												  "doc_complex_access_date": doc_pair_tmp.complex_document.access_date,
 												  "complex_elements": complex_elements,
 												  "simple_elements": simple_elements,
-												  "corpus_id": doc_pair_tmp.corpus.id,
+												  "corpus_id": corpus_id,
 												  "title": "Rating Annotation - Text Simplification Annotation Tool"
 												  })
 
@@ -89,9 +90,9 @@ def get_edit_label(alignmentpair):
 	return transformation_information
 
 @login_required
-def select_transformations(request, doc_pair_id, pair_id):
+def select_transformations(request, corpus_id, doc_pair_id, pair_id):
+	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
 	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
-	doc_pair_tmp = alignmentpair_tmp.document_pair
 	complex_elements = alignmentpair_tmp.complex_elements.all().order_by("id")
 	simple_elements = alignmentpair_tmp.simple_elements.all().order_by("id")
 	transformation_dict_obj = None
@@ -153,19 +154,19 @@ def select_transformations(request, doc_pair_id, pair_id):
 		elif request.POST.get("next"):
 			next_pair = alignmentpair_tmp.next(request.user)
 			if next_pair:
-				return redirect('rating:select_transformation', doc_pair_id=doc_pair_id, pair_id=next_pair.id)
+				return redirect('rating:select_transformation', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=next_pair.id)
 			else:
-				return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
+				return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 		elif request.POST.get("prev"):
 			prev_pair = alignmentpair_tmp.prev(request.user)
 			if prev_pair:
-				return redirect('rating:select_transformation', doc_pair_id=doc_pair_id, pair_id=prev_pair.id)
+				return redirect('rating:select_transformation', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=prev_pair.id)
 			else:
-				return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
+				return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 		elif request.POST.get("rate"):
-			return redirect('rating:rate_pair', doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
+			return redirect('rating:rate_pair', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
 		elif request.POST.get("document_overview"):
-			return redirect('overview_per_doc', doc_pair_id=doc_pair_id)
+			return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 		else:
 			type_form = "show"
 			# return render(request, 'rating/transformation.html',
@@ -173,7 +174,7 @@ def select_transformations(request, doc_pair_id, pair_id):
 	else:
 		form = TransformationForm()
 	return render(request, 'rating/transformation.html', {'form': form,
-														  'alignmentpair_id': alignmentpair_tmp.id,
+														  'pair_id': alignmentpair_tmp.id,
 														  'simple_elements': simple_elements,
 														 "complex_elements": complex_elements,
 														  "doc_simple_url": doc_pair_tmp.simple_document.url,
@@ -182,7 +183,7 @@ def select_transformations(request, doc_pair_id, pair_id):
 														  "doc_complex_access_date": doc_pair_tmp.complex_document.access_date,
 														  'type': type_form,
 														  "doc_pair_id": doc_pair_id,
-												  		  "corpus_id": doc_pair_tmp.corpus.id,
+												  		  "corpus_id": corpus_id,
 														  "transformations": alignmentpair_tmp.transformation_of_pair.all(),
 														  "transformation_dict": transformation_dict_obj,
 														  "complex_token_selected": complex_token_selected,
@@ -204,24 +205,24 @@ def select_transformations(request, doc_pair_id, pair_id):
 
 
 @login_required
-def transformations(request, doc_pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user)
+def transformations(request, corpus_id, doc_pair_id):
+	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
 	first_alignment_pair = doc_pair_tmp.sentence_alignment_pair.filter(annotator=request.user).first()
 	if first_alignment_pair:
-		return redirect("rating:select_transformation", doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
+		return redirect("rating:select_transformation", corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
 	else:
-		return render(request, 'rating/home.html', {"doc_pair_id": doc_pair_tmp.id,
+		return render(request, 'rating/home.html', {"corpus_id": corpus_id, "doc_pair_id": doc_pair_tmp.id,
 													"title": "Annotation - Text Simplification Annotation Tool"
 													})
 
 
 @login_required
-def rating(request, doc_pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user)
+def rating(request, corpus_id, doc_pair_id):
+	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
 	first_alignment_pair = doc_pair_tmp.sentence_alignment_pair.filter(annotator=request.user).first()
 	if first_alignment_pair:
-		return redirect("rating:rate_pair", doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
+		return redirect("rating:rate_pair", corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
 	else:
-		return render(request, 'rating/home.html', {"doc_pair_id": doc_pair_tmp.id,
+		return render(request, 'rating/home.html', {"corpus_id": corpus_id, "doc_pair_id": doc_pair_tmp.id,
 													"title": "Annotation - Text Simplification Annotation Tool"
 													})

@@ -1,39 +1,26 @@
 {% extends '../base.html' %}
 {% load TS_extras %}
 {% block content %}
-
+    {% include '../messages.html' %}
     <div class="row subclass-header">
         <div class="col-md-12">
             <h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Alignment</h2>
         </div>
     </div>
-    <div class="row error_log">
-        <p class="error_form">
-            {{ form.errors }}
-        </p>
-    </div>
     <div class="row subpage content">
         <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-12">
-                    <p>
-                        The following buttons support the alignment:
-                    </p>
-                    <ul>
-                        <li><i class="fas fa-edit"></i>: Edit alignment of current sentence.</li>
-                        <li><i class="fas fa-bug"></i>: Report a problem with the current sentence.</li>
-                        <li><i class="fas fa-wand-magic-sparkles"></i>: Find most similar sentences of the current sentence. If the first item does not fit, try to click again for the next most similar sentence.</li>
-                    </ul>
-                </div>
-            </div>
-            <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}
+            <form method="POST" class="alignment-form" action={% url 'alignment:save_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}>{% csrf_token %}
                 <div class="row">
                     <div class="col-md-6">
-                        <b>Complex Document:</b>
+                        <div class="row">
+                            <b>Complex Document:</b>
+                        </div>
                         {% if type == "add" or type == "edit"%}
-                            <div class="scrollable-box">
+                        <div class="row">
+                            <div class="scrollable-box col-md-12">
                                 {%  for sentence in complex_elements %}
-                                        <div class="col-md-9 sentence-alignment">
+                                    <div class="row sentence-alignment-row">
+                                        <div class="col-md-10 sentence-alignment-col">
                                             {% if sentence in complex_sents and sentence == last_complex_item %}
                                                 <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
                                             {% elif sentence in complex_sents and sentence == last_complex_item and complex_language_direction == "rtl" %}
@@ -64,32 +51,35 @@
                                                 <hr class="paragraph-break">
                                             {% endifchanged %}
                                         </div>
-                                        <div class="col-md-2 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
+                                        <div class="col-md-1 sentence-alignment-buttons-col">
                                             {% if not sentence.malformed %}
-                                                <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem"><i class="fas fa-bug"></i></button>
+                                                <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
                                                 {% if sentence.original_content in simple_sents_content %}
-                                                    <button type="button" title="The sentence is identical to a sentence of the simple document." name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                    <a class="sent_button_disabled" title="The sentence is identical to a sentence of the simple document."><i class="fas fa-wand-magic-sparkles"></i></a>
                                                 {% elif sentence.most_similar_sent.exists %}
-                                                    <button id="similar_button_{{ sentence.id }}" type="button" title="find most similar sent" name="find_similar_sent" onclick="show_most_similar('{{ sentence.id }}', {{ sentence.most_similar_sent.all|get_value_in_qs:'id'|safeseq }})" value=0><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                    <button class="sent_button"  id="similar_button_{{ sentence.id }}" type="button" title="find most similar sent" name="find_similar_sent" onclick="show_most_similar('{{ sentence.id }}', {{ sentence.most_similar_sent.all|get_value_in_qs:'id'|safeseq }})" value=0><i class="fas fa-wand-magic-sparkles"></i></button>
                                                 {% else %}
-                                                    <button type="button" title="No similar sentence found." name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                    <a class="sent_button_disabled" title="No similar sentence found."><i class="fas fa-wand-magic-sparkles"></i></a>
                                                 {% endif %}
                                             {% else %}
-                                                <button title="sentence already reported" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>
+                                                <a title="sentence already reported" class="sent_button_disabled"><i class="fas fa-bug"></i></a>
                                             {% endif %}
                                             {% if sentence in complex_annotated_sents %}
-                                                <button title="edit alignment of pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
+                                                <a class="sent_button" title="edit alignment of pair" href="{% url 'alignment:edit_alignment_of_sent' corpus_id=corpus_id doc_pair_id=doc_pair_id sent_id=sentence.id%}"><i class="fas fa-edit"></i></a>
                                             {% elif sentence.original_content in simple_sents_content %}
-                                                <button title="The sentence is identical to a sentence of the simple document." type="submit" name="edit"  disabled><i class="fas fa-edit"></i></button>
+                                                <a class="sent_button_disabled" title="The sentence is identical to a sentence of the simple document."><i class="fas fa-edit"></i></a>
                                             {% endif %}
                                         </div>
+                                    </div>
                                 {% endfor %}
                             </div>
+                        </div>
                         {% else %}
-                            <div class="scrollable-box">
+                        <div class="row">
+                            <div class="scrollable-box col-md-12">
                                 {%  for sentence in complex_elements %}
-                                    <div class="col-md-10 sentence-alignment">
-
+                                <div class="row sentence-alignment-row">
+                                    <div class="col-md-10 sentence-alignment-col">
                                     {% if complex_language_direction == "rtl" %}
                                         <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled>
                                     {% else %}
@@ -97,75 +87,82 @@
                                     {% endif %}
                                         <input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
                                     </div>
-{#                                    <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">#}
-{#                                        <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>#}
-{#                                    </div>#}
+                                </div>
                                 {% endfor %}
                             </div>
+                        </div>
                         {% endif %}
                     </div>
 
                     <div class="col-md-6">
-                        <b>Simple Document:</b>
+                        <div class="row">
+                            <b>Simple Document:</b>
+                        </div>
                         {% if type == "add" or type == "edit"%}
-                            <div class="scrollable-box">
+                        <div class="row">
+                            <div class="scrollable-box col-md-12">
                                 {%  for sentence in simple_elements %}
-                                        <div class="col-md-9 sentence-alignment">
-                                        {% if sentence == last_simple_item and sentence in simple_sents %}
-                                            <label class="btn btn-default align-sentence last_added" id="label_sent_{{ sentence.id }}"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
-                                        {% elif sentence == last_simple_item and sentence in simple_sents and simple_language_direction == "rtl" %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" ><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
-                                        {% elif sentence in simple_sents %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
-                                        {% elif sentence in simple_sents and simple_language_direction == "rtl" %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
-                                        {% elif sentence.original_content in complex_sents_content %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
-                                        {% elif sentence.original_content in complex_sents_content and simple_language_direction == "rtl" %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
-                                        {%  elif sentence == last_simple_item and sentence in simple_annotated_sents %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
-                                        {%  elif sentence == last_simple_item and sentence in simple_annotated_sents and simple_language_direction == "rtl" %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
-                                        {%  elif sentence in simple_annotated_sents %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
-                                        {%  elif sentence in simple_annotated_sents and simple_language_direction == "rtl" %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
-                                        {% elif simple_language_direction == "rtl" %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
-                                        {% else %}
-                                            <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
-                                        {% endif %}
-
-                                        {% ifchanged sentence.paragraph_nr %}
-                                            <hr class="paragraph-break">
-                                        {% endifchanged %}
-                                    </div>
-                                    <div class="col-md-2 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
-                                        {% if not sentence.malformed %}
-                                            <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem"><i class="fas fa-bug"></i></button>
-                                            {% if sentence.original_content in complex_sents_content %}
-                                                <button type="button" title="The sentence is identical to a sentence of the simple document." name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
-                                            {% elif sentence.most_similar_sent.exists %}
-                                                <button id="similar_button_{{ sentence.id }}" type="button" title="find most similar sent" name="find_similar_sent" onclick="show_most_similar('{{ sentence.id }}', {{ sentence.most_similar_sent.all|get_value_in_qs:'id'|safeseq }})" value=0><i class="fas fa-wand-magic-sparkles"></i></button>
+                                    <div class="row sentence-alignment-row">
+                                        <div class="col-md-10 sentence-alignment-col">
+                                            {% if sentence == last_simple_item and sentence in simple_sents %}
+                                                <label class="btn btn-default align-sentence last_added" id="label_sent_{{ sentence.id }}"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            {% elif sentence == last_simple_item and sentence in simple_sents and simple_language_direction == "rtl" %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" ><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            {% elif sentence in simple_sents %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            {% elif sentence in simple_sents and simple_language_direction == "rtl" %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element" checked autofocus> {{ sentence.original_content }}</label>
+                                            {% elif sentence.original_content in complex_sents_content %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            {% elif sentence.original_content in complex_sents_content and simple_language_direction == "rtl" %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is identical to a sentence of the complex document."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            {%  elif sentence == last_simple_item and sentence in simple_annotated_sents %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            {%  elif sentence == last_simple_item and sentence in simple_annotated_sents and simple_language_direction == "rtl" %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence last_added" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            {%  elif sentence in simple_annotated_sents %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            {%  elif sentence in simple_annotated_sents and simple_language_direction == "rtl" %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}</label>
+                                            {% elif simple_language_direction == "rtl" %}
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence" dir="rtl" style="text-align: right"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
                                             {% else %}
-                                                <button type="button" title="No similar sentence found." name="find_similar_sent" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                <label id="label_sent_{{ sentence.id }}" class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="simple_element"> {{ sentence.original_content }}</label>
                                             {% endif %}
-                                        {% else %}
-                                            <button title="sentence already reported" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>
-                                        {% endif %}
-                                        {% if sentence in simple_annotated_sents %}
-                                            <button title="edit alignment of pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
-                                        {% elif sentence.original_content in complex_sents_content %}
-                                            <button title="The sentence is identical to a sentence of the complex document." type="submit" name="edit"  disabled><i class="fas fa-edit"></i></button>
-                                        {% endif %}
+
+                                            {% ifchanged sentence.paragraph_nr %}
+                                                <hr class="paragraph-break">
+                                            {% endifchanged %}
+                                        </div>
+                                        <div class="col-md-1 sentence-alignment-buttons-col" style="margin-left: 0.125em; padding-left: 0.125em; margin-right: 0; padding-right: 0;">
+                                            {% if not sentence.malformed %}
+                                                <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
+                                                {% if sentence.original_content in complex_sents_content %}
+                                                    <a class="sent_button_disabled" title="The sentence is identical to a sentence of the simple document."><i class="fas fa-wand-magic-sparkles"></i></a>
+                                                {% elif sentence.most_similar_sent.exists %}
+                                                    <button  class="sent_button" id="similar_button_{{ sentence.id }}" type="button" title="find most similar sent" name="find_similar_sent" onclick="show_most_similar('{{ sentence.id }}', {{ sentence.most_similar_sent.all|get_value_in_qs:'id'|safeseq }})" value=0><i class="fas fa-wand-magic-sparkles"></i></button>
+                                                {% else %}
+                                                    <a class="sent_button_disabled" title="No similar sentence found."><i class="fas fa-wand-magic-sparkles"></i></a>
+                                                {% endif %}
+                                            {% else %}
+                                                <a title="sentence already reported" class="sent_button_disabled"><i class="fas fa-bug"></i></a>
+                                            {% endif %}
+                                            {% if sentence in simple_annotated_sents %}
+                                                <a class="sent_button" title="edit alignment of pair" href="{% url 'alignment:edit_alignment_of_sent' corpus_id=corpus_id doc_pair_id=doc_pair_id sent_id=sentence.id%}"><i class="fas fa-edit"></i></a>
+                                            {% elif sentence.original_content in complex_sents_content %}
+                                                <a class="sent_button_disabled" title="The sentence is identical to a sentence of the complex document."><i class="fas fa-edit"></i></a>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 {% endfor %}
                             </div>
+                        </div>
                         {% else %}
-                            <div class="scrollable-box">
+                        <div class="row">
+                            <div class="scrollable-box col-md-12">
                                 {%  for sentence in simple_elements %}
-                                    <div class="col-md-10 sentence-alignment">
+                                <div class="row sentence-alignment-row">
+                                    <div class="col-md-10 sentence-alignment-col">
                                     {% if simple_language_direction == "rtl" %}
                                         <label class="btn btn-default align-sentence" dir="rtl" style="text-align: right" disabled>
                                     {% else %}
@@ -174,15 +171,14 @@
                                             <input type="checkbox" value="{{ sentence.id }}" name="simple_element" disabled> {{ sentence.original_content }}
                                         </label>
                                     </div>
-{#                                    <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">#}
-{#                                        <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>#}
-{#                                    </div>#}
+                                </div>
                                 {% endfor %}
                             </div>
+                        </div>
                         {% endif %}
                     </div>
-        {#        </div>#}
-        {#        <div class="row">#}
+                </div>
+                <div class="row">
                     <p class="text-source">
                         Text Source Complex Document: <a href="{{ doc_complex_url }}" title="link to source" target="_blank">{{ doc_complex_url }}</a> (Last accessed: {{ doc_complex_access_date }})
                         <br>
@@ -190,24 +186,81 @@
                     </p>
 
                 </div>
+                <div class="row">
+                    <hr style="width:100%;text-align:left;margin-left:0">
+                </div>
                 <div class="row scrollable-box">
                     <div class="col-md-12">
 
-                        <hr style="width:100%;text-align:left;margin-left:0">
-                        <b>List of aligned sentence pairs:</b>
-                        <ul>
-                        {% for pair in pairs %}
-                            <li>
-                                {{ pair.complex_elements.all.0.original_content|slice:15 }}...
-                                &#x2194;
-                                {{ pair.simple_elements.all.0.original_content|slice:15 }}...
-                                <button class="btn btn-default" title="edit alignment of pair" type="submit" name="edit" value="{{ pair.id }}"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-default" title="delete pair" type="submit" name="delete" value="{{ pair.id }}"><i class="fas fa-trash-alt"></i> Delete</button>
-                                <button class="btn btn-default" title="rate pair" type="submit" name="rate" value="{{ pair.id }}"><i class="fas fa-balance-scale-left"></i> Rate</button>
-                                <button class="btn btn-default" title="annotate transformations of pair" type="submit" name="transformation" value="{{ pair.id }}"><i class="fas fa-route"></i> Transformations</button>
-                            </li>
-                        {% endfor %}
-                        </ul>
+                        <h4>List of aligned sentence pairs:</h4>
+                        <table class="list_pairs">
+                            <thead>
+                                <tr>
+                                    <th style="width: 33%">Complex Part</th>
+                                    <th style="width: 2%"></th>
+                                    <th style="width: 33%">Simple Part</th>
+                                    <th style="width:5%"></th>
+                                    <th style="width:6%"></th>
+                                    <th style="width:5.5%"></th>
+                                    <th style="width:10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pair in pairs %}
+                                    <tr>
+                                        <td>
+                                            {{ pair.complex_elements.first.original_content }}
+                                            {% if pair.complex_elements.all.count > 2 %}
+                                                ... (+ {{ pair.complex_elements.all.count }} sentences)
+                                            {% elif pair.complex_elements.all.count == 2 %}
+                                                ... (+ 1 sentence)
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            &#x2194;
+                                        </td>
+                                        <td>
+                                            {{ pair.simple_elements.first.original_content }}
+                                            {% if pair.simple_elements.all.count > 2 %}
+                                                ... (+ {{ pair.simple_elements.all.count }} sentences)
+                                            {% elif pair.simple_elements.all.count == 2 %}
+                                                ... (+ 1 sentence)
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'alignment:edit_alignment' corpus_id=corpus_id  doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="edit pair"><i class="fas fa-edit"></i> Edit</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'alignment:delete_alignment' corpus_id=corpus_id  doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="delete pair"><i class="fas fa-trash-alt"></i> Delete</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'rating:rate_pair' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="rate pair"><i class="fas fa-balance-scale-left"></i> Rate</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'rating:select_transformation' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="annotate transformations of pair"><i class="fas fa-route"></i> Add Transformations</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+{#                        <ul>#}
+{#                        {% for pair in pairs %}#}
+{#                            <li>#}
+{#                                {{ pair.complex_elements.all.0.original_content|slice:30 }} ...#}
+{#                                {% if pair.complex_elements.all.count > 2 %}#}
+{#                                    (+ {{ pair.complex_elements.all.count }} sentences)#}
+{#                                {% elif pair.complex_elements.all.count == 2 %}#}
+{#                                    (+ 1 sentence)#}
+{#                                {% endif %}#}
+{#                                &#x2194;#}
+{#                                {{ pair.simple_elements.all.0.original_content|slice:30 }}...#}
+{#                                <a href="{% url 'alignment:edit_alignment' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="edit pair"><i class="fas fa-edit"></i> Edit</a>#}
+{#                                <a href="{% url 'alignment:delete_alignment' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="delete pair"><i class="fas fa-trash-alt"></i> Delete</a>#}
+{#                                <a href="{% url 'rating:rate_pair' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="rate pair"><i class="fas fa-balance-scale-left"></i> Rate</a>#}
+{#                                <a href="{% url 'rating:select_transformation' doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="annotate transformations of pair"><i class="fas fa-route"></i> Transformations</a>#}
+{#                            </li>#}
+{#                        {% endfor %}#}
+{#                        </ul>#}
                     </div>
                 </div>
 
@@ -216,18 +269,17 @@
                     <div class="col-md-12">
                         <hr style="width:100%;text-align:left;margin-left:0">
                         {% if type == "add" %}
-                            <button class="btn btn-default" title="reset current alignment" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>
-                            <button class="btn btn-default" title="save alignment" type="submit" name="save" value="save"><i class="fas fa-save"></i> Save</button>
+                            <a class="btn btn-default" title="reset current alignment" href="{% url 'alignment:change_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-undo-alt"></i> Reset</a>
+                            <button type="submit" class="btn btn-default" title="save alignment" name="save" value="save"><i class="fas fa-save"></i> Save</button>
                         {% elif type == "edit" %}
-                            <button class="btn btn-default" title="reset current alignment" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>
-                            <button class="btn btn-default" title="save edited alignment and delete previous rating and transformations" type="submit" name="save-edit" value="{{ pair_tmp_id }}"><i class="fas fa-save"></i> Save</button>
+                            <a class="btn btn-default" title="reset current alignment" href="{% url 'alignment:change_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-undo-alt"></i> Reset</a>
+                            <button type="submit" class="btn btn-default" title="save edited alignment and delete previous rating and transformations" name="save-edit" value="{{ pair_id }}"><i class="fas fa-save"></i> Save</button>
                         {% else %}
-            {#              <button type="submit" class="save btn btn-default" value="rate" name="submit">Save & Rate</button>#}
-                            <button class="btn btn-default" title="add new alignment" type="submit" name="add" value="new"><i class="fas fa-plus-circle"></i> Add</button>
+                            <a class="btn btn-default" title="add new alignment" href="{% url 'alignment:add_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-plus-circle"></i> Add</a>
                             {% if no_alignment_possible %}
-                                <button class="btn btn-default" title="documents are possible to align" type="submit" name="not-possible" value="False"><i class="far fa-check-circle"></i> Possible to align</button>
+                                <a class="btn btn-default" title="documents are possible to align" href="{% url 'alignment:not_possible' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="far fa-check-circle"></i> Possible to align</a>
                             {% else %}
-                                <button class="btn btn-default" title="documents are not possible to align" type="submit" name="not-possible" value="True"><i class="fas fa-ban"></i> Not possible to align</button>
+                                <a class="btn btn-default" title="documents are not possible to align" href="{% url 'alignment:not_possible' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-ban"></i> Not possible to align</a>
                             {% endif %}
                         {% endif %}
                     </div>

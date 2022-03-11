@@ -2,6 +2,7 @@
 {% load TS_extras %}
 
 {% block content %}
+{% include '../messages.html' %}
 
     <div class="row subclass-header">
         <div class="col-md-12">
@@ -18,61 +19,65 @@
     </div>
     <div class="row subpage content">
         <div class="col-md-12">
-{#            <form method="POST" class="alignment-form" action={% url 'alignment:change_alignment' doc_pair_id=doc_pair_id %}>{% csrf_token %}#}
-            <form method="POST" class="alignment-form" action={% url 'simplification:simplify' doc_pair_id=doc_pair_id %}>{% csrf_token %}
+            <form method="POST" class="alignment-form" action={% url 'simplification:save' corpus_id=corpus_id doc_pair_id=doc_pair_id %}>{% csrf_token %}
                 <div class="row">
                     <div class="col-md-6">
-                        <b>Complex Document:</b>
+                        <div class="row">
+                            <b>Complex Document:</b>
+                        </div>
                         {% if type == "add" or type == "edit"%}
-                            <div class="scrollable-box">
-                                {%  for sentence in complex_elements %}
-                                        <div class="col-md-9 sentence-alignment">
-                                            {% if sentence in complex_sents and sentence == last_complex_item %}
-                    {#                            <option selected  value="{{ sentence.id }}" >{{ sentence.original_content }}</option>#}
-                                                <label class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
-                                            {% elif sentence in complex_sents %}
-                    {#                            <option selected  value="{{ sentence.id }}" >{{ sentence.original_content }}</option>#}
-                                                <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
-                                            {%  elif sentence == last_complex_item and sentence.id in complex_simplified %}
-                                                <label class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
-                                            {%  elif sentence.id in complex_simplified %}
-                                                <label class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
-                                            {% else %}
-                    {#                            <option value="{{ sentence.id }}">{{ sentence.original_content }}</option>#}
-                                                <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
-                                            {% endif %}
+                            <div class="row">
+                                <div class="scrollable-box col-md-12">
+                                    {%  for sentence in complex_elements %}
+                                        <div class="row sentence-alignment-row">
+                                            <div class="col-md-10 sentence-alignment-col">
+                                                {% if sentence in complex_sents and sentence == last_complex_item %}
+                        {#                            <option selected  value="{{ sentence.id }}" >{{ sentence.original_content }}</option>#}
+                                                    <label class="btn btn-default align-sentence last_added"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
+                                                {% elif sentence in complex_sents %}
+                        {#                            <option selected  value="{{ sentence.id }}" >{{ sentence.original_content }}</option>#}
+                                                    <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element" checked autofocus> {{ sentence.original_content }}</label>
+                                                {%  elif sentence == last_complex_item and sentence.id in complex_simplified %}
+                                                    <label class="btn btn-default align-sentence last_added" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                                {%  elif sentence.id in complex_simplified %}
+                                                    <label class="btn btn-default align-sentence" disabled title="The sentence is already aligned."><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                                {% else %}
+                        {#                            <option value="{{ sentence.id }}">{{ sentence.original_content }}</option>#}
+                                                    <label class="btn btn-default align-sentence"><input type="checkbox" value="{{ sentence.id }}" name="complex_element"> {{ sentence.original_content }}</label>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-1 sentence-alignment-buttons-col" style="margin-left: 0.125em; padding-left: 0.125em;">
+                                                {% if not sentence.malformed %}
+                                                    <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
+                                                {% else %}
+                                                    <a class="sent_button_disabled" title="sentence already reported" ><i class="fas fa-bug"></i></a>
+                                                {% endif %}
+                                                {% if sentence.id in complex_simplified %}
+                                                    <button title="edit pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
+                                                {% endif %}
+                                            </div>
                                         </div>
-                                        <div class="col-md-2 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">
-                                            {% if not sentence.malformed %}
-                                                <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem"><i class="fas fa-bug"></i></button>
-                                            {% else %}
-                                                <button title="sentence already reported" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>
-                                            {% endif %}
-                                            {% if sentence.id in complex_simplified %}
-                                                <button title="edit pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
-                                            {% endif %}
-                                        </div>
-                                {% endfor %}
+                                    {% endfor %}
+                                </div>
                             </div>
                         {% else %}
-                            <div class="scrollable-box">
+                            <div class="scrollable-box col-md-12">
                                 {%  for sentence in complex_elements %}
-                                    <div class="col-md-10 sentence-alignment">
-                                        <label class="btn btn-default align-sentence" disabled><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                    <div class="row sentence-alignment-row">
+                                        <div class="col-md-10 sentence-alignment-col">
+                                            <label class="btn btn-default align-sentence" disabled><input type="checkbox" value="{{ sentence.id }}" name="complex_element" disabled> {{ sentence.original_content }}</label>
+                                        </div>
                                     </div>
-{#                                    <div class="col-md-1 sentence-alignment" style="margin-left: 0.125em; padding-left: 0.125em;">#}
-{#                                        <button title="report problem with sentence" value="{{ sentence.id }}" name="sentence-problem" disabled><i class="fas fa-bug"></i></button>#}
-{#                                    </div>#}
                                 {% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
                     <div class="col-md-6">
-                        <div class="row">
                         {% if type == "add" or type == "edit"%}
+                        <div class="row sentence-alignment-row">
                             <label for="simple_text"><b>Simplified Text:</b></label><br>
-                            <div class="col-md-10 sentence-alignment">
+                            <div class="col-md-10 sentence-alignment-col">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <textarea id="simple_text" style="min-height: 200px; font-size: 12pt; min-width: 100%" name="simple_text">{{ simple_text }}</textarea>
@@ -94,19 +99,21 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {% endif %}
+                                {% endif %}
                             </div>
+                        </div>
                         {% else %}
+                        <div class="row sentence-alignment-row">
                             <label for="simple_text" disabled><b>Simplified Text:</b></label><br>
-                            <div class="col-md-10 sentence-alignment">
+                            <div class="col-md-10 sentence-alignment-col">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <textarea id="simple_text" style="min-height: 200px; font-size: 12pt; min-width: 100%" name="simple_text" disabled></textarea>
                                     </div>
                                 </div>
                             </div>
-                        {% endif %}
                         </div>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="row">
@@ -120,19 +127,69 @@
 
                         <hr style="width:100%;text-align:left;margin-left:0">
                         <b>List of simplified sentence pairs:</b>
-                        <ul>
-                        {% for pair in pairs %}
-                            <li>
-                                {{ pair.complex_elements.all.0.original_content|slice:15 }}...
-                                &#x2194;
-                                {{ pair.simple_elements.all.0.original_content|slice:15 }}...
-                                <button class="btn btn-default" title="edit alignment of pair" type="submit" name="edit" value="{{ pair.id }}"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-default" title="delete pair" type="submit" name="delete" value="{{ pair.id }}"><i class="fas fa-trash-alt"></i> Delete</button>
-                                <button class="btn btn-default" title="rate pair" type="submit" name="rate" value="{{ pair.id }}"><i class="fas fa-balance-scale-left"></i> Rate</button>
-                                <button class="btn btn-default" title="annotate transformations of pair" type="submit" name="transformation" value="{{ pair.id }}"><i class="fas fa-route"></i> Transformations</button>
-                            </li>
-                        {% endfor %}
-                        </ul>
+                        <table class="list_pairs">
+                            <thead>
+                                <tr>
+                                    <th style="width: 33%">Complex Part</th>
+                                    <th style="width: 2%"></th>
+                                    <th style="width: 33%">Simple Part</th>
+                                    <th style="width:5%"></th>
+                                    <th style="width:6%"></th>
+                                    <th style="width:5.5%"></th>
+                                    <th style="width:10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pair in pairs %}
+                                    <tr>
+                                        <td>
+                                            {{ pair.complex_elements.first.original_content }}
+                                            {% if pair.complex_elements.all.count > 2 %}
+                                                ... (+ {{ pair.complex_elements.all.count }} sentences)
+                                            {% elif pair.complex_elements.all.count == 2 %}
+                                                ... (+ 1 sentence)
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            &#x2194;
+                                        </td>
+                                        <td>
+                                            {{ pair.simple_elements.first.original_content }}
+                                            {% if pair.simple_elements.all.count > 2 %}
+                                                ... (+ {{ pair.simple_elements.all.count }} sentences)
+                                            {% elif pair.simple_elements.all.count == 2 %}
+                                                ... (+ 1 sentence)
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'simplification:edit' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="edit pair"><i class="fas fa-edit"></i> Edit</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'simplification:delete' corpus_id=corpus_id  doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="delete pair"><i class="fas fa-trash-alt"></i> Delete</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'rating:rate_pair' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="rate pair"><i class="fas fa-balance-scale-left"></i> Rate</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'rating:select_transformation' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default" title="annotate transformations of pair"><i class="fas fa-route"></i> Add Transformations</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+{#                        <ul>#}
+{#                        {% for pair in pairs %}#}
+{#                            <li>#}
+{#                                {{ pair.complex_elements.all.0.original_content|slice:15 }}...#}
+{#                                &#x2194;#}
+{#                                {{ pair.simple_elements.all.0.original_content|slice:15 }}...#}
+{#                                <button class="btn btn-default" title="edit alignment of pair" type="submit" name="edit" value="{{ pair.id }}"><i class="fas fa-edit"></i> Edit</button>#}
+{#                                <button class="btn btn-default" title="delete pair" type="submit" name="delete" value="{{ pair.id }}"><i class="fas fa-trash-alt"></i> Delete</button>#}
+{#                                <button class="btn btn-default" title="rate pair" type="submit" name="rate" value="{{ pair.id }}"><i class="fas fa-balance-scale-left"></i> Rate</button>#}
+{#                                <button class="btn btn-default" title="annotate transformations of pair" type="submit" name="transformation" value="{{ pair.id }}"><i class="fas fa-route"></i> Transformations</button>#}
+{#                            </li>#}
+{#                        {% endfor %}#}
+{#                        </ul>#}
                     </div>
                 </div>
 
@@ -141,13 +198,13 @@
                     <div class="col-md-12">
                         <hr style="width:100%;text-align:left;margin-left:0">
                         {% if type == "add" %}
-                            <button class="btn btn-default" title="reset current alignment" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>
+                            <a class="btn btn-default" title="reset current alignment" href="{% url 'simplification:simplify' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-undo-alt"></i> Reset</a>
                             <button class="btn btn-default" title="save alignment" type="submit" name="save" value="save"><i class="fas fa-save"></i> Save</button>
                         {% elif type == "edit" %}
-                            <button class="btn btn-default" title="reset current alignment" type="submit" name="reset" value="reset"><i class="fas fa-undo-alt"></i> Reset</button>
+                            <a class="btn btn-default" title="reset current alignment" href="{% url 'simplification:simplify' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-undo-alt"></i> Reset</a>
                             <button class="btn btn-default" title="save edited alignment and delete previous rating and transformations" type="submit" name="save-edit" value="{{ pair_tmp_id }}"><i class="fas fa-save"></i> Save</button>
                         {% else %}
-                            <button class="btn btn-default" title="add new alignment" type="submit" name="add" value="new"><i class="fas fa-plus-circle"></i> Add</button>
+                            <a class="btn btn-default" title="add new alignment" href="{% url 'simplification:add' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-plus-circle"></i> Add</a>
 {#                            {% if no_alignment_possible %}#}
 {#                                <button class="btn btn-default" title="documents are possible to simplify" type="submit" name="not-possible" value="False"><i class="far fa-check-circle"></i> Possible to simplify</button>#}
 {#                            {% else %}#}
