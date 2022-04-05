@@ -93,3 +93,29 @@ def sentence_problem(request, corpus_id, doc_pair_id, sentence_id):
 	else:
 		form = SentenceProblemForm()
 	return render(request, "data/sentence_problem.html", {"form": form, "sentence_content": sentence_content})
+
+
+def check_url_or_404(user=None, corpus_id=None, doc_pair_id=None, sentence_id=None, pair_id=None):
+	if corpus_id:
+		corpus = get_object_or_404(data.models.Corpus, id=corpus_id)
+		if doc_pair_id:
+			doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=user, corpus__id=corpus.id)
+			if sentence_id:
+				if doc_pair_tmp.simple_document.sentences.filter(id=sentence_id):
+					return corpus, doc_pair_tmp, doc_pair_tmp.simple_document.sentences.get(id=sentence_id)
+				elif doc_pair_tmp.complex_document.sentences.get(id=sentence_id):
+					return corpus, doc_pair_tmp, doc_pair_tmp.complex_document.sentences.get(id=sentence_id)
+				else:
+					raise Http404('No Sentence matches the given query.')
+			elif pair_id:
+				if doc_pair_tmp.sentence_alignment_pair.filter(id=pair_id, annotator=user):
+					return corpus, doc_pair_tmp, doc_pair_tmp.sentence_alignment_pair.get(id=pair_id, annotator=user)
+				else:
+					raise Http404('No AlignmentPair matches the given query.')
+			else:
+				return corpus, doc_pair_tmp, None
+		else:
+			return corpus, None, None
+	else:
+		raise Http404('No Corpus matches the given query.')
+
