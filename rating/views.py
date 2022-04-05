@@ -8,6 +8,7 @@ import datetime, json
 from django.core.serializers.json import DjangoJSONEncoder
 import difflib
 from data.views import check_url_or_404
+from django.contrib import messages
 
 
 @login_required
@@ -18,6 +19,7 @@ def rate_pair(request, corpus_id, doc_pair_id, pair_id):
 		form = RatingForm(request.POST)
 		if form.is_valid():
 			alignmentpair_tmp.update_or_save_rating(form, request.user, request.session["start"])
+			messages.add_message(request, messages.SUCCESS, 'Rating successfully edited/saved.')
 			if request.POST.get("transformation"):
 				return redirect('rating:select_transformation', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
 
@@ -33,10 +35,11 @@ def rate_pair(request, corpus_id, doc_pair_id, pair_id):
 					return redirect('rating:rate_pair', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=prev_pair.id)
 				else:
 					return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
-			else:
-				return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
+			# else:
+			# 	return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 		else:
 			print("not valid", form.errors)
+			messages.add_message(request, messages.ERROR, 'Rating not saved.')
 	if alignmentpair_tmp.rating.filter(rater=request.user).exists():
 		rating_tmp = alignmentpair_tmp.rating.get(rater=request.user)
 		form = RatingForm(instance=rating_tmp)
@@ -131,6 +134,7 @@ def select_transformations(request, corpus_id, doc_pair_id, pair_id):
 			transformation_tmp_id = transformation_tmp.id
 		elif request.POST.get("delete"):
 			alignmentpair_tmp.delete_transformation(request.POST.get("delete"), request.user)
+			messages.add_message(request, messages.SUCCESS, 'Transformation successfully deleted.')
 			type_form = "show"
 			# return render(request, 'rating/transformation.html',
 			# 			  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
@@ -143,6 +147,9 @@ def select_transformations(request, corpus_id, doc_pair_id, pair_id):
 				# own_subtransformation = [value for value in request.POST.getlist('own_subtransformation') if value != ""]
 				alignmentpair_tmp.save_transformation(form, request.user, request.session["start"])  # , own_subtransformation)
 				type_form = "show"
+				messages.add_message(request, messages.SUCCESS, 'Transformation successfully saved.')
+			else:
+				messages.add_message(request, messages.ERROR, 'Something went wrong.')
 		elif request.POST.get("save-edit"):
 			if form.is_valid():
 				# own_subtransformation = [value for value in request.POST.getlist('own_subtransformation') if value != ""]
@@ -150,6 +157,9 @@ def select_transformations(request, corpus_id, doc_pair_id, pair_id):
 																				  rater=request.user)
 				transformation_tmp.edit(form, request.user, request.session["start"])  # , own_subtransformation)
 				type_form = "show"
+				messages.add_message(request, messages.SUCCESS, 'Transformation successfully edited.')
+			else:
+				messages.add_message(request, messages.ERROR, 'Something went wrong.')
 		elif request.POST.get("next"):
 			next_pair = alignmentpair_tmp.next(request.user)
 			if next_pair:
@@ -168,7 +178,8 @@ def select_transformations(request, corpus_id, doc_pair_id, pair_id):
 			return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 		else:
 			type_form = "show"
-			# return render(request, 'rating/transformation.html',
+			messages.add_message(request, messages.ERROR, 'Something went wrong.')
+	# return render(request, 'rating/transformation.html',
 			# 			  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
 	else:
 		form = TransformationForm()

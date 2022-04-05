@@ -11,11 +11,6 @@
             </h2>
         </div>
     </div>
-    <div class="row error_log">
-        <div class="error_form">
-            {{ form.errors }}
-        </div>
-    </div>
     <div class="row">
         <p>Color Coding of Changes:
         {% if type == 'add' or type == 'edit' %}
@@ -251,8 +246,8 @@
                                 <button class="btn btn-default" title="save annotation" type="submit" name="save-edit" value="{{ transformation_id }}"><i class="fas fa-save"></i> Save</button>
                             {% else %}
                                 <button class="btn btn-default" title="add new transformation" type="submit" name="add" value="new"><i class="fas fa-plus-circle"></i> Add</button>
-                                <button type="submit" class="save btn btn-default" title="add transformations to previous alignment pair" name="prev" value="prev"><i class="fas fa-arrow-circle-left"></i> Previous</button>
-                                <button type="submit" class="save btn btn-default" title="add transformations to next alignment pair" name="next" value="next"><i class="fas fa-arrow-circle-right"></i> Next</button>
+                                <button type="submit" class="save btn btn-default" title="add transformations to previous alignment pair (changes are not saved)" name="prev" value="prev"><i class="fas fa-arrow-circle-left"></i> Previous</button>
+                                <button type="submit" class="save btn btn-default" title="add transformations to next alignment pair (changes are not saved)" name="next" value="next"><i class="fas fa-arrow-circle-right"></i> Next</button>
             {#                    <button type="submit" class="save btn btn-default" title="go back to document overview" name="document_overview" value="document_overview"><i class="fas fa-save"></i> Back to Document</button>#}
                 {#                <button class="btn btn-default" title="reset and align next pair" type="submit" name="skip" value="skip"><i class="fas fa-forward"></i> Skip</button>#}
                                 <button class="btn btn-default" title="rate pair" type="submit" name="rate" value="rate"><i class="fas fa-balance-scale-left"></i> Rating</button>

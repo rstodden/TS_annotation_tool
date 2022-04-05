@@ -3,6 +3,7 @@ from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 # from .views_admin import *
+from django.contrib import messages
 
 #
 # def register(request):
@@ -44,6 +45,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=user.username, password=raw_password)
             login(request, user)
+            messages.add_message(request, messages.SUCCESS, "Congratulation, you're registered now.")
             return redirect('home')
     else:
         form = RegisterForm()
