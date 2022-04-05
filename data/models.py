@@ -61,7 +61,7 @@ class Corpus(models.Model):
 			complex_file_obj = [file for file in files if "complex" in file.name]
 			for complex_file in complex_file_obj:
 				complex_document = Document()
-				complex_document, complex_sents_nlp = complex_document.create_or_load_document_by_upload(complex_file,
+				complex_document = complex_document.create_or_load_document_by_upload(complex_file,
 																					  form_upload_data["language_level_complex"],
 																					  form_upload_data["domain"], nlp,
 																					  pre_aligned=form_upload_data["pre_aligned"],
@@ -94,7 +94,7 @@ class Corpus(models.Model):
 				if complex_file_obj:
 					complex_document = Document()
 					simple_sents = simple_document.sentences.all()
-					complex_document, complex_sents_nlp = complex_document.create_or_load_document_by_upload(complex_file_obj[0],
+					complex_document = complex_document.create_or_load_document_by_upload(complex_file_obj[0],
 																						  form_upload_data["language_level_complex"],
 																						  form_upload_data["domain"],
 																						  nlp,
@@ -214,11 +214,10 @@ class Document(models.Model):
 						document_tmp.add_sentences([sent], -1, language_level, selected_license, number_sentences,
 												   tokenize=False, sent_ids=[sent_id])
 					else:
-
 						number_sentences = len([sent for sent in nlp(text).sents])
 						for i_par, par in enumerate(text.split("SEPL|||SEPR")):
 							sentences_of_par = nlp(par).sents
-							document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar, sents_nlp)
+							document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp)
 					document_tmp.save()
 			elif not pre_aligned:
 				try:
@@ -226,9 +225,13 @@ class Document(models.Model):
 				except:
 					text = document_content[1].strip()
 				number_sentences = len([sent for sent in nlp(text).sents])
-				for i_par, par in enumerate(text.split("SEPL|||SEPR")):
-					sentences_of_par = nlp(par).sents
-					document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar, sents_nlp)
+				if "SEPL|||SEPR" in text:
+					for i_par, par in enumerate(text.split("SEPL|||SEPR")):
+						sentences_of_par = nlp(par).sents
+						document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp)
+				else:
+					document_tmp.add_sentences(nlp(text).sents, -1, language_level, selected_license,
+											   number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp)
 			document_tmp.save()
 		return document_tmp
 

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404
 import data.models, alignment.models
 from django.contrib.auth.decorators import user_passes_test
 
@@ -74,6 +75,7 @@ def insert_annotation(request):
 
 @login_required
 def sentence_problem(request, corpus_id, doc_pair_id, sentence_id):
+	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
 	sentence_tmp = get_object_or_404(data.models.Sentence, id=sentence_id)
 	sentence_content = sentence_tmp.original_content
 	if request.method == "POST":

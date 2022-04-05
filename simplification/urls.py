@@ -10,4 +10,6 @@ urlpatterns = [
     path('edit/<int:pair_id>', views.edit_simplification, name="edit"),
     path('save', views.save_simplification, name="save"),
     path('delete/<int:pair_id>', views.delete_simplification, name="delete"),
+    path('<int:sent_id>/edit_by_sent', views.edit_simplification_of_sent, name="edit_simplification_of_sent"),
+
 ]

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 import data.models
 import alignment.models
-
+from data.views import check_url_or_404
 
 def home(request):
 	return render(request, 'home.html')
@@ -57,8 +57,7 @@ def overview_per_corpus(request, corpus_id):
 
 @login_required
 def overview_per_doc(request, corpus_id, doc_pair_id):
-	corpus_tmp = get_object_or_404(data.models.Corpus, id=corpus_id)
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user)
+	corpus_tmp, doc_pair_tmp, x = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id, sentence_id=None)
 	next_doc_pair = data.models.DocumentPair.objects.filter(id__gt=doc_pair_id, corpus=doc_pair_tmp.corpus).order_by('id').first()
 	prev_doc_pair = data.models.DocumentPair.objects.filter(id__lt=doc_pair_id, corpus=doc_pair_tmp.corpus).order_by('id').first()
 	first_sent_pair = doc_pair_tmp.sentence_alignment_pair.first()

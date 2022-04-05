@@ -48,12 +48,12 @@
                                             </div>
                                             <div class="col-md-1 sentence-alignment-buttons-col" style="margin-left: 0.125em; padding-left: 0.125em;">
                                                 {% if not sentence.malformed %}
-                                                    <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
+                                                    <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' corpus_id=corpus_id doc_pair_id=doc_pair_id sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
                                                 {% else %}
                                                     <a class="sent_button_disabled" title="sentence already reported" ><i class="fas fa-bug"></i></a>
                                                 {% endif %}
                                                 {% if sentence.id in complex_simplified %}
-                                                    <button title="edit pair" type="submit" name="edit" value="{% check_aligned sentence user %}"><i class="fas fa-edit"></i></button>
+                                                    <a class="sent_button" title="edit alignment of pair" href="{% url 'simplification:edit_simplification_of_sent' corpus_id=corpus_id doc_pair_id=doc_pair_id sent_id=sentence.id%}"><i class="fas fa-edit"></i></a>
                                                 {% endif %}
                                             </div>
                                         </div>

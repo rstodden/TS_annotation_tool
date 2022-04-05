@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from muss.muss.simplify import simplify_sentences
 from settings_annotation.config_simplification import simplification_model, load_simplification_model
 from django.contrib import messages
+from data.views import check_url_or_404
 
 # Create your views here.
 # simplification of complex texts, such as user generated texts
@@ -22,8 +23,8 @@ from django.contrib import messages
 def auto_simplify(source_sentences, language):
 	if language in["en", "es", "fr"]:
 		model_name = 'muss_'+language+'_mined'
-		# return simplify_sentences(source_sentences, model_name)
-		return source_sentences[0][::-1]
+		return simplify_sentences(source_sentences, model_name)
+		# return source_sentences[0][::-1]
 	else:
 		assert Exception("No simplification model in your language is available.")
 		return None
@@ -59,7 +60,7 @@ def get_output_dict(corpus_id, doc_pair_tmp, sentence_pair_tmp, type_action, for
 
 @login_required
 def show_simplification(request, corpus_id, doc_pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
+	corpus_tmp, doc_pair_tmp, x = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 	form = simplification.forms.SimplificationForm()
 	output_dict = get_output_dict(corpus_id, doc_pair_tmp, None, "show", form, request.user)
 	return render(request, "simplification/simplification.html", output_dict)
@@ -67,8 +68,7 @@ def show_simplification(request, corpus_id, doc_pair_id):
 
 @login_required
 def delete_simplification(request, corpus_id, doc_pair_id, pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
-	sentence_pair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
+	corpus_tmp, doc_pair_tmp, sentence_pair_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id, sentence_id=None, pair_id=pair_id)
 	sentence_pair_tmp.delete()
 	messages.add_message(request, messages.SUCCESS, 'Sucessfully deleted.')
 	return redirect("simplification:simplify", corpus_id=corpus_id, doc_pair_id=doc_pair_id)
@@ -85,11 +85,22 @@ def add_simplification(request, corpus_id, doc_pair_id):
 	return render(request, "simplification/simplification.html", output_dict)
 
 
+
+@login_required
+def edit_simplification_of_sent(request, corpus_id, doc_pair_id, sent_id):
+	corpus_tmp, doc_pair_tmp, sentence_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id,
+																   doc_pair_id=doc_pair_id, sentence_id=sent_id)
+	if sentence_tmp.complex_element.filter(annotator=request.user):
+			sentence_pair_tmp = sentence_tmp.complex_element.get(annotator=request.user)
+			return redirect("simplification:edit", corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=sentence_pair_tmp.id)
+	else:
+		return redirect("simplification:edit", corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=None)
+
+
 @login_required
 def edit_simplification(request, corpus_id, doc_pair_id, pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user,
-									 corpus__id=corpus_id)
-	sentence_pair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
+	corpus_tmp, doc_pair_tmp, sentence_pair_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id,
+															  doc_pair_id=doc_pair_id, pair_id=pair_id)
 	type_action = "edit"
 	form = simplification.forms.SimplificationForm()
 	request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)

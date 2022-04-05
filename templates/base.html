@@ -60,7 +60,7 @@
                                             <ul class="sidebar-nav">
                                                 {% if pair_id %}
                                                     <li>
-                                                    {% if doc_pair_tmp.corpus_to_simplify %}
+                                                    {% if 'simplification' in request.path %}
                                                         <a href="{% url 'simplification:edit' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair_id %}">
                                                     {% else %}
                                                         <a href="{% url 'alignment:edit_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair_id %}">
@@ -83,7 +83,11 @@
                                                     </li>
                                                 {% else %}
                                                     <li>
+                                                    {% if 'simplification' in request.path %}
+                                                        <a href="{% url 'simplification:simplify' corpus_id=corpus_id doc_pair_id=doc_pair_id %}">
+                                                    {% else %}
                                                         <a href="{% url 'alignment:change_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}">
+                                                    {% endif %}
                                                             <i class="fa-solid fa-arrow-right-arrow-left"></i>
                                                             Alignment
                                                         </a>

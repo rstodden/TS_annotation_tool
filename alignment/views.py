@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 import datetime, json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib import messages
+from data.views import check_url_or_404
 
 # def home(request):
 # 	return render(request, 'overview.html')
@@ -130,12 +131,10 @@ def save_alignment(request, corpus_id, doc_pair_id):
 
 @login_required
 def add_alignment(request, corpus_id, doc_pair_id):
-	print("ass")
 	type_action = "add"
 	request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
 	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
 	form = alignment.forms.AlignmentForm()
-	print("add")
 	output_params = get_value_dict_based_on_pairs(doc_pair_tmp, None, request.user, form, type_action)
 	output_params["title"] = "Add Alignment - Text Simplification Annotation Tool"
 	return render(request, "alignment/change_alignment.html", output_params)
@@ -143,8 +142,9 @@ def add_alignment(request, corpus_id, doc_pair_id):
 
 @login_required
 def delete_alignment(request, corpus_id, doc_pair_id, pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
-	sentence_pair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair__id=doc_pair_id)
+	corpus_tmp, doc_pair_tmp, sentence_pair_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id,
+															  doc_pair_id=doc_pair_id, pair_id=pair_id)
+
 	sentence_pair_tmp.delete()
 	messages.add_message(request, messages.SUCCESS, 'Sucessfully deleted.')
 	return redirect("alignment:change_alignment", corpus_id=corpus_id, doc_pair_id=doc_pair_id)
@@ -152,8 +152,8 @@ def delete_alignment(request, corpus_id, doc_pair_id, pair_id):
 
 @login_required
 def edit_alignment_of_sent(request, corpus_id, doc_pair_id, sent_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
-	sentence_tmp = get_object_or_404(data.models.Sentence, id=sent_id)
+	corpus_tmp, doc_pair_tmp, sentence_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id,
+																   doc_pair_id=doc_pair_id, sentence_id=sent_id)
 	if sentence_tmp.simple_element.filter(annotator=request.user):
 		sentence_pair_tmp = sentence_tmp.simple_element.get(annotator=request.user)
 		return redirect("alignment:edit_alignment", corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=sentence_pair_tmp.id)
@@ -170,8 +170,8 @@ def edit_alignment(request, corpus_id, doc_pair_id, pair_id):
 	form = alignment.forms.AlignmentForm()
 	type_action = "edit"
 	request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
-	sentence_pair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair__id=doc_pair_id)
+	corpus_tmp, doc_pair_tmp, sentence_pair_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id,
+																   doc_pair_id=doc_pair_id, pair_id=pair_id)
 	output_params = get_value_dict_based_on_pairs(doc_pair_tmp, sentence_pair_tmp, request.user, form, type_action)
 	output_params["title"] = "Edit Alignment - Text Simplification Annotation Tool"
 	return render(request, "alignment/change_alignment.html", output_params)

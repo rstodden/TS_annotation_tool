@@ -407,7 +407,7 @@ def export_not_aligned(rater_id=None, identical=True, deletions=True, additions=
 			   "language_level_simple", "license", "author", "website", "access_date", "rater", "alignment"])
 	else:
 		rater = User.objects.get(id=rater_id)
-		i = 0
+		i = len(output_df)
 		for doc in data.models.DocumentPair.objects.filter(annotator=rater, complex_document__isnull=False, simple_document__isnull=False, corpus=corpus):
 			simple_doc = doc.simple_document
 			complex_doc = doc.complex_document
@@ -425,25 +425,22 @@ def export_not_aligned(rater_id=None, identical=True, deletions=True, additions=
 					if values:
 						output_df.loc[i] = values
 						i += 1
-			not_annotated_complex = complex_doc.sentences.filter(~Q(complex_element__annotator=rater)).filter(~Q(id__in=identical_complex_sentences))  #.values_list("id", flat=True) # Q(complex_element__isnull=True) |
-			not_annotated_simple = simple_doc.sentences.filter(~Q(simple_element__annotator=rater)).filter(~Q(id__in=identical_simple_sentences))  #.values_list("id", flat=True)
-			if deletions and len(not_annotated_complex)/(len(complex_doc.sentences.all())-len(identical_complex_sentences)) <= 0.25:
-				for sent_id in identical_complex_sentences:
+			annotated_sentences_complex = doc.sentence_alignment_pair.filter(annotator=rater).values_list("complex_elements__id", flat=True)
+			annotated_sentences_simple = doc.sentence_alignment_pair.filter(annotator=rater).values_list("simple_elements__id", flat=True)
+			not_annotated_complex = complex_doc.sentences.filter((~Q(id__in=identical_complex_sentences))&(~Q(id__in=annotated_sentences_complex))).values_list("id", flat=True) # Q(complex_element__isnull=True) |
+			not_annotated_simple = simple_doc.sentences.filter((~Q(id__in=identical_simple_sentences))&(~Q(id__in=annotated_sentences_simple))).values_list("id", flat=True)
+			if deletions:  # and (len(complex_doc.sentences.all())-len(identical_complex_sentences)) > 0 and len(not_annotated_complex)/(len(complex_doc.sentences.all())-len(identical_complex_sentences)) <= 0.25:
+				for sent_id in not_annotated_complex:
 					values = get_table_values(sent_id, "deletion", doc.id, domain, complex_level, simple_level, license, author, url, access_date, None, rater.id)
 					if values:
 						output_df.loc[i] = values
 						i += 1
-			if additions and (len(simple_doc.sentences.all())-len(identical_simple_sentences)) > 0 and len(not_annotated_simple)/(len(simple_doc.sentences.all())-len(identical_simple_sentences)) <= 0.25:
-				for sent_id in identical_simple_sentences:
+			if additions:  # and (len(simple_doc.sentences.all())-len(identical_simple_sentences)) > 0 and len(not_annotated_simple)/(len(simple_doc.sentences.all())-len(identical_simple_sentences)) <= 0.25:
+				for sent_id in not_annotated_simple:
 					values = get_table_values(sent_id, "addition", doc.id, domain, complex_level, simple_level, license, author, url, access_date, None, rater.id)
 					if values:
 						output_df.loc[i] = values
 						i += 1
-	# output_df.to_csv("media/not_aligned_sentences_"+corpus_name+"_"+str(rater_id)+".csv", encoding="utf-8")
-	# response = HttpResponse(content_type='text/csv')
-	# response['Content-Disposition'] = 'attachment; filename="not_aligned_sentences.csv"'
-	# output_df.to_csv(path_or_buf=response)
-	# return "media/not_aligned_sentences_"+str(rater_id)+".csv"
 	return output_df
 
 

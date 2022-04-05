@@ -53,7 +53,7 @@
                                         </div>
                                         <div class="col-md-1 sentence-alignment-buttons-col">
                                             {% if not sentence.malformed %}
-                                                <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
+                                                <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' corpus_id=corpus_id doc_pair_id=doc_pair_id sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
                                                 {% if sentence.original_content in simple_sents_content %}
                                                     <a class="sent_button_disabled" title="The sentence is identical to a sentence of the simple document."><i class="fas fa-wand-magic-sparkles"></i></a>
                                                 {% elif sentence.most_similar_sent.exists %}
@@ -136,7 +136,7 @@
                                         </div>
                                         <div class="col-md-1 sentence-alignment-buttons-col" style="margin-left: 0.125em; padding-left: 0.125em; margin-right: 0; padding-right: 0;">
                                             {% if not sentence.malformed %}
-                                                <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
+                                                <a class="sent_button" title="report problem with sentence" href={% url 'data:sentence_problem' corpus_id=corpus_id doc_pair_id=doc_pair_id sentence_id=sentence.id %} ><i class="fas fa-bug"></i></a>
                                                 {% if sentence.original_content in complex_sents_content %}
                                                     <a class="sent_button_disabled" title="The sentence is identical to a sentence of the simple document."><i class="fas fa-wand-magic-sparkles"></i></a>
                                                 {% elif sentence.most_similar_sent.exists %}

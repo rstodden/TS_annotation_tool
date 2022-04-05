@@ -7,12 +7,12 @@ from TS_annotation_tool.utils import transformation_dict
 import datetime, json
 from django.core.serializers.json import DjangoJSONEncoder
 import difflib
+from data.views import check_url_or_404
 
 
 @login_required
 def rate_pair(request, corpus_id, doc_pair_id, pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
-	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
+	corpus_tmp, doc_pair_tmp, alignmentpair_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id, sentence_id=None, pair_id=pair_id)
 	if request.method == "POST":
 		# redirected from rating.html. save rating of pair here.
 		form = RatingForm(request.POST)
@@ -91,8 +91,7 @@ def get_edit_label(alignmentpair):
 
 @login_required
 def select_transformations(request, corpus_id, doc_pair_id, pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
-	alignmentpair_tmp = get_object_or_404(alignment.models.Pair, id=pair_id, annotator=request.user, document_pair_id=doc_pair_id)
+	corpus_tmp, doc_pair_tmp, alignmentpair_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id, sentence_id=None, pair_id=pair_id)
 	complex_elements = alignmentpair_tmp.complex_elements.all().order_by("id")
 	simple_elements = alignmentpair_tmp.simple_elements.all().order_by("id")
 	transformation_dict_obj = None
@@ -206,7 +205,7 @@ def select_transformations(request, corpus_id, doc_pair_id, pair_id):
 
 @login_required
 def transformations(request, corpus_id, doc_pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
+	corpus_tmp, doc_pair_tmp, x = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id, sentence_id=None, pair_id=None)
 	first_alignment_pair = doc_pair_tmp.sentence_alignment_pair.filter(annotator=request.user).first()
 	if first_alignment_pair:
 		return redirect("rating:select_transformation", corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
@@ -218,7 +217,7 @@ def transformations(request, corpus_id, doc_pair_id):
 
 @login_required
 def rating(request, corpus_id, doc_pair_id):
-	doc_pair_tmp = get_object_or_404(data.models.DocumentPair, id=doc_pair_id, annotator=request.user, corpus__id=corpus_id)
+	corpus_tmp, doc_pair_tmp, x = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id)
 	first_alignment_pair = doc_pair_tmp.sentence_alignment_pair.filter(annotator=request.user).first()
 	if first_alignment_pair:
 		return redirect("rating:rate_pair", corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
