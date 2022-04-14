@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 
 class Annotator(models.Model):
-	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True)
 	age = models.IntegerField(blank=True, null=True)
 	gender = models.CharField(max_length=10, choices=TS_annotation_tool.utils.gender, blank=True, null=True)
 	native_language = models.CharField(max_length=8, choices=TS_annotation_tool.utils.LANGUAGE_CHOICES,blank=True, null=True)
@@ -23,3 +23,4 @@ def update_user_profile(sender, instance, created, **kwargs):
 	if created:
 		Annotator.objects.create(user=instance)
 	instance.annotator.save()
+

@@ -224,6 +224,9 @@ class Document(models.Model):
 					text = document_content[1].strip().decode("utf-8")
 				except:
 					text = document_content[1].strip()
+				print(text)
+				print(nlp)
+				print(nlp(text))
 				number_sentences = len([sent for sent in nlp(text).sents])
 				if "SEPL|||SEPR" in text:
 					for i_par, par in enumerate(text.split("SEPL|||SEPR")):
@@ -384,9 +387,18 @@ def get_spacy_model(language):
 		else:
 			model_name = language + "_" + model_ending
 		if version in comp and model_name in comp[version]:
-			try:
-				return spacy.load(model_name)
-			except OSError:
-				download(model_name)
-				return spacy.load(model_name)
+			return check_spacy_version_and_model(version, comp, model_name) 
+		elif not version in comp:
+			head_version = ".".join(version.split(".")[:-1])
+			if head_version in comp and model_name in comp[head_version]:
+				return check_spacy_version_and_model(head_version, comp, model_name) 
+	if not nlp:
+		return ValueError("No SpaCy  model loaded.")
 	return nlp
+	
+def check_spacy_version_and_model(version, comp, model_name):
+	try:
+		return spacy.load(model_name)
+	except OSError:
+		download(model_name)
+		return spacy.load(model_name)

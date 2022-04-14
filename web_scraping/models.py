@@ -42,7 +42,7 @@ class Crawler(models.Model):
 		corpora_dict = json.load(corpora_file)
 		for corpus in corpora_dict["corpora"].keys():
 			print(corpus, corpora_dict)
-			self.crawl_corpus(corpus, corpora_dict["corpora"][corpus])
+			result = self.crawl_corpus(corpus, corpora_dict["corpora"][corpus])
 
 	def crawl_corpus(self, corpus_name, corpus_dict):
 		overview_frame = self.parse_and_extract_webpage(corpus_name, corpus_dict["page_overview"], corpus_dict["output_dir"], corpus_dict["save_raw_content"])
@@ -50,40 +50,48 @@ class Crawler(models.Model):
 		print(corpus_dict)
 		annotator_queryset = User.objects.filter(username__in=corpus_dict["annotator"])  # .values_list("id", flat=True)
 		corpus_dict["annotator"] = annotator_queryset
-		files_list = overview_frame["complex_location_txt_par"].to_list()+overview_frame["simple_location_txt_par"].to_list()
-		files_obj_list = list()
-		for file in files_list:
-			file_obj = UploadedFile(file=open(file), name=file, content_type="text/plain", charset="utf-8")
-			files_obj_list.append(file_obj)
-		if data.models.Corpus.objects.filter(name=corpus_name, home_page=corpus_dict["home_page"]):
-			corpus_tmp = data.models.Corpus.objects.get(name=corpus_name, home_page=corpus_dict["home_page"])
-			print("corpus found")
-			corpus_tmp.add_documents_by_upload(files_obj_list, corpus_dict)
-		else:
-			corpus_tmp = data.models.Corpus(name=corpus_name, home_page=corpus_dict["home_page"],
-											license=corpus_dict["license"], parallel=corpus_dict["parallel"],
-											domain=corpus_dict["domain"],
-											language=corpus_dict["language"],
-											path="", simple_level=corpus_dict["language_level_simple"],
-											complex_level=corpus_dict["language_level_complex"],
-											professionally_simplified=corpus_dict["professionally_simplified"],
-											pre_aligned=corpus_dict["pre_aligned"], pre_split=corpus_dict["pre_split"],
-											license_file=corpus_dict["license_file"], author=corpus_dict["author"],
-											manually_aligned=corpus_dict["manually_aligned"], to_simplify=corpus_dict["to_simplify"],
-											)
-			corpus_tmp.save()
-			#for lang in corpus_dict["languages"]:
-			#	corpus_tmp.
-			corpus_tmp.add_documents_by_upload(files_obj_list, corpus_dict)
-		return 1
+		if len(overview_frame) > 0:
+			overview_frame_repaired = overview_frame[overview_frame[["complex_location_txt_par", "simple_location_txt_par"]].notnull().all(axis=1)]
+			files_list = overview_frame_repaired["complex_location_txt_par"].to_list()+overview_frame_repaired["simple_location_txt_par"].to_list()
 
+			files_obj_list = list()
+			for file in files_list:
+				file_obj = UploadedFile(file=open(file), name=file, content_type="text/plain", charset="utf-8")
+				files_obj_list.append(file_obj)
+			if data.models.Corpus.objects.filter(name=corpus_name, home_page=corpus_dict["home_page"]):
+				corpus_tmp = data.models.Corpus.objects.get(name=corpus_name, home_page=corpus_dict["home_page"])
+				print("corpus found")
+				corpus_tmp.add_documents_by_upload(files_obj_list, corpus_dict)
+			else:
+				corpus_tmp = data.models.Corpus(name=corpus_name, home_page=corpus_dict["home_page"],
+												license=corpus_dict["license"], parallel=corpus_dict["parallel"],
+												domain=corpus_dict["domain"],
+												language=corpus_dict["language"],
+												path="", simple_level=corpus_dict["language_level_simple"],
+												complex_level=corpus_dict["language_level_complex"],
+												professionally_simplified=corpus_dict["professionally_simplified"],
+												pre_aligned=corpus_dict["pre_aligned"], pre_split=corpus_dict["pre_split"],
+												license_file=corpus_dict["license_file"], author=corpus_dict["author"],
+												manually_aligned=corpus_dict["manually_aligned"], to_simplify=corpus_dict["to_simplify"],
+												)
+				corpus_tmp.save()
+				#for lang in corpus_dict["languages"]:
+				#	corpus_tmp.
+				corpus_tmp.add_documents_by_upload(files_obj_list, corpus_dict)
+			return 1
+		else:
+			return 0
+			
 	def parse_and_extract_webpage(self, corpus, page_url, output_dir, save_raw_content=False):
 		overview_path = self.parse_overview_pages(corpus, page_url, output_dir, save_raw_content)
 		# overview_path = output_dir+"url_overview_"+corpus+".tsv"
 		overview_df = pd.read_csv(overview_path, sep="\t", header=0)
-		output_dataframe = filter_and_extract_data(overview_df)  # , filter_data)
-		output_dataframe.to_csv(output_dir + "url_overview_"+corpus+"_par.tsv", header=True, index=False, sep="\t")
-		return output_dataframe
+		if len(overview_df) > 0:
+			output_dataframe = filter_and_extract_data(overview_df)  # , filter_data)
+			output_dataframe.to_csv(output_dir + "url_overview_"+corpus+"_par.tsv", header=True, index=False, sep="\t")
+			return output_dataframe
+		else:
+			return None
 
 	def parse_overview_pages(self, corpus, page_url, output_dir, save_raw_content=False):
 		if Path(output_dir + "url_overview_"+corpus+".tsv").is_file():
@@ -139,7 +147,6 @@ def parse_overview_inclusion_europe(page_url, tag, save_raw_content=False, outpu
 		soup = bs4.BeautifulSoup(url.read(), "lxml")
 	container = soup.find("div", {"class": "site-content-left"})
 	all_links = [get_link(div.find("a")["href"], "https://www.inclusion-europe.eu") for div in container.find_all("div", {"class": "title"})]
-	print(all_links)
 	if all_links:
 		for simple_url in all_links:
 			complex_url = get_complex_url_inclusion_europe(simple_url)
@@ -204,7 +211,7 @@ def parse_overview_alumniportal_2021(page_url, tag, save_raw_content=False, outp
 def get_complex_url_inclusion_europe(simple_url):
 	with opener.open(simple_url) as url:
 		soup_simple = bs4.BeautifulSoup(url.read(), "lxml")
-	complex_url = soup_simple.find("a", {"class": "vc_btn3-style-custom"})
+	complex_url = soup_simple.find("a", {"class": "vc_general vc_btn3 vc_btn3-size-lg vc_btn3-shape-square vc_btn3-style-custom"})
 	if complex_url:
 		link = get_link(complex_url["href"], "https://www.inclusion-europe.eu")
 		return link
