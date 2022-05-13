@@ -1,0 +1,34 @@
+## Instructions to upload Data
+The following examples can be used to add some first data to the annotation tool:
+- `to align` Upload with URL: select `demo/web_crawler/config_example.json` 
+- `to_simplify` select `demo/to_simplify` with the following settings: 
+  - name: "SimpleWikiHow"
+  - home_page https://www.wikihow.com/Main-Page"
+  - license: CC_BY_NC_SA_3
+  - to_simply: yes
+  - domain: "everyday documents"
+  - language: English
+  - continuous text: yes
+  - language level complex: C2
+  - annotator: test
+  - attachments: all docs of demo_corpus
+- `to rate` upload ASSET (pre-aligned) to annotate and rate
+  - download data  `svn checkout https://github.com/facebookresearch/asset/trunk/dataset`
+  - rename data `mv dataset asset`
+  - rename test and valid orig `mv asset/asset.test.orig asset/asset.test.orig.0`
+  - 
+  - name: "asset"
+  - home_page "https://github.com/facebookresearch/asset"
+  - author: Alva Manchego et al. (2020)
+  - license: cc_by_nc_4
+  - license_file: https://raw.githubusercontent.com/facebookresearch/asset/main/LICENSE
+  - parallel: True
+  - pre_aligned: True
+  - to_simplify: No
+  - domain: "wiki"
+  - language: English
+  - continuous text: no
+  - language level simple: B2
+  - language level complex: C2
+  - annotator: test
+  - attachments: all docs of asset
