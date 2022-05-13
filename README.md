@@ -15,18 +15,20 @@ You can test annotation tool in our [live demo](https://ts-anno.phil.hhu.de/) (u
   - if you want to use the support of the automatic simplification system MUSS, we recommend to use Python < 3.8, as MUSS is dependent on fairseq, which is yet not compatible with Python 3.9
 - install packages, if you use conda install uwsgi with  `conda install -c conda-forge uwsgi` 
 - install postgres
+- enter your database credential in [./TS_annotation_tool/settings.py](./TS_annotation_tool/settings.py) and [./TS_annotation_tool/settings_deployment.py](./TS_annotation_tool/settings_deployment.py)
 - set up postgres db with `sudo -u postgres psql`
-  - `postgres=# create database demo_ts_anno with owner postgres;
-  `
-  - `postgres=# ALTER USER postgres WITH PASSWORD 'postgres';`
+  - `postgres=# create database YOUR_DATABASE_NAME with owner YOUR_USERNAME;`
   - set settings.py (or secret_files/xxx.json) with database name (_demo_ts_anno_), user name (_postgres_), and password (_postgres_) 
   - fill database with demo database `psql demo_ts_anno < demo_ts_anno.sql` OR
   - start with empty database
     - `python manage.py makemigrations`
     - `python manage.py migrate`
     - `python3 manage.py createsuperuser` 
+- reset the `SECRET_KEY` in [./TS_annotation_tool/settings.py](./TS_annotation_tool/settings.py) and [./TS_annotation_tool/settings_deployment.py](./TS_annotation_tool/settings_deployment.py)
 - `python manage.py runserver` open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser
 - register another user, e.g., _test_, in the interface
+- if you want to deploy the tool on a server, this [tutorial](https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html) on building a Django server with uWSGI and nginx might be helpful for you
+  - add your prefered IP-adress to `ALLOWED_HOSTS` in [./TS_annotation_tool/settings_deployment.py](./TS_annotation_tool/settings_deployment.py)
 
 ## Main Functionalities
 ### Upload Data
