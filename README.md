@@ -19,13 +19,17 @@ You can test annotation tool in our [live demo](https://ts-anno.phil.hhu.de/) (u
   - `postgres=# create database demo_ts_anno with owner postgres;
   `
   - `postgres=# ALTER USER postgres WITH PASSWORD 'postgres';`
-- fill database with own data
-- OR use demo database `psql demo_ts_anno < demo_ts_anno.sql`
-
-- `python manage.py makemigrations`
-- `python manage.py migrate`
+  - set settings.py (or secret_files/xxx.json) with database name (_demo_ts_anno_), user name (_postgres_), and password (_postgres_) 
+  - fill database with demo database `psql demo_ts_anno < demo_ts_anno.sql` OR
+  - start with empty database
+    - `python manage.py makemigrations`
+    - `python manage.py migrate`
+    - `python3 manage.py createsuperuser` 
 - `python manage.py runserver` open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser
-- `python3 manage.py createsuperuser` 
+- register another user, e.g., _test_, in the interface
+
+## Main Functionalities
+### Upload Data
 
 Examples:
 - `to align` Upload with URL: select `demo/web_crawler/config_example.json` 
@@ -36,6 +40,7 @@ Examples:
   - to_simply: yes
   - domain: "everyday documents"
   - language: English
+  - continuous text: yes
   - language level complex: C2
   - annotator: test
   - attachments: all docs of demo_corpus
@@ -46,16 +51,52 @@ Examples:
   - 
   - name: "asset"
   - home_page "https://github.com/facebookresearch/asset"
+  - author: Alva Manchego et al. (2020)
+  - license: cc_by_nc_4
   - license_file: https://raw.githubusercontent.com/facebookresearch/asset/main/LICENSE
+  - parallel: True
+  - pre_aligned: True
+  - to_simplify: No
   - domain: "wiki"
   - language: English
+  - continuous text: no
   - language level simple: B2
   - language level complex: C2
   - annotator: test
   - attachments: all docs of asset
 
+### Manual Sentence Alignment
+
+
+### Manual Rating 
+[]
+
+### Manual Annotation of Rewriting Transformations
+
+### Simplification
+<img src="https://github.com/stodden/TS_annotation_tool/blob/master/demo/simplification.png">
+
+### ToDo:
+- start with running the annotation tool on a local server to receive possible issues. If you are running the deployment mode, you only receive "Server Error (500)" without any relevant infromation on the error. 
+
 ## License:
 The annotation tool is licensed under [GNU General Public License v3.0](https://github.com/rstodden/TS_annotation_tool/blob/master/LICENSE).
 
+## Citation
+
+If you use TS-anno in your research, please cite our paper:
+
+```
+@inproceedings{stodden-kallmeyer-2022-ts-anno,
+    title = "{TS-ANNO}: An Annotation Tool to Build, Annotate and Evaluate Text
+Simplification Corpora",
+    author = "Stodden, Regina and Kallmeyer, Laura",
+    booktitle = "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics: System Demonstrations",
+    month = may,
+    year = "2022",
+    address = "Ireland, Dublin",
+    publisher = "Association for Computational Linguistics"
+}
+```
 ## Contact:
 Feel free to contact [Regina Stodden](emailto:regina.stodden@hhu.de) if you have any comments or problems with the annotation tool.
