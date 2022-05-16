@@ -8,15 +8,9 @@ django-sortable
 sortable
 requests
 bs4
-spacy==2.3.7
+spacy>=3.2
 lxml
 django-multiupload
 uwsgi
 psycopg2
 statsmodels
-django-modeltranslation
-transformers
-torch
-spacy-alignments
-spacy-transformers
-tokenizers
