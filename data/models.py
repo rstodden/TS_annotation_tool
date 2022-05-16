@@ -140,7 +140,7 @@ class Document(models.Model):
 	domain = models.CharField(max_length=50, blank=True, null=True)
 	manually_simplified = models.BooleanField(default=False)
 
-	def add_sentences(self, sentences, par_nr, language_level, selected_license, number_sentences=1, tokenize=True, author=None, sent_ids=None, find_most_similiar=False, sents_nlp=None):
+	def add_sentences(self, sentences, par_nr, language_level, selected_license, number_sentences=1, tokenize=True, author=None, sent_ids=None, find_most_similiar=False, sents_nlp=None, nlp=None):
 		treshold = 1
 		sentence_ids = list()
 		if selected_license in TS_annotation_tool.utils.license_limits.keys():
@@ -162,7 +162,14 @@ class Document(models.Model):
 			if tokenize:
 				sent_tmp.tokenize(sent)
 			if find_most_similiar and sents_nlp:
-				similarities = sorted([(sent.similarity(other_sent), other_sent) for other_sent in sents_nlp], key=itemgetter(0), reverse=True)
+				similarities = list()
+				for other_sent in sents_nlp:
+					if type(other_sent) == Sentence:
+						other_sent_nlp = nlp(other_sent.original_content)
+					else:
+						other_sent_nlp = other_sent
+					similarities.append((sent.similarity(other_sent_nlp), other_sent))
+				similarities = sorted(similarities, key=itemgetter(0), reverse=True)
 				top_5 = [sent for score, sent in similarities if score >= 0.8][:5]
 				sent_tmp.most_similar_sent.add(*top_5)
 				sent_tmp.save()
@@ -217,24 +224,21 @@ class Document(models.Model):
 						number_sentences = len([sent for sent in nlp(text).sents])
 						for i_par, par in enumerate(text.split("SEPL|||SEPR")):
 							sentences_of_par = nlp(par).sents
-							document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp)
+							document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp, nlp=nlp)
 					document_tmp.save()
 			elif not pre_aligned:
 				try:
 					text = document_content[1].strip().decode("utf-8")
 				except:
 					text = document_content[1].strip()
-				print(text)
-				print(nlp)
-				print(nlp(text))
 				number_sentences = len([sent for sent in nlp(text).sents])
 				if "SEPL|||SEPR" in text:
 					for i_par, par in enumerate(text.split("SEPL|||SEPR")):
 						sentences_of_par = nlp(par).sents
-						document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp)
+						document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp, nlp=nlp)
 				else:
 					document_tmp.add_sentences(nlp(text).sents, -1, language_level, selected_license,
-											   number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp)
+											   number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp, nlp=nlp)
 			document_tmp.save()
 		return document_tmp
 
@@ -387,18 +391,19 @@ def get_spacy_model(language):
 		else:
 			model_name = language + "_" + model_ending
 		if version in comp and model_name in comp[version]:
-			return check_spacy_version_and_model(version, comp, model_name) 
+			return check_spacy_version_and_model(version, comp, model_name)
 		elif not version in comp:
 			head_version = ".".join(version.split(".")[:-1])
 			if head_version in comp and model_name in comp[head_version]:
-				return check_spacy_version_and_model(head_version, comp, model_name) 
+				return check_spacy_version_and_model(head_version, comp, model_name)
 	if not nlp:
 		return ValueError("No SpaCy  model loaded.")
 	return nlp
-	
+
 def check_spacy_version_and_model(version, comp, model_name):
 	try:
 		return spacy.load(model_name)
 	except OSError:
+		from spacy.cli import download
 		download(model_name)
 		return spacy.load(model_name)

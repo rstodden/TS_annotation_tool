@@ -5,8 +5,10 @@ import simplification.forms
 import json, datetime
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
-from muss.muss.simplify import simplify_sentences
+
 from settings_annotation.config_simplification import simplification_model, load_simplification_model
+if load_simplification_model:
+	from muss.muss.simplify import simplify_sentences
 from django.contrib import messages
 from data.views import check_url_or_404
 
@@ -120,7 +122,8 @@ def get_simplification(request, corpus_id, doc_pair_id):
 		complex_selected = data.models.Sentence.objects.filter(id__in=id_list).order_by("-id")
 		output_params["complex_sents"] = complex_selected
 		complex_selected_text = data.models.Sentence.objects.filter(id__in=id_list).values_list("original_content", flat=True)
-		output_params["suggestion_simplification"] = " ".join(auto_simplify(complex_selected_text, doc_pair_tmp.corpus.language))
+		if load_simplification_model:
+			output_params["suggestion_simplification"] = " ".join(auto_simplify(complex_selected_text, doc_pair_tmp.corpus.language))
 	else:
 		messages.add_message(request, messages.ERROR, 'No complex sentence was selected. Please try again.')
 	return render(request, "simplification/simplification.html", output_params)

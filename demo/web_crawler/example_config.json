@@ -20,7 +20,7 @@
       "output_dir": "data_collection/",
       "save_raw_content": true,
       "continuous_text": true,
-      "find_most_similiar": true
+      "find_most_similiar": false
     }
   }
 }

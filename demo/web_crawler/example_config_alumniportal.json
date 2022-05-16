@@ -20,7 +20,7 @@
       "save_raw_content": true,
       "professionally_simplified": false,
       "continuous_text": true,
-      "find_most_similiar": true
+      "find_most_similiar": false
     }
   }
 }

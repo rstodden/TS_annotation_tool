@@ -21,7 +21,7 @@
       "output_dir": "data_collection/",
       "save_raw_content": true,
       "continuous_text": true,
-      "find_most_similiar": true
+      "find_most_similiar": false
     },
     "inclusion-europe-etr-de": {
       "home_page":  "https://www.inclusion-europe.eu",
@@ -44,7 +44,7 @@
       "output_dir": "data_collection/",
       "save_raw_content": true,
       "continuous_text": true,
-      "find_most_similiar": true
+      "find_most_similiar": false
     },
     "inclusion-europe-etr-es": {
       "home_page":  "https://www.inclusion-europe.eu",
@@ -67,7 +67,7 @@
       "output_dir": "data_collection/",
       "save_raw_content": true,
       "continuous_text": true,
-      "find_most_similiar": true
+      "find_most_similiar": false
     }
   }
 }
