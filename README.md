@@ -72,19 +72,22 @@ The annotation tool is licensed under [GNU General Public License v3.0](https://
 
 ## Citation
 
-If you use TS-anno in your research, please cite our paper:
+If you use TS-anno in your research, please cite our [paper](https://aclanthology.org/2022.acl-demo.14/):
 
 ```
-@inproceedings{stodden-kallmeyer-2022-ts-anno,
-    title = "{TS-ANNO}: An Annotation Tool to Build, Annotate and Evaluate Text
-Simplification Corpora",
-    author = "Stodden, Regina and Kallmeyer, Laura",
+@inproceedings{stodden-kallmeyer-2022-ts,
+    title = "{TS}-{ANNO}: An Annotation Tool to Build, Annotate and Evaluate Text Simplification Corpora",
+    author = "Stodden, Regina  and
+      Kallmeyer, Laura",
     booktitle = "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics: System Demonstrations",
     month = may,
     year = "2022",
-    address = "Ireland, Dublin",
-    publisher = "Association for Computational Linguistics"
+    address = "Dublin, Ireland",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.acl-demo.14",
+    pages = "145--155",
 }
+
 ```
 ## Contact:
 Feel free to contact [Regina Stodden](emailto:regina.stodden@hhu.de) if you have any comments or problems with the annotation tool.
