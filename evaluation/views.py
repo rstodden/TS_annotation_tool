@@ -23,6 +23,7 @@ from .forms import ExportAlignmentForm, MetaDataForm
 from django.template.loader import render_to_string
 from django.db.models import Count
 from django.http import JsonResponse
+import jellyfish
 
 def export_rating():  #output_path
 	# using same export format as proposed in Alva-Manchego etal. (2020) https://www.aclweb.org/anthology/2020.acl-main.424.pdf
@@ -36,6 +37,10 @@ def export_rating():  #output_path
 	for pair in alignment.models.Pair.objects.all():
 		for pair_rating in pair.rating.all():
 			original, original_sentence_id, simplification, simplification_sentence_id, alignment_type = get_original_data(pair)
+			if not simplification or not original:
+				continue
+			# if jellyfish.levenshtein_distance(original, simplification) <= 1:
+			# 	continue
 			worker_id = pair_rating.rater.id
 			for field in aspects:
 				result_frame.loc[i] = [original, simplification, original_sentence_id, simplification_sentence_id, field.name, worker_id, field.value_from_object(pair_rating)]
@@ -123,6 +128,10 @@ def export_transformation():
 	i = 0
 	for pair in alignment.models.Pair.objects.filter(~Q(document_pair__corpus_id=10)):
 		original, original_sentence_id, simplification, simplification_sentence_id, alignment_type = get_original_data(pair)
+		if not simplification or not original:
+			continue
+		# if jellyfish.levenshtein_distance(original, simplification) <= 1:
+		# 	continue
 		for pair_transformations in pair.transformation_of_pair.all():
 			if pair_transformations.transformation == "no_operation" and pair_transformations.transformation_level == "sentence":
 				continue
@@ -292,6 +301,7 @@ def export_alignment_view(request):
 def export_alignment(user, corpus, identical=False, deletions=False, additions=False, format="parallel"):
 	"""create one simple and complex file per annotator or per corpus or all in csv. The simple and the complex file contains all alignments no matter their domain or corpus."""
 	corpus_name = "TS_anno_"
+	small_change, text_missing = 0, 0
 	print(identical, deletions, additions, user, corpus)
 	file_names = list()
 	output_df = export_csv()
@@ -327,6 +337,12 @@ def export_alignment(user, corpus, identical=False, deletions=False, additions=F
 				domain, complex_level, simple_level, license, author, url, access_date = corpus_obj.domain, document_pair.complex_document.level, document_pair.simple_document.level, corpus_obj.license, corpus_obj.author, document_pair.simple_document.url, document_pair.simple_document.access_date
 				for alignment in document_pair.sentence_alignment_pair.filter(annotator=rater):
 					original, original_id, simplification, simplification_id, alignment_type = get_original_data(alignment)
+					if not simplification or not original:
+						text_missing += 1
+						continue
+					if jellyfish.levenshtein_distance(original, simplification) <= 1:
+						small_change += 1
+						continue
 					if format == "parallel":
 						output_text_simple_list.append(simplification)
 						output_text_complex_list.append(original)
@@ -348,6 +364,7 @@ def export_alignment(user, corpus, identical=False, deletions=False, additions=F
 				output_df_auto.to_csv(file_name_auto)
 				if file_name_auto not in file_names:
 					file_names.append(file_name_auto)
+	print("small changes:", small_change, "empty string:", text_missing)
 	return generate_zip_file(file_names)
 
 
@@ -446,9 +463,9 @@ def export_not_aligned(rater_id=None, identical=True, deletions=True, additions=
 
 def get_original_sent(sent, output):
 	if sent.original_content_repaired and len(sent.original_content_repaired) >= 1:
-		output.append(sent.original_content_repaired)
+		output.append(sent.original_content_repaired.strip())
 	else:
-		output.append(sent.original_content)
+		output.append(sent.original_content.strip())
 	return output
 
 
@@ -484,7 +501,7 @@ def get_original_data(pair):
 				simplification_id = simple_sent.given_id
 	original = " ".join(original)
 	simplification = " ".join(simplification)
-	return original, original_id, simplification, simplification_id, str(n_complex)+":"+str(n_simple)
+	return original.strip(), original_id, simplification.strip(), simplification_id, str(n_complex)+":"+str(n_simple)
 
 
 def gather_all_data(rater):
@@ -496,12 +513,16 @@ def gather_all_data(rater):
 			   *TS_annotation_tool.utils.rating_aspects,
 			   # "duration_transformation",
 			   *TS_annotation_tool.utils.transformation_list]
-	print(len(columns), len(TS_annotation_tool.utils.rating_aspects), len(TS_annotation_tool.utils.transformation_list))
+	# print(len(columns), len(TS_annotation_tool.utils.rating_aspects), len(TS_annotation_tool.utils.transformation_list))
 	result_frame = pd.DataFrame(columns=columns)
 	i = 0
 	for pair in alignment.models.Pair.objects.filter(annotator=rater):
 		#for pair_transformations in pair.transformation_of_pair.all():
 		original, original_id, simplification, simplification_id, alignment_type = get_original_data(pair)
+		if not simplification or not original:
+			continue
+		if jellyfish.levenshtein_distance(original, simplification) <= 1:
+			continue
 		original_sentence_id = pair.pair_identifier
 		malformed_original = 1 if len(pair.complex_elements.filter(malformed=True)) >= 1 else 0
 		malformed_simple = 1 if len(pair.simple_elements.filter(malformed=True)) >= 1 else 0
@@ -664,8 +685,10 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 		columns.extend(TS_annotation_tool.utils.rating_aspects)
 	result_frame = pd.DataFrame(columns=columns)
 	i = 0
-	print(data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True).distinct().order_by("id"))
-	for docpair in data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True, corpus__continuous_text=True).distinct().order_by("id"):  # .values_list("id", flat=True):  # .filter(~Q(corpus_id__in=[20, 21, 10])).order_by("id"):  # (~Q(complex_document__url__contains="bibel")).order_by("id"):  # filter(complex_document__url__contains="alumni"):  # filter(~Q(complex_document__url__contains="bibel")):
+	# print(data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True).distinct().order_by("id"))
+	doc_pair_list = data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True, corpus__continuous_text=True).distinct().order_by("id")
+	for i, docpair in enumerate(doc_pair_list):  # .values_list("id", flat=True):  # .filter(~Q(corpus_id__in=[20, 21, 10])).order_by("id"):  # (~Q(complex_document__url__contains="bibel")).order_by("id"):  # filter(complex_document__url__contains="alumni"):  # filter(~Q(complex_document__url__contains="bibel")):
+		print(i, len(doc_pair_list), docpair)
 		annotator_set = set(docpair.sentence_alignment_pair.all().values_list("annotator__id", flat=True))
 		complex_doc = docpair.complex_document
 		simple_doc = docpair.simple_document
@@ -776,7 +799,7 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 													   domain, user.id, title]
 								i += 1
 		print(docpair)
-		result_frame.to_csv("media/result_frame_.csv")
+		result_frame.to_csv("media/result_frame_"+str(datetime.today().strftime('%Y-%m-%d'))+".csv")
 	return result_frame
 
 
