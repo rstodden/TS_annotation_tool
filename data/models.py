@@ -61,7 +61,10 @@ class Corpus(models.Model):
 			complex_file_obj = [file for file in files if "complex" in file.name]
 			for complex_file in complex_file_obj:
 				complex_document = Document()
-				complex_document = complex_document.create_or_load_document_by_upload(complex_file,
+				document_content = complex_file.readlines()
+				if len(document_content) < 2:
+					continue
+				complex_document = complex_document.create_or_load_document_by_upload(document_content,
 																					  form_upload_data["language_level_complex"],
 																					  form_upload_data["domain"], nlp,
 																					  pre_aligned=form_upload_data["pre_aligned"],
@@ -82,7 +85,10 @@ class Corpus(models.Model):
 				file_name, file_ending = file.name.split(".")
 				file_id = file_name.split("_")[-1]
 				simple_document = Document()
-				simple_document = simple_document.create_or_load_document_by_upload(document=file,
+				document_content = file.readlines()
+				if len(document_content) < 2:
+					continue
+				simple_document = simple_document.create_or_load_document_by_upload(document_content=document_content,
 																					language_level=form_upload_data["language_level_simple"],
 																					domain=form_upload_data["domain"], nlp=nlp,
 																					pre_aligned=form_upload_data["pre_aligned"],
@@ -92,9 +98,12 @@ class Corpus(models.Model):
 																					sents_nlp=None)
 				complex_file_obj = [file for file in files if "complex" in file.name and "_" + file_id + "." in file.name]
 				if complex_file_obj:
+					document_content = complex_file_obj[0].readlines()
+					if len(document_content) < 2:
+						continue
 					complex_document = Document()
 					simple_sents = simple_document.sentences.all()
-					complex_document = complex_document.create_or_load_document_by_upload(complex_file_obj[0],
+					complex_document = complex_document.create_or_load_document_by_upload(document_content,
 																						  form_upload_data["language_level_complex"],
 																						  form_upload_data["domain"],
 																						  nlp,
@@ -140,7 +149,7 @@ class Document(models.Model):
 	domain = models.CharField(max_length=50, blank=True, null=True)
 	manually_simplified = models.BooleanField(default=False)
 
-	def add_sentences(self, sentences, par_nr, language_level, selected_license, number_sentences=1, tokenize=True, author=None, sent_ids=None, find_most_similiar=False, sents_nlp=None, nlp=None):
+	def add_sentences(self, sentences, par_nr, language_level, selected_license, number_sentences=1, tokenize=True, author=None, sent_ids=None, find_most_similiar=False, sents_nlp=None, nlp=None, pre_id=None):
 		treshold = 1
 		sentence_ids = list()
 		if selected_license in TS_annotation_tool.utils.license_limits.keys():
@@ -151,7 +160,10 @@ class Document(models.Model):
 			# print(sent, (i+1)/number_sentences)
 			if (i+1)/number_sentences > treshold:
 				break
-			sent_tmp = Sentence(original_content=sent, level=language_level, document=self, sentence_nr=i, paragraph_nr=par_nr)
+			if pre_id:
+				sent_tmp = Sentence(original_content=sent, level=language_level, document=self, sentence_nr=pre_id, paragraph_nr=par_nr)
+			else:
+				sent_tmp = Sentence(original_content=sent, level=language_level, document=self, sentence_nr=i, paragraph_nr=par_nr)
 			if sent_ids:
 				sent_tmp.given_id = sent_ids[i]
 			sent_tmp.save()
@@ -175,8 +187,8 @@ class Document(models.Model):
 				sent_tmp.save()
 		return sentence_ids
 
-	def create_or_load_document_by_upload(self, document, language_level, domain, nlp, selected_license, pre_aligned=False, pre_split=False, find_most_similiar=False, sents_nlp=None): # , add_par_nr=False):
-		document_content = document.readlines()
+	def create_or_load_document_by_upload(self, document_content, language_level, domain, nlp, selected_license, pre_aligned=False, pre_split=False, find_most_similiar=False, sents_nlp=None): # , add_par_nr=False):
+		# document_content = document.readlines()
 		try:
 			copyright_line, title = document_content[0].decode("utf-8").strip().split("\t")
 		except AttributeError:
@@ -207,24 +219,36 @@ class Document(models.Model):
 										level=language_level, domain=domain)
 			document_tmp.save()
 			if pre_split:
-				for data in document_content[1:]:
+				for j, data in enumerate(document_content[1:]):
 					try:
 						text = data.strip().decode("utf-8")
 					except AttributeError:
 						text = data.strip()
 					if data.startswith(b"##") and data.endswith(b"##\n"):
+						# special input format
 						number_sentences = 1
 						document_tmp.add_sentences([text], -1, language_level, selected_license, number_sentences, tokenize=False)
 					elif re.match(r"^O\w{2}\.\d+\.\d+\.\d+\.\d+", text):
+						# specific format of data: each line starts with O<language-id>.1.1.1.1
+						# where the numbers stand for chapter, section, paragraph and sentence number
 						sent_id, sent = text.split("\t")
 						number_sentences = 1
 						document_tmp.add_sentences([sent], -1, language_level, selected_license, number_sentences,
 												   tokenize=False, sent_ids=[sent_id])
 					else:
-						number_sentences = len([sent for sent in nlp(text).sents])
-						for i_par, par in enumerate(text.split("SEPL|||SEPR")):
-							sentences_of_par = nlp(par).sents
-							document_tmp.add_sentences(sentences_of_par, i_par, language_level, selected_license, number_sentences, find_most_similiar=find_most_similiar, sents_nlp=sents_nlp, nlp=nlp)
+						# thanks to @jantrienes for reporting the issue and suggesting a solution
+						# we treat each line as one data point (or text) and do not split it into sentences
+						# to facilitate using a different sentence splitter than spacy
+						text_per_line = nlp(text)
+						number_sentences = 1
+						# in add_sentences we will usually iterate over the sentences of the documents.
+						# however, in this case the document is pre-split into sentences and, hence, *text* and *text per line*
+						# (which is the input of add_sentences) are only one sentence.
+						# to prevent the loop in add_sentences to iterate over the toekns (instead of the sentences),
+						# we store the text in a list.
+						document_tmp.add_sentences([text_per_line], -1, language_level, selected_license,
+										   number_sentences, find_most_similiar=find_most_similiar,
+										   sents_nlp=sents_nlp, nlp=nlp, pre_id=j)
 					document_tmp.save()
 			elif not pre_aligned:
 				try:
@@ -287,9 +311,9 @@ class DocumentPair(models.Model):
 		simple_sentences = simple_doc.plain_data.split("\n")
 		complex_sentences = complex_doc.plain_data.split("\n")
 		# print(simple_sentences, complex_sentences)
-		for simple_sent, complex_sent in zip(simple_sentences, complex_sentences):
-			simple_elements_ids = simple_doc.add_sentences(nlp(simple_sent).sents, -1, language_level_simple, "")
-			complex_elements_ids = complex_doc.add_sentences(nlp(complex_sent).sents, -1, language_level_complex, "")
+		for j, (simple_sent, complex_sent) in enumerate(zip(simple_sentences, complex_sentences)):
+			simple_elements_ids = simple_doc.add_sentences(nlp(simple_sent).sents, -1, language_level_simple, "", pre_id=j)
+			complex_elements_ids = complex_doc.add_sentences(nlp(complex_sent).sents, -1, language_level_complex, "", pre_id=j)
 			simple_elements = Sentence.objects.filter(id__in=simple_elements_ids)
 			complex_elements = Sentence.objects.filter(id__in=complex_elements_ids)
 			if simple_sent != complex_sent:
