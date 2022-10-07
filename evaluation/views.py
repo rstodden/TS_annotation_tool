@@ -687,8 +687,8 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 	i = 0
 	# print(data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True).distinct().order_by("id"))
 	doc_pair_list = data.models.DocumentPair.objects.filter(sentence_alignment_pair__manually_checked=True, corpus__continuous_text=True).distinct().order_by("id")
-	for i, docpair in enumerate(doc_pair_list):  # .values_list("id", flat=True):  # .filter(~Q(corpus_id__in=[20, 21, 10])).order_by("id"):  # (~Q(complex_document__url__contains="bibel")).order_by("id"):  # filter(complex_document__url__contains="alumni"):  # filter(~Q(complex_document__url__contains="bibel")):
-		print(i, len(doc_pair_list), docpair)
+	for n, docpair in enumerate(doc_pair_list):  # .values_list("id", flat=True):  # .filter(~Q(corpus_id__in=[20, 21, 10])).order_by("id"):  # (~Q(complex_document__url__contains="bibel")).order_by("id"):  # filter(complex_document__url__contains="alumni"):  # filter(~Q(complex_document__url__contains="bibel")):
+		print(n, len(doc_pair_list), docpair)
 		annotator_set = set(docpair.sentence_alignment_pair.all().values_list("annotator__id", flat=True))
 		complex_doc = docpair.complex_document
 		simple_doc = docpair.simple_document
