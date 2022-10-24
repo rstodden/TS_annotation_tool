@@ -33,7 +33,6 @@ input[type=checkbox][disabled]+label{
 
 .scrollable-box {
   overflow-y: auto;
-  /* height: 600px; */
 }
 
 .disabled-div {

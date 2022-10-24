@@ -6,7 +6,7 @@
             <h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Alignment</h2>
         </div>
     </div>
-    <div class="row subpage content" style="display: flex;">
+    <div class="row subpage content">
         <div class="col-md-12">
             <form method="POST" class="alignment-form" action={% url 'alignment:save_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %} id="submitAlignmentsForm">{% csrf_token %}
                 <div class="row">
