@@ -11,7 +11,6 @@
             <form method="POST" class="alignment-form" action={% url 'alignment:save_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %} id="submitAlignmentsForm">{% csrf_token %}
                 <div class="row">
                     <div class="col-md-12">
-                        <hr style="width:100%;text-align:left;margin-left:0">
                         {% if type == "add" %}
                             <a class="btn btn-default" title="reset current alignment" href="{% url 'alignment:change_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-undo-alt"></i> Reset</a>
                             <button type="submit" class="btn btn-default" title="save alignment" name="save" value="save"><i class="fas fa-save"></i> Save</button>
@@ -37,7 +36,11 @@
                         </div>
                         {% if type == "add" or type == "edit"%}
                         <div class="row">
-                            <div class="scrollable-box col-md-12">
+                               {% if complex_elements.count > 20 %}
+                                    <div class="scrollable-box-long col-md-12">
+                                {% else %}
+                                    <div class="scrollable-box col-md-12">
+                                {% endif %}
                                 {%  for sentence in complex_elements %}
                                     <div class="row sentence-alignment-row">
                                         <div class="col-md-10 sentence-alignment-col">
@@ -96,7 +99,11 @@
                         </div>
                         {% else %}
                         <div class="row">
-                            <div class="scrollable-box col-md-12">
+                            {% if complex_elements.count > 20 %}
+                                <div class="scrollable-box-long col-md-12">
+                            {% else %}
+                                <div class="scrollable-box col-md-12">
+                            {% endif %}
                                 {%  for sentence in complex_elements %}
                                 <div class="row sentence-alignment-row">
                                     <div class="col-md-10 sentence-alignment-col">
@@ -120,7 +127,11 @@
                         </div>
                         {% if type == "add" or type == "edit"%}
                         <div class="row">
-                            <div class="scrollable-box col-md-12">
+                            {% if simple_elements.count > 20 %}
+                                <div class="scrollable-box-long col-md-12">
+                            {% else %}
+                                <div class="scrollable-box col-md-12">
+                            {% endif %}
                                 {%  for sentence in simple_elements %}
                                     <div class="row sentence-alignment-row">
                                         <div class="col-md-10 sentence-alignment-col">
@@ -179,7 +190,11 @@
                         </div>
                         {% else %}
                         <div class="row">
-                            <div class="scrollable-box col-md-12">
+                            {% if simple_elements.count > 20 %}
+                                <div class="scrollable-box-long col-md-12">
+                            {% else %}
+                                <div class="scrollable-box col-md-12">
+                            {% endif %}  
                                 {%  for sentence in simple_elements %}
                                 <div class="row sentence-alignment-row">
                                     <div class="col-md-10 sentence-alignment-col">
@@ -209,7 +224,11 @@
                 <div class="row">
                     <hr style="width:100%;text-align:left;margin-left:0">
                 </div>
-                <div class="row scrollable-box">
+                    {% if pairs.count > 20 %}
+                        <div class="row scrollable-box-long">
+                    {% else %}
+                        <div class="row scrollable-box">
+                    {% endif %}
                     <div class="col-md-12">
 
                         <h4>List of aligned sentence pairs:</h4>
