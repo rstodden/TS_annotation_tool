@@ -31,8 +31,15 @@ input[type=checkbox][disabled]+label{
   color: darkgray;
 }
 
+
+.scrollable-box-long {
+  overflow-y: auto;
+  height: 750px;
+}
+
 .scrollable-box {
   overflow-y: auto;
+  height: auto;
 }
 
 .disabled-div {
