@@ -21,7 +21,7 @@ urlpatterns = [
     path('export_all_in_csv_per_use', views.export_all_in_csv_per_use, name="export_all_in_csv_per_use"),
     path('export_alignment_for_crf', views.export_alignment_for_crf, name="export_alignment_for_crf"),
 
-
+    path("export_references", views.export_corpora_with_references, name="export_references")
 
     # path('home', views.export, name="home"),
     # path('iaa/', views.iaa, name='iaa'),

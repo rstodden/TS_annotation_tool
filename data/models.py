@@ -280,7 +280,8 @@ class DocumentPair(models.Model):
 	last_changes = models.DateTimeField(auto_now=True)
 	no_alignment_possible = models.BooleanField(default=False)
 	corpus = models.ForeignKey(Corpus, on_delete=models.CASCADE, blank=True, null=True, related_name="document_pairs")
-	
+	reference_corpus = models.ManyToManyField("self", blank=True, null=True, related_name="references")
+
 
 	def get_all_complex_annotated_sentences_by_user(self, user, content=False):
 		complex_annotated_sents_content = list()

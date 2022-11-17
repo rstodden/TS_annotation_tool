@@ -1120,3 +1120,97 @@ def export_transformations_as_iob(request):
 			data_dump = json.dump({"train": transformation_dict_list}, f, indent=4, sort_keys=False, ensure_ascii=False)
 		output_list.append("media/bio_trans_rater_"+str(rater)+"_list.json")
 	return generate_zip_file(output_list)
+
+
+
+def check_entry_in_ref_dict(reference_dict, doc, ref):
+	if doc.id in reference_dict.keys():
+		reference_dict[ref.id] = reference_dict.pop(doc.id)
+		reference_dict[ref.id].add(doc.id)
+	elif ref.id in reference_dict.keys():
+		reference_dict[ref.id].add(doc.id)
+	else:
+		reference_dict[ref.id] = {doc.id}
+	return reference_dict
+
+
+def get_references_dict():
+	docs_with_references = data.models.DocumentPair.objects.filter(reference_corpus__isnull=False)
+	reference_dict = dict()
+	for doc in docs_with_references:
+		references = doc.reference_corpus.all()
+		for ref in references:
+			if doc.simple_document.level == "a1" and ref.simple_document.level in ["a2", "b2", "c1"]:
+				reference_dict = check_entry_in_ref_dict(reference_dict, doc, ref)
+			elif len(ref.sentence_alignment_pair.all()) > len(doc.sentence_alignment_pair.all()):
+				reference_dict = check_entry_in_ref_dict(reference_dict, doc, ref)
+
+	for doc_id in list(reference_dict.keys()):
+		for values in reference_dict.values():
+			if doc_id in values:
+				del reference_dict[doc_id]
+				break
+	return reference_dict
+
+
+def get_alignments(docpair, text=False):
+	gold_alignments = docpair.sentence_alignment_pair.all()
+	complex_elements, simple_elements = list(), list()
+	for alignment in gold_alignments:
+		if text:
+			complex_elements.append(" ".join(alignment.complex_elements.order_by("paragraph_nr", "sentence_nr", "id").values_list("original_content", flat=True)))
+			simple_elements.append(" ".join(alignment.simple_elements.order_by("paragraph_nr", "sentence_nr", "id").values_list("original_content", flat=True)))
+		else:
+			complex_elements.append(alignment.complex_elements.order_by("paragraph_nr", "sentence_nr", "id").all())
+			simple_elements.append(alignment.simple_elements.order_by("paragraph_nr", "sentence_nr", "id").all())
+	return complex_elements, simple_elements
+
+
+def export_corpora_with_references(request):
+	reference_dict = get_references_dict()
+	# columns = ["original", "simplification", "references", "pair_id"]
+	# columns = ["original", "simplification", "original_id", "simplification_id", "pair_id", "domain", "corpus", "language_level_original",
+	# 		   "language_level_simple", "license", "author", "simple_url", "complex_url", "simple_title", "complex_title", "access_date", "rater", "alignment", "references"]
+	columns = get_row_values(doc_pair=None, alignment_pair=None, rater_id=None, get_columns=True)+["references"]
+	output_values = list()
+	for docpair_id, reference_ids in reference_dict.items():
+		doc_pair = data.models.DocumentPair.objects.get(id=docpair_id)
+		document_pair_id, complex_doc, simple_doc, complex_level, complex_url, complex_title, complex_access_data, simple_level, simple_url, simple_title, simple_access_date = get_docpair_values(doc_pair)
+		# complex_elements, simple_elements = get_alignments(doc_pair)
+		ref_alignment_dict = dict()
+		for ref_id in reference_ids:
+			ref_doc = data.models.DocumentPair.objects.get(id=ref_id)
+			complex_elements_ref, simple_elements_ref = get_alignments(ref_doc, text=True)
+			ref_alignment_dict[ref_id] = dict()
+			ref_alignment_dict[ref_id]["complex"] = complex_elements_ref
+			ref_alignment_dict[ref_id]["simple"] = simple_elements_ref
+
+		for alignment_pair in doc_pair.sentence_alignment_pair.all():
+
+		# for gold_complex, gold_simple in zip(complex_elements, simple_elements):
+		# 	gold_complex_elements = gold_complex.values_list("original_content", flat=True)
+		# 	gold_simple_elements = gold_simple.values_list("original_content", flat=True)
+		# 	gold_complex_combined = " ".join(gold_complex_elements)
+		# 	gold_simple_combined = " ".join(gold_simple_elements)
+			values = get_row_values(doc_pair, alignment_pair, doc_pair.annotator.first().id, document_pair_id=document_pair_id, complex_doc=complex_doc, simple_doc=simple_doc, complex_level=complex_level, complex_url=complex_url, complex_title=complex_title, simple_level=simple_level, simple_url=simple_url, simple_title=simple_title, access_date=simple_access_date)
+			if not values:
+				continue
+			gold_complex_combined, gold_simple_combined = values[0], values[1]
+			references = list()
+
+			for ref_id in ref_alignment_dict.keys():
+				complex_sents = ref_alignment_dict[ref_id]["complex"]
+				simple_sents = ref_alignment_dict[ref_id]["simple"]
+				if gold_complex_combined in complex_sents:
+					for complex_sent, simple_sent in zip(complex_sents, simple_sents):
+						if complex_sent == gold_complex_combined:
+							references.append(simple_sent.strip())
+			output_values.append(values + [references])
+
+	df = pd.DataFrame(output_values, columns=columns, dtype=object)
+	print(len(df), len(df[df["references"].str.len() == 0]))
+	df = df.drop(df[df["references"].str.len() == 0].index)
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="corpora_with_references.csv"'
+	df.to_csv(path_or_buf=response, index=False)
+	return response
