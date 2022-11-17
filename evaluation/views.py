@@ -282,7 +282,8 @@ def export_alignment_view(request):
 									identical=form.cleaned_data["identical_pairs"],
 									deletions=form.cleaned_data["deletions"],
 									additions=form.cleaned_data["additions"],
-									format=form.cleaned_data["format"]
+									format=form.cleaned_data["format"],
+									pre_and_past_sents=form.cleaned_data["preceding_and_following_sentences"]
 									)
 	else:
 		form = ExportAlignmentForm()
@@ -429,10 +430,51 @@ def export_txt(output_text_simple_list, output_text_complex_list, output_text_me
 	return file_name_complex, file_name_simple, file_name_meta_data
 
 
-def get_row_values(doc_pair, alignment_pair, rater_id, get_columns=False, alignment_type="aligned", sent_id=None, simple_sent_pair_id=None, corpus=None, domain=None, corpus_name=None, license_name=None, author_name=None, complex_doc=None, simple_doc=None, complex_level=None, simple_level=None, complex_url=None, simple_url=None, complex_title=None, simple_title=None, access_date=None, document_pair_id=None):
+def get_preceding_and_following_sentences(alignment_pair: alignment.models.Pair, pre_and_past_sents: int):
+	original_sents = alignment_pair.complex_elements.all().order_by("paragraph_nr", "sentence_nr", "id")
+	first_sent = original_sents.first()
+	last_sent = original_sents.last()
+	document_id = last_sent.document_id
+	if last_sent.paragraph_nr != first_sent.paragraph_nr:
+		# all_sents_within_first_sent_par = data.models.Document.objects.get(document_id).sentences.filter(paragraph_nr=first_sent.paragraph_nr).order_by("paragraph_nr", "sentence_nr", "id")
+		all_sents_within_last_sent_par = data.models.Document.objects.get(id=document_id).sentences.filter(paragraph_nr=last_sent.paragraph_nr).order_by("paragraph_nr", "sentence_nr", "id")
+		all_sents_within_first_sent_par = data.models.Document.objects.get(id=document_id).sentences.filter(paragraph_nr=first_sent.paragraph_nr).order_by("paragraph_nr", "sentence_nr", "id")
+		all_sents_within_last_sent_par = all_sents_within_first_sent_par
+	else:
+		all_sents_within_first_sent_par = data.models.Document.objects.get(id=document_id).sentences.filter(paragraph_nr=first_sent.paragraph_nr).order_by("paragraph_nr", "sentence_nr", "id")
+		all_sents_within_last_sent_par = all_sents_within_first_sent_par
+	# only export sentences within the same paragraph
+	if first_sent.sentence_nr == 0:
+		# if first sent of paragraph don't export any sentence
+		prev_sents = []
+	else:
+		# export all existing sentences of paragraph  in context window
+		prev_sents = data.models.Document.objects.get(id=document_id).sentences.filter(paragraph_nr=first_sent.paragraph_nr, sentence_nr__lt=first_sent.sentence_nr, sentence_nr__gte=first_sent.sentence_nr-pre_and_past_sents).order_by("sentence_nr", "id")
+	if last_sent.sentence_nr == all_sents_within_last_sent_par.last().sentence_nr:
+		next_sents = []
+	else:
+		# export only all existing sentences in context window
+		next_sents = data.models.Document.objects.get(id=document_id).sentences.filter(paragraph_nr=last_sent.paragraph_nr, sentence_nr__gt=last_sent.sentence_nr, sentence_nr__lte=last_sent.sentence_nr + pre_and_past_sents).order_by("sentence_nr", "id")
+	print(len(prev_sents), len(next_sents))
+	prev_sent_list = list()
+	for prev_sent in prev_sents:
+		prev_sent_list = get_original_sent(prev_sent, prev_sent_list)
+	next_sent_list = list()
+	for next_sent in next_sents:
+		next_sent_list = get_original_sent(next_sent, next_sent_list)
+	return " ".join(prev_sent_list), " ".join(next_sent_list)
+
+
+def get_row_values(doc_pair, alignment_pair, rater_id, get_columns=False, alignment_type="aligned", sent_id=None, simple_sent_pair_id=None, corpus=None, domain=None, corpus_name=None, license_name=None, author_name=None, complex_doc=None, simple_doc=None, complex_level=None, simple_level=None, complex_url=None, simple_url=None, complex_title=None, simple_title=None, access_date=None, document_pair_id=None, pre_and_past_sents=0):
+	preceding_sentences, following_sentences = None, None
 	if get_columns:
-		return ["original", "simplification", "original_id", "simplification_id", "pair_id", "domain", "corpus", "language_level_original",
+		if not pre_and_past_sents:
+			return ["original", "simplification", "original_id", "simplification_id", "pair_id", "domain", "corpus", "language_level_original",
 			   "language_level_simple", "license", "author", "simple_url", "complex_url", "simple_title", "complex_title",  "access_date", "rater", "alignment"]
+		else:
+			return ["original", "simplification", "original_id", "simplification_id", "pair_id", "domain", "corpus", "language_level_original",
+			 "language_level_simple", "license", "author", "simple_url", "complex_url", "simple_title", "complex_title", "access_date", "rater", "alignment",
+			 "preceding_sentences", "following_sentences"]
 	else:
 		if not corpus:
 			corpus = doc_pair.corpus
@@ -466,6 +508,8 @@ def get_row_values(doc_pair, alignment_pair, rater_id, get_columns=False, alignm
 			document_pair_id = str(doc_pair.id)
 		if alignment_pair and alignment_type == "aligned":
 			original, original_id, simplification, simplification_id, alignment_value = get_texts_and_ids(alignment_pair)
+			if pre_and_past_sents:
+				preceding_sentences, following_sentences = get_preceding_and_following_sentences(alignment_pair, pre_and_past_sents)
 		elif alignment_pair and alignment_type == "identical":
 			original, original_id, simplification, simplification_id, alignment_value = get_texts_and_ids(alignment_pair)
 			alignment_value = alignment_value + " (nearly identical)"
@@ -483,8 +527,14 @@ def get_row_values(doc_pair, alignment_pair, rater_id, get_columns=False, alignm
 		if not original and not simplification:
 			return None
 		else:
-			values = [original, simplification, original_id, simplification_id, document_pair_id,
+			if not pre_and_past_sents:
+				values = [original, simplification, original_id, simplification_id, document_pair_id,
 			  	domain, corpus_name, complex_level, simple_level, license_name, author_name, simple_url, complex_url, simple_title, complex_title, access_date, rater_id, alignment_value]
+			else:
+				values = [original, simplification, original_id, simplification_id, document_pair_id,
+						  domain, corpus_name, complex_level, simple_level, license_name, author_name, simple_url,
+						  complex_url, simple_title, complex_title, access_date, rater_id, alignment_value,
+						  preceding_sentences, following_sentences]
 			return values
 
 
@@ -572,7 +622,6 @@ def get_original_sent(sent, output):
 	else:
 		output.append(sent.original_content.strip())
 	return output
-
 
 
 def get_texts_and_ids(pair):

@@ -10,6 +10,7 @@ class ExportAlignmentForm(forms.Form):
 	additions = forms.BooleanField(required=False, help_text=popover_html("Do you want to export sentences only occurring in the simplified text? (automatically aligned)"))
 	deletions = forms.BooleanField(required=False, help_text=popover_html("Do you want to export sentences only occurring in the original text? (automatically aligned)"))
 	# include_text = forms.BooleanField()
+	preceding_and_following_sentences = forms.IntegerField(initial=0, min_value=0, max_value=5, required=False, help_text=popover_html("Do you want to add the preceding and the following sentence(s) of the original text? Please specify the number of sentences, you want to include."))
 	per_user = forms.BooleanField(required=False, help_text=popover_html("Do you want to separate the data per user?"))
 	per_corpus = forms.BooleanField(required=False, help_text=popover_html("Do you want to separate the data per corpus?"))
 	format = forms.ChoiceField(choices=[("parallel", "parallel"), ("csv", "csv")], help_text=popover_html("CSV: All data in a comma-separated file. Parallel: Export in two files, where each row is aligned with each other."))
