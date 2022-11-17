@@ -8,7 +8,27 @@
     </div>
     <div class="row subpage content">
         <div class="col-md-12">
-            <form method="POST" class="alignment-form" action={% url 'alignment:save_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}>{% csrf_token %}
+            <form method="POST" class="alignment-form" action={% url 'alignment:save_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %} id="submitAlignmentsForm">{% csrf_token %}
+                <div class="row">
+                    <div class="col-md-12">
+                        {% if type == "add" %}
+                            <a class="btn btn-default" title="reset current alignment" href="{% url 'alignment:change_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-undo-alt"></i> Reset</a>
+                            <button type="submit" class="btn btn-default" title="save alignment" name="save" value="save"><i class="fas fa-save"></i> Save</button>
+                        {% elif type == "edit" %}
+                            <a class="btn btn-default" title="reset current alignment" href="{% url 'alignment:change_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-undo-alt"></i> Reset</a>
+                            <button type="submit" class="btn btn-default" title="save edited alignment and delete previous rating and transformations" name="save-edit" value="{{ pair_id }}"><i class="fas fa-save"></i> Save</button>
+                        {% else %}
+                            <a class="btn btn-default" title="add new alignment" href="{% url 'alignment:add_alignment' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-plus-circle"></i> Add</a>
+                            {% if no_alignment_possible %}
+                                <a class="btn btn-default" title="documents are possible to align" href="{% url 'alignment:not_possible' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="far fa-check-circle"></i> Possible to align</a>
+                            {% else %}
+                                <a class="btn btn-default" title="documents are not possible to align" href="{% url 'alignment:not_possible' corpus_id=corpus_id doc_pair_id=doc_pair_id %}"><i class="fas fa-ban"></i> Not possible to align</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="row">
@@ -16,7 +36,11 @@
                         </div>
                         {% if type == "add" or type == "edit"%}
                         <div class="row">
-                            <div class="scrollable-box col-md-12">
+                               {% if complex_elements.count > 20 %}
+                                    <div class="scrollable-box-long col-md-12">
+                                {% else %}
+                                    <div class="scrollable-box col-md-12">
+                                {% endif %}
                                 {%  for sentence in complex_elements %}
                                     <div class="row sentence-alignment-row">
                                         <div class="col-md-10 sentence-alignment-col">
@@ -75,7 +99,11 @@
                         </div>
                         {% else %}
                         <div class="row">
-                            <div class="scrollable-box col-md-12">
+                            {% if complex_elements.count > 20 %}
+                                <div class="scrollable-box-long col-md-12">
+                            {% else %}
+                                <div class="scrollable-box col-md-12">
+                            {% endif %}
                                 {%  for sentence in complex_elements %}
                                 <div class="row sentence-alignment-row">
                                     <div class="col-md-10 sentence-alignment-col">
@@ -99,7 +127,11 @@
                         </div>
                         {% if type == "add" or type == "edit"%}
                         <div class="row">
-                            <div class="scrollable-box col-md-12">
+                            {% if simple_elements.count > 20 %}
+                                <div class="scrollable-box-long col-md-12">
+                            {% else %}
+                                <div class="scrollable-box col-md-12">
+                            {% endif %}
                                 {%  for sentence in simple_elements %}
                                     <div class="row sentence-alignment-row">
                                         <div class="col-md-10 sentence-alignment-col">
@@ -158,7 +190,11 @@
                         </div>
                         {% else %}
                         <div class="row">
-                            <div class="scrollable-box col-md-12">
+                            {% if simple_elements.count > 20 %}
+                                <div class="scrollable-box-long col-md-12">
+                            {% else %}
+                                <div class="scrollable-box col-md-12">
+                            {% endif %}  
                                 {%  for sentence in simple_elements %}
                                 <div class="row sentence-alignment-row">
                                     <div class="col-md-10 sentence-alignment-col">
@@ -188,7 +224,11 @@
                 <div class="row">
                     <hr style="width:100%;text-align:left;margin-left:0">
                 </div>
-                <div class="row scrollable-box">
+                    {% if pairs.count > 20 %}
+                        <div class="row scrollable-box-long">
+                    {% else %}
+                        <div class="row scrollable-box">
+                    {% endif %}
                     <div class="col-md-12">
 
                         <h4>List of aligned sentence pairs:</h4>
@@ -303,6 +343,16 @@
             } else {
                  document.getElementById("similar_button_"+complex_sent_id).value = 0;
              }
+        }
+
+        document.onkeypress = keyPress;
+        function keyPress(e){
+            var x = e || window.event;
+            var key = (x.keyCode || x.which);
+            if(key == 13 || key == 3) {
+                var form = document.getElementById("submitAlignmentsForm")
+                form.submit();
+            }
         }
     </script>
 {% endblock %}

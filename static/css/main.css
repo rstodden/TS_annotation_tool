@@ -1,5 +1,6 @@
 body {
   color: #193F2E;
+  height: 100%;
 }
 .row {
   padding: 5pt;
@@ -30,9 +31,15 @@ input[type=checkbox][disabled]+label{
   color: darkgray;
 }
 
+
+.scrollable-box-long {
+  overflow-y: auto;
+  height: 750px;
+}
+
 .scrollable-box {
   overflow-y: auto;
-  height: 250px;
+  height: auto;
 }
 
 .disabled-div {
