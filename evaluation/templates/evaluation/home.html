@@ -52,6 +52,8 @@
                 <ul>
 {#                    <a class="btn btn-default" href="{% url 'evaluation:full_document_export' %}">Export Full Documents</a><br>#}
                     <li  class="eval-li">Export the document pairs of continuous documents sentence-wise. The export contains additions, deletions, no-change pairs and aligned sentence pairs.<br><a class="btn btn-default"  href="{% url 'evaluation:full_aligned_document_export' %}">Export Full Aligned Documents</a></li>
+                    <li class="eval-li"><a class="btn btn-default"  href="{% url 'evaluation:aligned_document_sentences_export' %}">Export Sentences of Aligned Documents</a></li>
+                    <li class="eval-li"><a class="btn btn-default"  href="{% url 'evaluation:export_text_leveling_data' %}">Export Text Leveling Data of Aligned Documents</a></li>
                 </ul>
                 <h3>Data Sheet (Meta Data)</h3>
                 <ul>

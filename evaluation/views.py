@@ -1214,3 +1214,121 @@ def export_corpora_with_references(request):
 	response['Content-Disposition'] = 'attachment; filename="corpora_with_references.csv"'
 	df.to_csv(path_or_buf=response, index=False)
 	return response
+
+
+def get_share_and_save_number(len_data, share_threshold=0.15, save_threshold=0.75):
+	total_len_data = len_data/save_threshold
+	len_save = len_data
+	len_share = total_len_data*share_threshold
+	return round(total_len_data), len_save, round(len_share)
+
+
+def aligned_document_sentences_export(request):
+	"""
+	export documentpairs with alignments. each line contains all sentences of the original and the simplified docoument,
+	enriched with a lot of metadata.
+	:param request:
+	:return: zip file with to csv files, one with all parallel aligned documents and another with all parallel aligned documents which can be shared
+	"""
+
+	columns = ["original", "simplification", "complex_document_id", "simple_document_id", "domain", "corpus",
+			  "simple_url", "complex_url", "simple_level", "complex_level", "simple_location_html",
+			  "complex_location_html", "simple_location_txt", "complex_location_txt", "alignment_location",
+			  "simple_author", "complex_author", "simple_title", "complex_title", "license", "last_access"]
+	output = list()
+	output_to_share = list()
+	doc_pairs = data.models.DocumentPair.objects.filter(reference_corpus__isnull=True, no_alignment_possible=False, corpus__continuous_text=True).order_by("id")
+	for doc_pair in doc_pairs:
+		if len(doc_pair.sentence_alignment_pair.all()) == 0 or len(doc_pair.corpus.document_pairs.values_list("sentence_alignment_pair", flat=True)) <= 10:
+			continue
+		document_pair_id, complex_doc, simple_doc, complex_level, complex_url, complex_title, complex_access_data, simple_level, simple_url, simple_title, simple_access_date = get_docpair_values(doc_pair)
+		corpus = doc_pair.corpus
+		domain, name, license_name, author_name = get_corpus_values(corpus)
+		simple_sentences_output, complex_sentences_output, simple_sentences_output_to_share, complex_sentences_output_to_share = list(), list(), list(), list()
+		simple_sentences = simple_doc.sentences.all().order_by("paragraph_nr", "sentence_nr", "id")
+		complex_sentences = complex_doc.sentences.all().order_by("paragraph_nr", "sentence_nr", "id")
+		if license_name in TS_annotation_tool.utils.license_limits.keys() or license in ['citation required', 'copyright required',  'copyright reserved', 'written permit required', 'permit required']:
+			total_number_simple_sentences, allowed_number_simple_sentences_save, allowed_number_simple_sentences_share = get_share_and_save_number(len(simple_sentences))
+			total_number_original_sentences, allowed_number_original_sentences_save, allowed_number_original_sentences_share = get_share_and_save_number(len(complex_sentences))
+		elif license_name == "save_use":
+			allowed_number_simple_sentences_share = 0
+			allowed_number_original_sentences_share = 0
+		else:
+			allowed_number_simple_sentences_share = len(simple_sentences)
+			allowed_number_original_sentences_share = len(complex_sentences)
+		for i, simple_sent in enumerate(simple_sentences):
+			if i < allowed_number_simple_sentences_share:
+				simple_sentences_output_to_share = get_original_sent(simple_sent, simple_sentences_output_to_share)
+			simple_sentences_output = get_original_sent(simple_sent, simple_sentences_output)
+		for j, complex_sent in enumerate(complex_sentences):
+			if j < allowed_number_original_sentences_share:
+				complex_sentences_output_to_share = get_original_sent(complex_sent, complex_sentences_output_to_share)
+			complex_sentences_output = get_original_sent(complex_sent, complex_sentences_output)
+		output.append([" ".join(complex_sentences_output), " ".join(simple_sentences_output),
+					   str(doc_pair.id)+"-1", str(doc_pair.id)+"-0", domain, name, simple_url, complex_url, simple_level, complex_level,
+					   "", "", "", "", "", "", "", simple_title, complex_title, license_name, complex_access_data])
+		if allowed_number_original_sentences_share > 0 and allowed_number_simple_sentences_share > 0:
+			output_to_share.append([" ".join(complex_sentences_output_to_share), " ".join(simple_sentences_output_to_share),
+						   str(doc_pair.id) + "-1", str(doc_pair.id) + "-0", domain, name, simple_url, complex_url,
+						   simple_level, complex_level,
+						   "", "", "", "", "", "", "", simple_title, complex_title, license_name, complex_access_data])
+	output_df = pd.DataFrame(output, columns=columns)
+	output_df.to_csv("doc_aligned_data.csv", index=False)
+	output_df_to_share = pd.DataFrame(output_to_share, columns=columns)
+	output_df_to_share.to_csv("doc_aligned_data_to_share.csv", index=False)
+	return generate_zip_file(["doc_aligned_data.csv", "doc_aligned_data_to_share.csv"])
+
+
+def export_text_leveling_data(request):
+	"""
+	export sentences of aligned sentences sentence-wise with its level
+	:param request:
+	:return:
+	"""
+	columns = ["document_id", "par_id", "source", "domain", "license", "last_access", "text", "level", "sentence_id"]
+	output, output_to_share = list(), list()
+	doc_pairs = data.models.DocumentPair.objects.filter(no_alignment_possible=False).order_by("id")
+	for doc_pair in doc_pairs:
+		if len(doc_pair.sentence_alignment_pair.all()) == 0:
+			continue
+		document_pair_id, complex_doc, simple_doc, complex_level, complex_url, complex_title, complex_access_data, simple_level, simple_url, simple_title, simple_access_date = get_docpair_values(doc_pair)
+		corpus = doc_pair.corpus
+		domain, name, license_name, author_name = get_corpus_values(corpus)
+		simple_sentences = simple_doc.sentences.all().order_by("paragraph_nr", "sentence_nr", "id")
+		complex_sentences = complex_doc.sentences.all().order_by("paragraph_nr", "sentence_nr", "id")
+		if license_name in TS_annotation_tool.utils.license_limits.keys() or license in ['citation required', 'copyright required', 'copyright reserved', 'written permit required', 'permit required']:
+			total_number_simple_sentences, allowed_number_simple_sentences_save, allowed_number_simple_sentences_share = get_share_and_save_number(
+				len(simple_sentences))
+			total_number_original_sentences, allowed_number_original_sentences_save, allowed_number_original_sentences_share = get_share_and_save_number(
+				len(complex_sentences))
+		elif license_name == "save_use":
+			allowed_number_simple_sentences_share = 0
+			allowed_number_original_sentences_share = 0
+		else:
+			allowed_number_simple_sentences_share = len(simple_sentences)
+			allowed_number_original_sentences_share = len(complex_sentences)
+		for i, simple_sent in enumerate(simple_sentences):
+			if simple_sent.original_content_repaired and len(simple_sent.original_content_repaired) >= 1:
+				text = simple_sent.original_content_repaired.strip()
+			else:
+				text = simple_sent.original_content.strip()
+			if i < allowed_number_simple_sentences_share:
+				output_to_share.append([str(document_pair_id)+"-0", simple_sent.paragraph_nr, name, domain, license_name,
+									   simple_access_date, text, simple_level, str(document_pair_id)+"-0-"+str(simple_sent.paragraph_nr)+"-"+str(simple_sent.sentence_nr)])
+			output.append([str(document_pair_id)+"-0", simple_sent.paragraph_nr, name, domain, license_name,
+									   simple_access_date, text, simple_level, str(document_pair_id)+"-0-"+str(simple_sent.paragraph_nr)+"-"+str(simple_sent.sentence_nr)])
+		for i, complex_sent in enumerate(complex_sentences):
+			if complex_sent.original_content_repaired and len(complex_sent.original_content_repaired) >= 1:
+				text = complex_sent.original_content_repaired.strip()
+			else:
+				text = complex_sent.original_content.strip()
+			if i < allowed_number_original_sentences_share:
+				output_to_share.append([str(document_pair_id)+"-0", complex_sent.paragraph_nr, name, domain, license_name,
+									   simple_access_date, text, simple_level, str(document_pair_id)+"-0-"+str(complex_sent.paragraph_nr)+"-"+str(complex_sent.sentence_nr)])
+			output.append([str(document_pair_id)+"-0", complex_sent.paragraph_nr, name, domain, license_name,
+									   simple_access_date, text, simple_level, str(document_pair_id)+"-0-"+str(complex_sent.paragraph_nr)+"-"+str(complex_sent.sentence_nr)])
+	output_df = pd.DataFrame(output, columns=columns)
+	output_df.to_csv("text_leveling_data_aligned.csv", index=False)
+	output_df_to_share = pd.DataFrame(output_to_share, columns=columns)
+	output_df_to_share.to_csv("text_leveling_data_aligned_to_share.csv", index=False)
+	return generate_zip_file(["text_leveling_data_aligned.csv", "text_leveling_data_aligned_to_share.csv"])
