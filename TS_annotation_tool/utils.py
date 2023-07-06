@@ -2,6 +2,7 @@ from django.db import models
 from settings_annotation.config_languages import LANGUAGE_CHOICES
 from settings_annotation.config_rating import LIKERT_CHOICES, LIKERT_CHOICES_NEUTRAL, rating_aspects_dict, rating_aspects_neutral
 from settings_annotation.config_transformation import transformation_dict, transformation_list, tuple_list_choices_transformation, tuple_list_choices_subtransformation, tuple_list_transformation_level, list_choices_subtransformation
+from settings_annotation.config_error_analysis import error_analysis_dict, error_operation_list, tuple_list_choices_error_operation, tuple_list_choices_error_suboperation, tuple_list_error_operation_level, list_choices_error_suboperation
 
 rating_aspects = sorted(list(rating_aspects_dict.keys()))
 

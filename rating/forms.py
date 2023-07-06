@@ -1,7 +1,7 @@
 from django import forms
 
 import TS_annotation_tool.utils
-from .models import Rating, Transformation
+from .models import Rating, Transformation, Error_Operation
 from TS_annotation_tool.utils import LIKERT_CHOICES_NEUTRAL, LIKERT_CHOICES
 from django.utils import timezone
 
@@ -80,3 +80,34 @@ class RatingForm(forms.ModelForm):
         #     "transaction": "Choose one of the listed transactions which describe best the process during simplification.",
         #     "certainty": "How certain are you regarding your rating and alignment? 1 = uncertain, 5 = very certain"
         # }
+
+
+class ErrorForm(forms.ModelForm):
+    class Meta:
+        model = Error_Operation
+        fields = ['certainty', "comment",
+                  "error", "error_level", "sub_error",
+                  # "own_subtransformation",
+                  "simple_token", "complex_token", "insert_slot_start", "insert_at_beginning"]
+        # , "insert_slot_end"]
+        # , 'complex_tokens', 'simple_tokens', 'transaction', 'transaction_level',
+    #     widgets = {
+    #     'transaction': forms.CheckboxSelectMultiple(choices=list_transactions),
+    #     'transaction_level': forms.CheckboxSelectMultiple(choices=transaction_level)
+    # }
+
+    def __init__(self, *args, **kwargs):
+        super(ErrorForm, self).__init__(*args, **kwargs)
+        self.fields['comment'].required = False
+        # self.fields['certainty'].required = False
+        self.fields['complex_token'].required = False
+        self.fields['simple_token'].required = False
+        # self.fields['transformation'].required = True
+        self.fields['error_level'].required = True
+        self.fields['sub_error'].required = False
+        self.fields["insert_slot_start"].required = False
+        # self.fields["insert_slot_end"].required = False
+        self.fields["insert_at_beginning"].required = False
+
+        # self.fields['own_subtransformation'].required = False
+

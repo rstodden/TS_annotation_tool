@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 import alignment.models
 import data.models
-from .forms import RatingForm, TransformationForm
+from .forms import RatingForm, TransformationForm, ErrorForm
 from django.contrib.auth.decorators import login_required
 from TS_annotation_tool.utils import transformation_dict
+from TS_annotation_tool.utils import error_analysis_dict
 import datetime, json
 from django.core.serializers.json import DjangoJSONEncoder
 import difflib
@@ -22,6 +23,8 @@ def rate_pair(request, corpus_id, doc_pair_id, pair_id):
 			messages.add_message(request, messages.SUCCESS, 'Rating successfully edited/saved.')
 			if request.POST.get("transformation"):
 				return redirect('rating:select_transformation', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
+			elif request.POST.get("error_analysis"):
+				return redirect('rating:select_errors', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
 
 			elif request.POST.get("next"):
 				next_pair = alignmentpair_tmp.next(request.user)
@@ -209,6 +212,123 @@ def select_transformations(request, corpus_id, doc_pair_id, pair_id):
 														  "title": "Transformation Annotation - Text Simplification Annotation Tool"})
 
 
+
+
+@login_required
+def select_errors(request, corpus_id, doc_pair_id, pair_id):
+	corpus_tmp, doc_pair_tmp, alignmentpair_tmp = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id, sentence_id=None, pair_id=pair_id)
+	complex_elements = alignmentpair_tmp.complex_elements.all().order_by("id")
+	simple_elements = alignmentpair_tmp.simple_elements.all().order_by("id")
+	error_dict_obj = None
+	complex_token_selected = []
+	simple_token_selected = []
+	error_tmp_id = None
+	error_selected = None
+	error_level_selected = None
+	error_suberror_selected = None
+	error_slot_start = None
+	error_start_at_beginning = False
+	error_own_suberror_selected = None
+	error_information = None
+	type_form = "show"
+	if request.method == "POST":
+		form = ErrorForm(request.POST)
+		if request.POST.get("add"):
+			error_dict_obj = error_analysis_dict
+			type_form = "add"
+			error_information = get_edit_label(alignmentpair_tmp)
+			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
+		elif request.POST.get("edit"):
+			type_form = "edit"
+			error_information = get_edit_label(alignmentpair_tmp)
+			request.session["start"] = json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder)
+			error_tmp = alignmentpair_tmp.error_of_pair.get(id=request.POST.get("edit"), rater=request.user)
+			form = ErrorForm(instance=error_tmp)
+			error_dict_obj = error_analysis_dict
+			complex_token_selected = error_tmp.complex_token.all()
+			simple_token_selected = error_tmp.simple_token.all()
+			error_selected = error_tmp.error
+			error_level_selected = error_tmp.error_level
+			error_suberror_selected = error_tmp.sub_error
+			error_start_at_beginning = error_tmp.insert_at_beginning
+			error_slot_start = error_tmp.insert_slot_start
+			error_tmp_id = error_tmp.id
+		elif request.POST.get("delete"):
+			alignmentpair_tmp.delete_error(request.POST.get("delete"), request.user)
+			messages.add_message(request, messages.SUCCESS, 'Error operation successfully deleted.')
+			type_form = "show"
+			# return render(request, 'rating/transformation.html',
+			# 			  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
+		# elif request.POST.get("skip"):
+		# 	return redirect('rating:rate_pair', pair_id=alignmentpair_tmp.id)
+		# elif request.POST.get("reset"):
+		# 	return redirect('overview')
+		elif request.POST.get("save"):
+			if form.is_valid():
+				alignmentpair_tmp.save_error(form, request.user, request.session["start"])  # , own_subtransformation)
+				type_form = "show"
+				messages.add_message(request, messages.SUCCESS, 'Error Operation successfully saved.')
+			else:
+				messages.add_message(request, messages.ERROR, 'Something went wrong.')
+		elif request.POST.get("save-edit"):
+			if form.is_valid():
+				error_tmp = alignmentpair_tmp.error_of_pair.get(id=request.POST.get("save-edit"),
+																				  rater=request.user)
+				error_tmp.edit(form, request.user, request.session["start"])  # , own_subtransformation)
+				type_form = "show"
+				messages.add_message(request, messages.SUCCESS, 'Error Operation successfully edited.')
+			else:
+				messages.add_message(request, messages.ERROR, 'Something went wrong.')
+		elif request.POST.get("next"):
+			next_pair = alignmentpair_tmp.next(request.user)
+			if next_pair:
+				return redirect('rating:select_errors', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=next_pair.id)
+			else:
+				return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
+		elif request.POST.get("prev"):
+			prev_pair = alignmentpair_tmp.prev(request.user)
+			if prev_pair:
+				return redirect('rating:select_errors', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=prev_pair.id)
+			else:
+				return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
+		elif request.POST.get("rate"):
+			return redirect('rating:rate_pair', corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=alignmentpair_tmp.id)
+		elif request.POST.get("document_overview"):
+			return redirect('overview_per_doc', corpus_id=corpus_id, doc_pair_id=doc_pair_id)
+		else:
+			type_form = "show"
+			messages.add_message(request, messages.ERROR, 'Something went wrong.')
+	# return render(request, 'rating/transformation.html',
+			# 			  {'form': form, 'alignmentpair': alignmentpair_tmp, 'type': "show"})
+	else:
+		form = ErrorForm()
+	return render(request, 'rating/error_operation.html', {'form': form,
+														  'pair_id': alignmentpair_tmp.id,
+														  'simple_elements': simple_elements,
+														  "complex_elements": complex_elements,
+														  "doc_simple_url": doc_pair_tmp.simple_document.url,
+														  "doc_complex_url": doc_pair_tmp.complex_document.url,
+														  "doc_simple_access_date": doc_pair_tmp.simple_document.access_date,
+														  "doc_complex_access_date": doc_pair_tmp.complex_document.access_date,
+														  'type': type_form,
+														  "doc_pair_id": doc_pair_id,
+														  "corpus_id": corpus_id,
+														  "errors": alignmentpair_tmp.error_of_pair.all(),
+														  "error_dict": error_dict_obj,
+														  "complex_token_selected": complex_token_selected,
+														  "simple_token_selected": simple_token_selected,
+														  "error_selected": error_selected,
+														  "error_level_selected": error_level_selected,
+														  "error_suberror_selected": error_suberror_selected,
+														  # "transformation_own_subtransformation_selected": transformation_own_subtransformation_selected,
+														  "error_id": error_tmp_id,
+														  "error_slot_start": error_slot_start,
+														  "error_start_at_beginning": error_start_at_beginning,
+														  "error_information": error_information,
+														  "title": "Error Operation Annotation - Text Simplification Annotation Tool"})
+
+
+
 # def home(request):
 # 	return redirect('overview')
 
@@ -232,6 +352,19 @@ def rating(request, corpus_id, doc_pair_id):
 	first_alignment_pair = doc_pair_tmp.sentence_alignment_pair.filter(annotator=request.user).first()
 	if first_alignment_pair:
 		return redirect("rating:rate_pair", corpus_id=corpus_id, doc_pair_id=doc_pair_id, pair_id=first_alignment_pair.id)
+	else:
+		return render(request, 'rating/home.html', {"corpus_id": corpus_id, "doc_pair_id": doc_pair_tmp.id,
+													"title": "Annotation - Text Simplification Annotation Tool"
+													})
+
+@login_required
+def error_operations(request, corpus_id, doc_pair_id):
+	corpus_tmp, doc_pair_tmp, x = check_url_or_404(user=request.user, corpus_id=corpus_id, doc_pair_id=doc_pair_id,
+												   sentence_id=None, pair_id=None)
+	first_alignment_pair = doc_pair_tmp.sentence_alignment_pair.filter(annotator=request.user).first()
+	if first_alignment_pair:
+		return redirect("rating:select_errors", corpus_id=corpus_id, doc_pair_id=doc_pair_id,
+						pair_id=first_alignment_pair.id)
 	else:
 		return render(request, 'rating/home.html', {"corpus_id": corpus_id, "doc_pair_id": doc_pair_tmp.id,
 													"title": "Annotation - Text Simplification Annotation Tool"

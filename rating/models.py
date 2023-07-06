@@ -92,6 +92,75 @@ class Transformation(Annotation):
 			return self.transformation_level + ' - ' + self.transformation + ' (' + str(self.id) + ')'
 
 
+class Error_Operation(Annotation):
+	error = models.CharField(max_length=100, blank=True, choices=TS_annotation_tool.utils.tuple_list_choices_error_operation)
+	sub_error = models.CharField(max_length=100, blank=True, null=True, choices=TS_annotation_tool.utils.tuple_list_choices_error_suboperation)
+	# own_subtransformation = models.CharField(max_length=100, blank=True, null=True)
+	error_level = models.CharField(max_length=50, choices=TS_annotation_tool.utils.tuple_list_error_operation_level, blank=True, null=True)
+	simple_token = models.ManyToManyField("data.Token", related_name="simple_token_of_error")
+	complex_token = models.ManyToManyField("data.Token", related_name="complex_token_of_error")
+	insert_at_beginning = models.BooleanField(default=None, null=True)
+	insert_slot_start = models.ForeignKey("data.Token", related_name="insertion_slot_start_of_error",
+											   on_delete=models.SET_NULL, default=None, blank=True, null=True)
+	# insert_slot_end = models.ForeignKey("data.Token", related_name="insertion_slot_end", on_delete=models.SET_NULL,
+	# 										 default=None, blank=True)
+
+	def edit(self, form, rater, start_time):  # , own_subtransformation):
+		print(form.cleaned_data)
+		self.rater = rater
+		self.finished_at = datetime.datetime.now()
+		self.duration = self.duration + (self.finished_at - datetime.datetime.strptime(json.loads(start_time), "%Y-%m-%dT%H:%M:%S.%f"))
+		self.manually_checked = True
+		self.sub_error = form.cleaned_data["sub_error"]
+		# if self.sub_transformation == "other" and len(own_subtransformation) >= 1:
+		# 	self.own_subtransformation = own_subtransformation
+		self.error = form.cleaned_data["error"]
+		self.error_level = form.cleaned_data["error_level"]
+		self.comment = form.cleaned_data["comment"]
+		self.certainty = form.cleaned_data["certainty"]
+		if (form.cleaned_data["insert_at_beginning"] and form.cleaned_data["insert_slot_start"]) or (form.cleaned_data["insert_at_beginning"]):
+			self.insert_at_beginning = form.cleaned_data["insert_at_beginning"]
+			self.insert_slot_start = None
+		else:
+			self.insert_slot_start = form.cleaned_data["insert_slot_start"]
+			self.insert_at_beginning = None
+
+		# self.insert_slot_end = form.cleaned_data["insert_slot_end"]
+		self.save()
+		for token in form.cleaned_data["complex_token"]:
+			if token not in self.complex_token.all():
+				self.complex_token.add(token)
+		for token in form.cleaned_data["simple_token"]:
+			if token not in self.simple_token.all():
+				self.simple_token.add(token)
+		for token in self.complex_token.all():
+			if token not in form.cleaned_data["complex_token"]:
+				self.complex_token.remove(token)
+		for token in self.simple_token.all():
+			if token not in form.cleaned_data["simple_token"]:
+				self.simple_token.remove(token)
+		self.save()
+		return self
+
+	def __str__(self):
+		if self.sub_error:
+			subtrans = " - " + self.sub_error
+		else:
+			subtrans = ""
+		if self.simple_token.exists() and self.complex_token.exists():
+			return self.error_level + ' - ' + self.error + subtrans + ' (' + str(self.id) + '): ' + \
+				   ' '.join(self.complex_token.values_list("text", flat=True)) + ' \u2192 ' + \
+				   ' '.join(self.simple_token.values_list("text", flat=True))
+		elif self.simple_token.exists() and not self.complex_token.exists():
+			return self.error_level + ' - ' + self.error + subtrans + ' (' + str(self.id) + \
+				   '): \u002B ' + ' '.join(self.simple_token.values_list("text", flat=True))
+		if not self.simple_token.exists() and self.complex_token.exists():
+			return self.error_level + ' - ' + self.error + subtrans + ' (' + str(self.id) + \
+				   '): \u2212 ' + ' '.join(self.complex_token.values_list("text", flat=True))
+		else:
+			return self.error_level + ' - ' + self.error + ' (' + str(self.id) + ')'
+
+
 class Rating(Annotation):
 	rater = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 

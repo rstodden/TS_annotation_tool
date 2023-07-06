@@ -27,6 +27,7 @@
                                 <td class="doc">simple sentence</td>
                                 <td class="doc">Rating</td>
                                 <td class="doc">Transformation</td>
+                                <td class="doc">Error Annotation</td>
                                 <td class="doc">Alignment</td>
 
                             </tr>
@@ -70,6 +71,17 @@
                                             </a>
                                         {% else %}
                                             <a href="{% url 'rating:select_transformation' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                                <i class="fas fa-plus-circle"></i> add
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="doc">
+                                        {% if pair.error_of_pair.all %}
+                                            <a href="{% url 'rating:select_errors' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
+                                                <i class="fas fa-edit"></i> edit
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'rating:select_errors' corpus_id=corpus_id doc_pair_id=doc_pair_id pair_id=pair.id %}" class="btn btn-default">
                                                 <i class="fas fa-plus-circle"></i> add
                                             </a>
                                         {% endif %}
