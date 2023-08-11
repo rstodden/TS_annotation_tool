@@ -241,7 +241,7 @@ class Document(models.Model):
 						# we treat each line as one data point (or text) and do not split it into sentences
 						# to facilitate using a different sentence splitter than spacy
 						text_per_line = nlp(text)
-						number_sentences = 1
+						number_sentences = len(text_per_line.sents)  # 1
 						# in add_sentences we will usually iterate over the sentences of the documents.
 						# however, in this case the document is pre-split into sentences and, hence, *text* and *text per line*
 						# (which is the input of add_sentences) are only one sentence.
@@ -314,8 +314,10 @@ class DocumentPair(models.Model):
 		complex_sentences = complex_doc.plain_data.split("\n")
 		# print(simple_sentences, complex_sentences)
 		for j, (simple_sent, complex_sent) in enumerate(zip(simple_sentences, complex_sentences)):
-			simple_elements_ids = simple_doc.add_sentences(nlp(simple_sent).sents, -1, language_level_simple, "", pre_id=j)
-			complex_elements_ids = complex_doc.add_sentences(nlp(complex_sent).sents, -1, language_level_complex, "", pre_id=j)
+			simp_sent_nlp = list(nlp(simple_sent).sents)
+			complex_sent_nlp = list(nlp(complex_sent).sents)
+			simple_elements_ids = simple_doc.add_sentences(simp_sent_nlp, -1, language_level_simple, "", pre_id=j, number_sentences=len(simp_sent_nlp))
+			complex_elements_ids = complex_doc.add_sentences(complex_sent_nlp, -1, language_level_complex, "", pre_id=j, number_sentences=len(complex_sent_nlp))
 			simple_elements = Sentence.objects.filter(id__in=simple_elements_ids)
 			complex_elements = Sentence.objects.filter(id__in=complex_elements_ids)
 			if simple_sent != complex_sent:
