@@ -26,6 +26,7 @@
                         <th class="corpus">Aligned</th>
                         <th class="corpus">Rating</th>
                         <th class="corpus">Transformation</th>
+                        <th class="corpus">Error Operation</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,6 +56,7 @@
                             {% endif %}
                             <td class="corpus">{{ documents_dict|get_dict_value:doc_pair.id|get_dict_value:'rating'  }} %</td>
                             <td class="corpus">{{ documents_dict|get_dict_value:doc_pair.id|get_dict_value:'transformations' }} %</td>
+                            <td class="corpus">{{ documents_dict|get_dict_value:doc_pair.id|get_dict_value:'error_operations' }} %</td>
                         </tr>
                     {% endfor %}
                 </tbody>

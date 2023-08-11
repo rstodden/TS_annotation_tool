@@ -15,6 +15,7 @@ import numpy
 import requests
 import re
 from operator import itemgetter
+import sys, subprocess, os
 
 
 def popover_html(content):
@@ -404,13 +405,15 @@ def get_spacy_model(language):
 	# # stanza.download(language)
 	# snlp = stanza.Pipeline(lang=language)
 	# nlp = StanzaLanguage(snlp)
-	from spacy.cli import download
+	print("spacy model")
+	# from spacy.cli import download
 	version = spacy.about.__version__
 	r = requests.get(spacy.about.__compatibility__)
 	comp_table = r.json()
 	comp = comp_table["spacy"]
 	nlp = None
-	for model_ending in ["core_news_lg", "core_web_lg", "dep_news_trf", "core_news_trf",   "core_news_sm", "xx_ent_wiki_sm", "xx_sent_ud_sm"]:
+	# for model_ending in ["core_news_lg", "core_web_lg", "dep_news_trf", "core_news_trf",   "core_news_sm", "xx_ent_wiki_sm", "xx_sent_ud_sm"]:
+	for model_ending in ["core_web_sm", "core_news_sm", "core_news_lg", "core_web_lg", "xx_ent_wiki_sm", "xx_sent_ud_sm"]:  # , "dep_news_trf", "core_news_trf",   "core_news_sm", "xx_ent_wiki_sm", "xx_sent_ud_sm"]:
 		if model_ending.startswith("xx"):
 			model_name = model_ending
 		else:
@@ -429,6 +432,10 @@ def check_spacy_version_and_model(version, comp, model_name):
 	try:
 		return spacy.load(model_name)
 	except OSError:
-		from spacy.cli import download
-		download(model_name)
+		# from spacy.cli import download
+		# download(model_name)
+		# from spacy.cli import download
+		# spacy.cli.download(model_name)
+		# return spacy.load(model_name)
+		# subprocess.check_call(["python", "-m", "spacy", "download", model_name])
 		return spacy.load(model_name)

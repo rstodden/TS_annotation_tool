@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
-from rating.models import Rating, Transformation
+from rating.models import Rating, Transformation, Error_Operation
 # from data.models import Token, Sentence, DocumentPair
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -14,6 +14,7 @@ class Pair(models.Model):
 	annotator = models.ManyToManyField(User, related_name="current_annotator", blank=True)
 	rating = models.ManyToManyField("rating.Rating", blank=True)
 	transformation_of_pair = models.ManyToManyField("rating.Transformation", blank=True)
+	error_of_pair = models.ManyToManyField("rating.Error_Operation", blank=True)
 	# manually_added = models.BooleanField(default=False, blank=True)
 	pair_identifier = models.IntegerField(default=1)
 	created_at = models.DateTimeField(blank=True, null=True)
@@ -100,6 +101,36 @@ class Pair(models.Model):
 			transformation_tmp.simple_token.add(token)
 		transformation_tmp.save()
 		self.transformation_of_pair.add(transformation_tmp)
+		self.save()
+		return self
+
+	def delete_error(self, error_operation_id, rater):
+		error_operation_tmp = Error_Operation.objects.get(id=error_operation_id, rater=rater)
+		error_operation_tmp.delete()
+		return self
+
+	def save_error(self, form, rater, start_time):  # , own_subtransformation):
+		error_operation_tmp = form.save(commit=False)
+		error_operation_tmp.rater = rater
+		error_operation_tmp.created_at = datetime.datetime.strptime(json.loads(start_time), "%Y-%m-%dT%H:%M:%S.%f")
+		error_operation_tmp.finished_at = datetime.datetime.now()
+		error_operation_tmp.duration = error_operation_tmp.finished_at - error_operation_tmp.created_at
+		self.manually_checked = True
+		# if transformation_tmp.sub_transformation == "other" and len(own_subtransformation) >= 1:
+		# 	transformation_tmp.own_subtransformation = own_subtransformation[0]
+		error_operation_tmp.save()
+		if (form.cleaned_data["insert_at_beginning"] and form.cleaned_data["insert_slot_start"]) or (form.cleaned_data["insert_at_beginning"]):
+			self.insert_at_beginning = form.cleaned_data["insert_at_beginning"]
+			self.insert_slot_start = None
+		else:
+			self.insert_slot_start = form.cleaned_data["insert_slot_start"]
+			self.insert_at_beginning = None
+		for token in form.cleaned_data["complex_token"]:
+			error_operation_tmp.complex_token.add(token)
+		for token in form.cleaned_data["simple_token"]:
+			error_operation_tmp.simple_token.add(token)
+		error_operation_tmp.save()
+		self.error_of_pair.add(error_operation_tmp)
 		self.save()
 		return self
 

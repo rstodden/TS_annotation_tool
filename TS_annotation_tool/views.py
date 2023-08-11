@@ -33,6 +33,7 @@ def overview_per_corpus(request, corpus_id):
 																		origin_annotator=request.user)
 			rating = 0
 			transformations = 0
+			error_operations = 0
 			if alignments_tmp.exists():
 				aligned = True
 				num_alignments = len(alignments_tmp.all())
@@ -41,12 +42,15 @@ def overview_per_corpus(request, corpus_id):
 						rating += 1
 					if pair.transformation_of_pair.exists():
 						transformations += 1
+					if pair.error_of_pair.exists():
+						error_operations += 1
 				transformations = round((transformations / num_alignments) * 100, 2)
 				rating = round((rating / num_alignments) * 100, 2)
+				error_operations = round((error_operations / num_alignments) * 100,2)
 			else:
 				aligned = False
 			documents_dict[doc_pair.id] = {"aligned": aligned, "rating": rating,
-										   "transformations": transformations}
+										   "transformations": transformations, "error_operations": error_operations}
 	else:
 		page_obj = None
 	return render(request, 'overview_per_corpus.html', {"corpus_name": corpus.name, "corpus_id": corpus_id,
