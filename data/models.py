@@ -321,13 +321,16 @@ class DocumentPair(models.Model):
 			simple_elements = Sentence.objects.filter(id__in=simple_elements_ids)
 			complex_elements = Sentence.objects.filter(id__in=complex_elements_ids)
 			if simple_sent != complex_sent:
-				sentence_pair_tmp = Pair()
-				# user, created = User.objects.get_or_create(username="tool")
-				# todo change name to add aligned setence pairs here
-				sentence_pair_tmp.save_sentence_alignment_from_form(simple_elements, complex_elements, annotators, self,
-																	json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder),
-																	manually_aligned=manually_aligned)
-				sentence_pair_tmp.save()
+				# add one pair per annotator. otherwise annotators would share linguistic annotations
+				# (e.g., ratings/transformations and error annotations)
+				# todo: annotation on same pair can be useful for collaboratively annotation. The default is additional annotation
+				for annotator in annotators:
+					sentence_pair_tmp = Pair()
+					# user, created = User.objects.get_or_create(username="tool")
+					sentence_pair_tmp.save_sentence_alignment_from_form(simple_elements, complex_elements, [annotator], self,
+																		json.dumps(datetime.datetime.now(), cls=DjangoJSONEncoder),
+																		manually_aligned=manually_aligned)
+					sentence_pair_tmp.save()
 			# else:
 			# 	print(simple_sent, "!!!", complex_sent)
 		return self
