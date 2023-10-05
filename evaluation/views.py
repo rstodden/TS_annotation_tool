@@ -29,7 +29,7 @@ import jellyfish
 def export_rating():  #output_path
 	# using same export format as proposed in Alva-Manchego etal. (2020) https://www.aclweb.org/anthology/2020.acl-main.424.pdf
 	result_frame = pd.DataFrame(
-		columns=["original", "simplification", "original_id", "simplification_id", "aspect", "rater", "rating"])
+		columns=["original", "simplification", "original_id", "simplification_id", "aspect", "rater", "rating", "certainty", "comment"])
 	i = 0
 	non_aspect_fields = ['pair', 'id', 'certainty', 'comment', 'created_at', 'updated_at', 'finished_at', 'duration',
 						 'rater']
@@ -44,7 +44,7 @@ def export_rating():  #output_path
 			# 	continue
 			worker_id = pair_rating.rater.id
 			for field in aspects:
-				result_frame.loc[i] = [original, simplification, original_sentence_id, simplification_sentence_id, field.name, worker_id, field.value_from_object(pair_rating)]
+				result_frame.loc[i] = [original, simplification, original_sentence_id, simplification_sentence_id, field.name, worker_id, field.value_from_object(pair_rating), pair_rating.certainty, pair_rating.comment]
 				i += 1
 			i += 1
 		i += 1
@@ -78,8 +78,8 @@ def get_transformation_no_change(simple_sentences, complex_sentences, doc_id):
 	simple_sentences_content = [sent.original_content for sent in simple_sentences]
 	for complex_sentence in complex_sentences:
 		if complex_sentence.original_content in simple_sentences_content:
-			original = complex_sentence.original_content
-			simplification = complex_sentence.original_content
+			original = get_original_sent(complex_sentence, [])[0]
+			simplification = get_original_sent(complex_sentence, [])[0]
 			list_no_changes.append([original, simplification, complex_sentence.id, "",
 								   transformation_level,
 								   transformation,
@@ -123,9 +123,9 @@ def get_transformation_no_change(simple_sentences, complex_sentences, doc_id):
 
 def export_transformation():
 	columns = get_row_values(doc_pair=None, alignment_pair=None, rater_id=None, get_columns=True)
-	columns = [columns + ["transformation_level", "transformation", "subtransformation", "old text", "new_text"]]
+	columns = [columns + ["transformation_level", "transformation", "subtransformation", "old text", "new_text", "certainty", "comment"]]
 	result_list = list()
-	for pair in alignment.models.Pair.objects.all():  # filter(~Q(document_pair__corpus_id=10)):
+	for pair in alignment.models.Pair.objects.filter():
 		values = get_row_values(pair.document_pair, pair, "")
 		if not values:
 			continue
@@ -140,7 +140,37 @@ def export_transformation():
 			worker_id = pair_transformations.rater.id
 			old_text = ' '.join(pair_transformations.complex_token.values_list("text", flat=True))
 			new_text = ' '.join(pair_transformations.simple_token.values_list("text", flat=True))
-			new_values = values[:-2] + [worker_id, values[-1]] + [pair_transformations.transformation_level, pair_transformations.transformation, pair_transformations.sub_transformation, old_text, new_text]
+			new_values = values[:-2] + [worker_id, values[-1]] + [pair_transformations.transformation_level, pair_transformations.transformation, pair_transformations.sub_transformation, old_text, new_text, pair_transformations.certainty, pair_transformations.comment]
+			result_list.append(new_values)
+	result_frame = pd.DataFrame(result_list, columns=columns)
+	return result_frame
+
+
+def export_error_anno():
+	columns = get_row_values(doc_pair=None, alignment_pair=None, rater_id=None, get_columns=True)
+	columns = [columns + ["error_level", "error_name", "error_subname", "old text", "new_text", "certainty", "comment"]]
+	result_list = list()
+	for pair in alignment.models.Pair.objects.filter():
+		values = get_row_values(pair.document_pair, pair, "")
+		if not values:
+			continue
+		original, original_sentence_id, simplification, simplification_sentence_id = values[0], values[2], values[
+			1], values[3]
+		if not simplification or not original:
+			continue
+		# if jellyfish.levenshtein_distance(original, simplification) <= 1:
+		# 	continue
+		for pair_error_anno in pair.error_of_pair.all():
+			# if pair_error_anno.transformation == "no_operation" and pair_error_anno.transformation_level == "sentence":
+			# 	continue
+			worker_id = pair_error_anno.rater.id
+			old_text = ' '.join(pair_error_anno.complex_token.values_list("text", flat=True))
+			new_text = ' '.join(pair_error_anno.simple_token.values_list("text", flat=True))
+			new_values = values[:-2] + [worker_id, values[-1]] + [pair_error_anno.error_level,
+																  pair_error_anno.error,
+																  pair_error_anno.sub_error, old_text,
+																  new_text, pair_error_anno.certainty,
+																  pair_error_anno.comment]
 			result_list.append(new_values)
 	result_frame = pd.DataFrame(result_list, columns=columns)
 	return result_frame
@@ -268,6 +298,14 @@ def export_transformations_view(request):
 	output_frame = export_transformation()
 	response = HttpResponse(content_type='text/csv')
 	response['Content-Disposition'] = 'attachment; filename="human_ratings_ts.csv"'
+	output_frame.to_csv(path_or_buf=response, index=False)
+	return response
+
+@user_passes_test(lambda u: u.is_superuser)
+def export_error_anno_view(request):
+	output_frame = export_error_anno()
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="human_error_anno_ts.csv"'
 	output_frame.to_csv(path_or_buf=response, index=False)
 	return response
 
@@ -902,10 +940,13 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 						aligned_simple_sents = []
 						aligned_complex_sents_of_simple = []
 					simple_sent_id = str(docpair.id) + "-0-" + str(sent_simple.paragraph_nr) + "-" + str(sent_simple.sentence_nr)
-					if sent_simple.original_content_repaired and len(sent_simple.original_content_repaired) >= 1:
-						sent_simple_content = sent_simple.original_content_repaired
-					else:
-						sent_simple_content = sent_simple.original_content
+					# if sent_simple.original_content_repaired and len(sent_simple.original_content_repaired) >= 1:
+					# 	sent_simple_content = sent_simple.original_content_repaired
+					# else:
+					# 	sent_simple_content = sent_simple.original_content
+					sent_simple_content = get_original_sent(sent_simple, [])[0]
+					if sent_simple_content == "" or not sent_simple_content:
+						continue
 					for par_nr_complex in par_nrs_complex:
 						complex_sentences = complex_doc.sentences.filter(paragraph_nr=par_nr_complex).order_by("sentence_nr", "id")
 						for sent_complex in complex_sentences:
@@ -918,10 +959,11 @@ def get_alignment_for_crf(real_user=True, iaa=False, iaa_rating=False):
 								aligned_complex_sents = []
 								aligned_simple_sents_of_complex = []
 							complex_sent_id = str(docpair.id) + "-1-" + str(sent_complex.paragraph_nr) + "-" + str(sent_complex.sentence_nr)
-							if sent_complex.original_content_repaired and len(sent_complex.original_content_repaired) >= 1:
-								sent_complex_content = sent_complex.original_content_repaired
-							else:
-								sent_complex_content = sent_complex.original_content
+							# if sent_complex.original_content_repaired and len(sent_complex.original_content_repaired) >= 1:
+							# 	sent_complex_content = sent_complex.original_content_repaired
+							# else:
+							# 	sent_complex_content = sent_complex.original_content
+							sent_complex_content = get_original_sent(sent_complex, [])[0]
 							if sent_complex.original_content == sent_simple.original_content:
 								if real_user:
 									continue
@@ -1159,12 +1201,12 @@ def export(request):
 def get_ids(doc_pair, sent, level):
 	if len(sent) == 1:
 		sent_id = str(doc_pair.id) + "-"+level+"-" + str(sent[0].paragraph_nr) + "-" + str(sent[0].sentence_nr)
-		text = sent[0].original_content
+		text = get_original_sent(sent[0], [])[0]
 	else:
 		sent_id_list, text_list = list(), list()
 		for s in sent:
 			sent_id_list.append(str(doc_pair.id) + "-"+level+"-" + str(s.paragraph_nr) + "-" + str(s.sentence_nr))
-			text_list.append(s.original_content)
+			text_list.append(get_original_sent(s, [])[0])
 		sent_id = "|".join(sent_id_list)
 		text = " ".join(text_list)
 	return sent_id, text
@@ -1187,8 +1229,10 @@ def full_aligned_document_export(request):
 				complex_elements = doc_pair.sentence_alignment_pair.filter(annotator=rater).values_list("complex_elements", flat=True)
 				simple_elements_added = list()
 				complex_elements_added = list()
-				for complex_sent in complex_doc.sentences.all().order_by("sentence_nr", "id"):
-					original = complex_sent.original_content
+				for complex_sent in complex_doc.sentences.all().order_by("paragraph_nr", "sentence_nr", "id"):
+					original = get_original_sent(complex_sent, [])[0]
+					if len(original.strip()) <= 1:
+						continue
 					complex_sent_id = str(doc_pair.id) + "-1-" + str(complex_sent.paragraph_nr) + "-" + str(complex_sent.sentence_nr)
 					if complex_sent.original_content in simple_doc.sentences.values_list("original_content",flat=True):
 						alignment_type = "identical"
@@ -1198,6 +1242,10 @@ def full_aligned_document_export(request):
 					elif complex_sent.id in complex_elements and complex_sent not in complex_elements_added:
 						alignment_type = "aligned"
 						alignment_pair = complex_sent.complex_element.get(annotator=rater)
+						complex_sent_id, original = get_ids(doc_pair, alignment_pair.complex_elements.all().order_by("paragraph_nr", "sentence_nr", "id"), "1")
+						simple_sent_id, simplification = get_ids(doc_pair, alignment_pair.simple_elements.all().order_by("paragraph_nr", "sentence_nr", "id"), "0")
+						if len(original.strip()) <= 1 or len(simplification.strip()) <= 1:
+							continue
 						complex_sent_id, original = get_ids(doc_pair, alignment_pair.complex_elements.all(), "1")
 						simple_sent_id, simplification = get_ids(doc_pair, alignment_pair.simple_elements.all(), "0")
 						simple_elements_added.extend(alignment_pair.simple_elements.all())
@@ -1209,12 +1257,14 @@ def full_aligned_document_export(request):
 					values = get_row_values(doc_pair, None, rater, get_columns=False, domain=domain, corpus_name=name, license_name=license_name, author_name=author_name, document_pair_id=document_pair_id, complex_doc=complex_doc, simple_doc=simple_doc, complex_level=complex_level, complex_url=complex_url, complex_title=complex_title, simple_level=simple_level, simple_url=simple_url, simple_title=simple_title, access_date=simple_access_date, alignment_type="full_doc")
 					if values:
 						output_list.append([original, simplification, complex_sent_id, simple_sent_id] + values[4:-1] + [alignment_type])
-				for simple_sent in simple_doc.sentences.all().order_by("sentence_nr", "id"):
+				for simple_sent in simple_doc.sentences.all().order_by("paragraph_nr", "sentence_nr", "id"):
 					# simple_sent = data.models.Sentence.objects.get(id=simple_sent)
 					if simple_sent not in simple_elements_added:
 						alignment_type = "addition"
 						simple_sent_id = str(doc_pair.id) + "-0-" + str(simple_sent.paragraph_nr) + "-" + str(simple_sent.sentence_nr)
-						simplification = simple_sent.original_content
+						simplification = get_original_sent(simple_sent, [])[0]
+						if len(simplification.strip()) <= 1:
+							continue
 						complex_sent_id, original = str(doc_pair.id) + "-1-x-x", ""
 						values = get_row_values(doc_pair, None, rater, get_columns=False, domain=domain, corpus_name=name, license_name=license_name, author_name=author_name, document_pair_id=document_pair_id, complex_doc=complex_doc, simple_doc=simple_doc, complex_level=complex_level, complex_url=complex_url, complex_title=complex_title, simple_level=simple_level, simple_url=simple_url, simple_title=simple_title, access_date=simple_access_date, alignment_type="full_doc")
 						if values:
@@ -1476,20 +1526,31 @@ def aligned_document_sentences_export(request):
 			allowed_number_original_sentences_share = len(complex_sentences)
 		for i, simple_sent in enumerate(simple_sentences):
 			if i < allowed_number_simple_sentences_share:
-				simple_sentences_output_to_share = get_original_sent(simple_sent, simple_sentences_output_to_share)
-			simple_sentences_output = get_original_sent(simple_sent, simple_sentences_output)
+				simple_sentence_clean = get_original_sent(simple_sent, [])[0].strip()
+				if len(simple_sentence_clean) >= 1:
+					simple_sentences_output_to_share.append(simple_sentence_clean)
+			simple_sentence_clean = get_original_sent(simple_sent, [])[0].strip()
+			if len(simple_sentence_clean) >= 1:
+				simple_sentences_output.append(simple_sentence_clean)
 		for j, complex_sent in enumerate(complex_sentences):
 			if j < allowed_number_original_sentences_share:
-				complex_sentences_output_to_share = get_original_sent(complex_sent, complex_sentences_output_to_share)
-			complex_sentences_output = get_original_sent(complex_sent, complex_sentences_output)
-		output.append([" ".join(complex_sentences_output), " ".join(simple_sentences_output),
-					   str(doc_pair.id)+"-1", str(doc_pair.id)+"-0", domain, name, simple_url, complex_url, simple_level, complex_level,
+				complex_sentence_clean = get_original_sent(complex_sent, [])[0].strip()
+				if len(complex_sentence_clean) >= 1:
+					complex_sentences_output_to_share.append(complex_sentence_clean)
+			complex_sentence_clean = get_original_sent(complex_sent, [])[0].strip()
+			if len(complex_sentence_clean) >= 1:
+				complex_sentences_output.append(complex_sentence_clean)
+		output.append(["|||".join(complex_sentences_output), "|||".join(simple_sentences_output), str(doc_pair.id),
+					   str(doc_pair.id) + "-1", str(doc_pair.id) + "-0", domain, name, simple_url, complex_url,
+					   simple_level, complex_level,
 					   "", "", "", "", "", "", "", simple_title, complex_title, license_name, complex_access_data])
 		if allowed_number_original_sentences_share > 0 and allowed_number_simple_sentences_share > 0:
-			output_to_share.append([" ".join(complex_sentences_output_to_share), " ".join(simple_sentences_output_to_share),
-						   str(doc_pair.id) + "-1", str(doc_pair.id) + "-0", domain, name, simple_url, complex_url,
-						   simple_level, complex_level,
-						   "", "", "", "", "", "", "", simple_title, complex_title, license_name, complex_access_data])
+			output_to_share.append(
+				["|||".join(complex_sentences_output_to_share), "|||".join(simple_sentences_output_to_share),
+				 str(doc_pair.id), str(doc_pair.id) + "-1", str(doc_pair.id) + "-0", domain, name, simple_url,
+				 complex_url,
+				 simple_level, complex_level,
+				 "", "", "", "", "", "", "", simple_title, complex_title, license_name, complex_access_data])
 	output_df = pd.DataFrame(output, columns=columns)
 	output_df.to_csv("doc_aligned_data.csv", index=False)
 	output_df_to_share = pd.DataFrame(output_to_share, columns=columns)
@@ -1526,20 +1587,19 @@ def export_text_leveling_data(request):
 			allowed_number_simple_sentences_share = len(simple_sentences)
 			allowed_number_original_sentences_share = len(complex_sentences)
 		for i, simple_sent in enumerate(simple_sentences):
-			if simple_sent.original_content_repaired and len(simple_sent.original_content_repaired) >= 1:
-				text = simple_sent.original_content_repaired.strip()
-			else:
-				text = simple_sent.original_content.strip()
+			text = get_original_sent(simple_sent, [])[0]
 			if i < allowed_number_simple_sentences_share:
-				output_to_share.append([str(document_pair_id)+"-0", simple_sent.paragraph_nr, name, domain, license_name,
-									   simple_access_date, text, simple_level, str(document_pair_id)+"-0-"+str(simple_sent.paragraph_nr)+"-"+str(simple_sent.sentence_nr)])
-			output.append([str(document_pair_id)+"-0", simple_sent.paragraph_nr, name, domain, license_name,
-									   simple_access_date, text, simple_level, str(document_pair_id)+"-0-"+str(simple_sent.paragraph_nr)+"-"+str(simple_sent.sentence_nr)])
+				output_to_share.append(
+					[str(document_pair_id) + "-0", simple_sent.paragraph_nr, name, domain, license_name,
+					 simple_access_date, text, simple_level,
+					 str(document_pair_id) + "-0-" + str(simple_sent.paragraph_nr) + "-" + str(
+						 simple_sent.sentence_nr)])
+			output.append([str(document_pair_id) + "-0", simple_sent.paragraph_nr, name, domain, license_name,
+						   simple_access_date, text, simple_level,
+						   str(document_pair_id) + "-0-" + str(simple_sent.paragraph_nr) + "-" + str(
+							   simple_sent.sentence_nr)])
 		for i, complex_sent in enumerate(complex_sentences):
-			if complex_sent.original_content_repaired and len(complex_sent.original_content_repaired) >= 1:
-				text = complex_sent.original_content_repaired.strip()
-			else:
-				text = complex_sent.original_content.strip()
+			text = get_original_sent(complex_sent, [])[0]
 			if i < allowed_number_original_sentences_share:
 				output_to_share.append([str(document_pair_id)+"-0", complex_sent.paragraph_nr, name, domain, license_name,
 									   simple_access_date, text, simple_level, str(document_pair_id)+"-0-"+str(complex_sent.paragraph_nr)+"-"+str(complex_sent.sentence_nr)])

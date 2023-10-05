@@ -6,6 +6,7 @@ urlpatterns = [
     path('export_alignment', views.export_alignment_view, name="export_alignments"),
     path('export_ratings', views.export_ratings_view, name="export_ratings"),
     path('export_transformations', views.export_transformations_view, name="export_transformations"),
+    path('export_error_annotation', views.export_error_anno_view, name="export_error_anno"),
     path('export_iaa_alignment', views.export_iaa_alignment, name="export_iaa_alignment"),
     path('export_iaa_transformation', views.export_iaa_transformation, name="export_iaa_transformation"),
     path('export_iaa_rating', views.export_iaa_rating, name="export_iaa_rating"),

@@ -23,6 +23,10 @@
                         Export transformations per alignment pair, label each token with a transformation.  Caution: This might take a while.'<br>
                         <a class="btn btn-default" href="{% url 'evaluation:export_transformations_as_iob' %}">Export Transformations in IOB Format</a>
                     </li>
+                    <li class="eval-li">
+                        Export error annotation per alignment pair.  Caution: This might take a while.<br>
+                        <a class="btn btn-default" href="{% url 'evaluation:export_error_anno' %}">Export Error Annotation</a>
+                    </li>
                     <li  class="eval-li">
                         Export alignment pairs. Specify the download option on the next page.  Caution: This might take a while.<br>
                         <a class="btn btn-default" href="{% url 'evaluation:export_alignments' %}">Export Alignment</a>
